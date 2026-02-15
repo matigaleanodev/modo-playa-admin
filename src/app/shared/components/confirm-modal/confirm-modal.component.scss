@@ -1,0 +1,48 @@
+:host {
+  display: block;
+}
+
+.modal-header ion-toolbar {
+  --background: var(--ion-color-light);
+  --border-width: 0;
+  padding-top: 8px;
+}
+
+.modal-content {
+  text-align: center;
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.modal-icon {
+  font-size: 48px;
+  color: var(--ion-color-warning);
+}
+
+.modal-text {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--ion-color-dark);
+  max-width: 320px;
+}
+
+.modal-footer {
+  padding-bottom: 20px;
+}
+
+.footer-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+ion-button {
+  --border-radius: 12px;
+}
