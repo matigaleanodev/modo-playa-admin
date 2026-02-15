@@ -9,7 +9,10 @@
         "@ionic/angular-toolkit:page": {
           "styleext": "scss",
           "standalone": true
-        }
+        },
+        "@schematics/angular:service": { "type": "service" },
+        "@schematics/angular:component": { "type": "component" },
+        "@schematics/angular:directive": { "type": "directive" }
       },
       "root": "",
       "sourceRoot": "src",
@@ -23,9 +26,7 @@
               "browser": ""
             },
             "index": "src/index.html",
-            "polyfills": [
-              "src/polyfills.ts"
-            ],
+            "polyfills": ["src/polyfills.ts"],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
@@ -129,7 +130,8 @@
     }
   },
   "cli": {
-    "schematicCollections": ["@ionic/angular-toolkit"]
+    "schematicCollections": ["@ionic/angular-toolkit"],
+    "analytics": false
   },
   "schematics": {
     "@ionic/angular-toolkit:component": {
