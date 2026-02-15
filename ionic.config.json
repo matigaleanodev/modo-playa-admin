@@ -1,0 +1,7 @@
+{
+  "name": "modo-playa-admin",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
