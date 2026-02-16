@@ -1,7 +1,7 @@
+import { ApiService } from '@core/api/api.service';
+import { ApiListResponse } from '@core/models/api-response.model';
+import { BaseEntity } from '@core/models/entity.model';
 import { Observable } from 'rxjs';
-import { ApiService } from '../api/api.service';
-import { BaseEntity } from '../models/entity.model';
-import { ApiListResponse } from '../models/api-response.model';
 
 export abstract class CrudService<T extends BaseEntity> extends ApiService {
   constructor(ruta: string) {
@@ -12,16 +12,16 @@ export abstract class CrudService<T extends BaseEntity> extends ApiService {
     return this._http.post<T>(this._path(), data);
   }
 
-  update(data: Partial<T>): Observable<T> {
-    return this._http.put<T>(this._path(), data);
+  update(id: string, data: Partial<T>): Observable<T> {
+    return this._http.put<T>(this._path(id), data);
   }
 
-  delete(data: Partial<T>): Observable<T> {
-    return this._http.delete<T>(this._path(data.id));
+  delete(id: string): Observable<void> {
+    return this._http.delete<void>(this._path(id));
   }
 
-  findOne(data: Partial<T>): Observable<T> {
-    return this._http.get<T>(this._path(data.id));
+  findOne(id: string): Observable<T> {
+    return this._http.get<T>(this._path(id));
   }
 
   findAll(): Observable<ApiListResponse<T[]>> {

@@ -13,6 +13,7 @@ export class DialogService {
     text: string;
     confirmLabel?: string;
     color?: 'primary' | 'danger' | 'warning';
+    showIcon?: boolean;
   }): Promise<boolean> {
     const modal = await this.modalController.create({
       component: ConfirmModalComponent,
@@ -21,6 +22,7 @@ export class DialogService {
         text: options.text,
         buttonLabel: options.confirmLabel ?? 'Confirmar',
         color: options.color ?? 'primary',
+        showicon: options.showIcon,
       },
       breakpoints: [0, 0.4],
       initialBreakpoint: 0.4,

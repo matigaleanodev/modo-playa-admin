@@ -11,4 +11,6 @@ export abstract class ResourceService<T extends BaseEntity> {
   newElement() {}
 
   editElement(dat: T) {}
+
+  delete(data: T) {}
 }

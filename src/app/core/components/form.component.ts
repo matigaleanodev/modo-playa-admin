@@ -11,13 +11,14 @@ import { Validation } from '@core/models/validations.model';
 import { ResourceService } from '@core/resource/resource.service';
 
 export abstract class BaseForm<T extends BaseEntity> {
-  abstract data: InputSignal<T>;
+  abstract initialEntity: InputSignal<T>;
 
   abstract _service: ResourceService<T>;
 
   abstract readonly form: FormGroup;
 
   onSubmit(ev?: Event): void {
+    ev?.preventDefault();
     if (this.form.valid) {
       this.guardar();
     } else {
