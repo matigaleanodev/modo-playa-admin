@@ -1,18 +1,21 @@
 import { Injectable, inject } from '@angular/core';
+import { LoadingRef } from '@core/models/loading-ref.model';
 import { LoadingController } from '@ionic/angular/standalone';
 
 @Injectable({ providedIn: 'root' })
 export class LoadingService {
-  private readonly _loadingCtrl = inject(LoadingController);
+  private readonly controller = inject(LoadingController);
 
-  async show(message = 'xCargando') {
-    const loading = await this._loadingCtrl.create({
+  async show(message = 'Cargando'): Promise<LoadingRef> {
+    const loading = await this.controller.create({
       message,
       spinner: 'crescent',
     });
 
     await loading.present();
 
-    return loading;
+    return async () => {
+      await loading.dismiss();
+    };
   }
 }

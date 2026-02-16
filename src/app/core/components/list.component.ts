@@ -1,24 +1,28 @@
-import { InputSignal } from '@angular/core';
+import { inject, InputSignal, linkedSignal } from '@angular/core';
 import { BaseEntity } from '@core/models/entity.model';
 import { ResourceService } from '@core/resource/resource.service';
+import { DialogService } from '@shared/services/dialog/dialog.service';
 
 export abstract class BaseList<T extends BaseEntity> {
-  abstract readonly data: InputSignal<T[]>;
+  abstract readonly initialList: InputSignal<T[]>;
+
+  readonly entities = linkedSignal<T[]>(() => this.initialList());
 
   protected abstract _service: ResourceService<T>;
+  private readonly _dialog = inject(DialogService);
 
-  eliminarElemento(el: T, descripcion: string) {
-    //   const call = this._service.confirmarEliminar(el, descripcion);
-    //   if (call) {
-    //     call.subscribe({
-    //       next: () => {
-    //         const idKey = (this._service as any)._idKey as K;
-    //         const filtered = this.data().filter((i) => i[idKey] !== el[idKey]);
-    //         this.data.set(filtered);
-    //       },
-    //     });
-    //   }
-    // }
+  async onDelete(el: T) {
+    const confirmed = await this._dialog.confirm({
+      title: 'Confirmar Eliminar',
+      text: 'Desea eliminar el elemento',
+    });
+
+    if (!confirmed) return;
+
+    this._service.delete(el);
+    // .subscribe(() => {
+    //   this.items.update(list => list.filter(i => i.id !== el.id));
+    // });
   }
 
   editElement(el: T) {

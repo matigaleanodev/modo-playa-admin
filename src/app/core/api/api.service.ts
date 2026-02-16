@@ -1,6 +1,5 @@
 import { HttpClient } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { map } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 export abstract class ApiService {
