@@ -1,4 +1,8 @@
 import { Injectable } from '@angular/core';
+import { AuthResponse } from '@auth/models/auth-response.model';
+import { AuthUser } from '@auth/models/auth-user.model';
+import { Credentials } from '@auth/models/credentials.model';
+import { VerifiyCode } from '@auth/models/verifiy-code.model';
 import { ApiService } from '@core/api/api.service';
 import { Observable } from 'rxjs';
 
@@ -7,7 +11,7 @@ import { Observable } from 'rxjs';
 })
 export class AuthService extends ApiService {
   constructor() {
-    super('Auth');
+    super('auth');
   }
 
   requestActivation(dto: {
@@ -19,13 +23,51 @@ export class AuthService extends ApiService {
     );
   }
 
-  activate() {}
-  setPassword() {}
-  login() {}
-  refresh() {}
-  me() {}
-  changePassword() {}
-  forgotPasswowd() {}
-  verifiRequestCode() {}
-  resetPassword() {}
+  activate(dto: VerifiyCode): Observable<{ accessToken: string }> {
+    return this._http.post<{ accessToken: string }>(
+      this._path('activate'),
+      dto,
+    );
+  }
+
+  setPassword(dto: { password: string }): Observable<AuthResponse> {
+    return this._http.post<AuthResponse>(this._path('set-password'), dto);
+  }
+
+  login(credentials: Credentials): Observable<AuthResponse> {
+    return this._http.post<AuthResponse>(this._path('login'), credentials);
+  }
+
+  refresh(): Observable<AuthResponse> {
+    return this._http.post<AuthResponse>(this._path('refresh'), {});
+  }
+
+  me(): Observable<AuthUser> {
+    return this._http.get<AuthUser>(this._path('me'));
+  }
+
+  changePassword(dto: { password: string }): Observable<AuthResponse> {
+    return this._http.post<AuthResponse>(this._path('change-password'), dto);
+  }
+
+  forgotPassword(dto: { identifier: string }): Observable<{ message: string }> {
+    return this._http.post<{ message: string }>(
+      this._path('forgot-password'),
+      dto,
+    );
+  }
+
+  verifyRequestCode(dto: VerifiyCode): Observable<{ accessToken: string }> {
+    return this._http.post<{ accessToken: string }>(
+      this._path('verify-reset-code'),
+      dto,
+    );
+  }
+
+  resetPassword(dto: { password: string }): Observable<{ message: string }> {
+    return this._http.post<{ message: string }>(
+      this._path('reset-password'),
+      dto,
+    );
+  }
 }
