@@ -1,4 +1,6 @@
+import { HttpContext } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { SKIP_AUTH } from '@auth/interceptors/token-interceptor';
 import { AuthResponse } from '@auth/models/auth-response.model';
 import { AuthUser } from '@auth/models/auth-user.model';
 import { Credentials } from '@auth/models/credentials.model';
@@ -20,6 +22,9 @@ export class AuthService extends ApiService {
     return this._http.post<{ message: string }>(
       this._path('request-activation'),
       dto,
+      {
+        context: new HttpContext().set(SKIP_AUTH, true),
+      },
     );
   }
 
@@ -27,6 +32,9 @@ export class AuthService extends ApiService {
     return this._http.post<{ accessToken: string }>(
       this._path('activate'),
       dto,
+      {
+        context: new HttpContext().set(SKIP_AUTH, true),
+      },
     );
   }
 
@@ -35,11 +43,19 @@ export class AuthService extends ApiService {
   }
 
   login(credentials: Credentials): Observable<AuthResponse> {
-    return this._http.post<AuthResponse>(this._path('login'), credentials);
+    return this._http.post<AuthResponse>(this._path('login'), credentials, {
+      context: new HttpContext().set(SKIP_AUTH, true),
+    });
   }
 
   refresh(): Observable<AuthResponse> {
-    return this._http.post<AuthResponse>(this._path('refresh'), {});
+    return this._http.post<AuthResponse>(
+      this._path('refresh'),
+      {},
+      {
+        context: new HttpContext().set(SKIP_AUTH, true),
+      },
+    );
   }
 
   me(): Observable<AuthUser> {
@@ -54,6 +70,9 @@ export class AuthService extends ApiService {
     return this._http.post<{ message: string }>(
       this._path('forgot-password'),
       dto,
+      {
+        context: new HttpContext().set(SKIP_AUTH, true),
+      },
     );
   }
 
@@ -61,6 +80,9 @@ export class AuthService extends ApiService {
     return this._http.post<{ accessToken: string }>(
       this._path('verify-reset-code'),
       dto,
+      {
+        context: new HttpContext().set(SKIP_AUTH, true),
+      },
     );
   }
 
