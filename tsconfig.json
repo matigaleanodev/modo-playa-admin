@@ -25,6 +25,7 @@
       "@env": ["src/environments"],
       "@env/*": ["src/environments/*"]
     },
+    "types": ["jasmine"],
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,

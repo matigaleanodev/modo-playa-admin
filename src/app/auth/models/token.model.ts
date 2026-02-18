@@ -3,6 +3,7 @@ export interface JwtPayload {
   ownerId: string;
   role: Role;
   purpose: TokenPurpose;
+  exp: number;
 }
 export type TokenPurpose = 'ACCESS' | 'PASSWORD_SETUP' | 'REFRESH';
 
