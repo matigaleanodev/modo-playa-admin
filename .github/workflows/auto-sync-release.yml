@@ -1,0 +1,26 @@
+name: Auto sync release to dev
+
+on:
+  pull_request:
+    types: [opened]
+    branches:
+      - main
+
+jobs:
+  sync-release:
+    if: startsWith(github.head_ref, 'release/')
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Create PR to dev
+        uses: repo-sync/pull-request@v2
+        with:
+          destination_branch: dev
+          source_branch: ${{ github.head_ref }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          pr_title: "Sync ${{ github.head_ref }} → dev"
+          pr_body: "PR automático para sincronizar la release con dev."
