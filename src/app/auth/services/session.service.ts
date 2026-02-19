@@ -41,18 +41,21 @@ export class SessionService {
   }
 
   login(credentials: Credentials): Observable<void> {
-    return this.authService
-      .login(credentials)
-      .pipe(
-        mergeMap((response) =>
-          from(
-            this.tokenService.setTokens(
-              response.accessToken,
-              response.refreshToken,
-            ),
-          ).pipe(tap(() => this._user.set(response.user))),
+    return this.authService.login(credentials).pipe(
+      mergeMap((response) =>
+        from(
+          this.tokenService.setTokens(
+            response.accessToken,
+            response.refreshToken,
+          ),
+        ).pipe(
+          tap(() => {
+            this._user.set(response.user);
+            this.navService.root('/lodgings');
+          }),
         ),
-      );
+      ),
+    );
   }
 
   async logout(): Promise<void> {
