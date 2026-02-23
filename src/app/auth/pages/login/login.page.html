@@ -1,70 +1,141 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Modo Playa Admin</ion-title>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content class="ion-padding">
+<ion-content [fullscreen]="true" class="login-content">
   <div class="login-shell">
-    <div class="login-card">
-      <div class="login-head">
-        <h1>Iniciar sesión</h1>
-        <p>Ingresá con tu email o tu nombre de usuario.</p>
-      </div>
+    <div class="login-layout">
+      <section class="brand-panel" aria-hidden="true">
+        <div class="brand-chip">Modo Playa Admin</div>
+        <h1>Panel de administración</h1>
+        <p>
+          Accede a la gestión de alojamientos, usuarios y operaciones desde una
+          interfaz clara y enfocada en productividad.
+        </p>
 
-      <form [formGroup]="form" (ngSubmit)="onSubmit()">
-        <ion-item>
-          <ion-label position="stacked">Email o usuario</ion-label>
-          <ion-input
-            formControlName="identifier"
-            inputmode="email"
-            autocomplete="username"
-            enterkeyhint="next"
-          />
-        </ion-item>
-
-        @if (form.get('identifier')?.touched && form.get('identifier')?.invalid)
-        {
-        <ion-text color="danger" class="field-error">
-          <p>Ingresá un email o usuario válido.</p>
-        </ion-text>
-        }
-
-        <ion-item>
-          <ion-label position="stacked">Contraseña</ion-label>
-          <ion-input
-            type="password"
-            formControlName="password"
-            autocomplete="current-password"
-            enterkeyhint="done"
-          />
-        </ion-item>
-
-        @if (form.get('password')?.touched && form.get('password')?.invalid) {
-        <ion-text color="danger" class="field-error">
-          <p>La contraseña es requerida.</p>
-        </ion-text>
-        }
-
-        <ion-button
-          expand="block"
-          type="submit"
-          class="ion-margin-top"
-          [disabled]="form.invalid"
-        >
-          Entrar
-        </ion-button>
-
-        <div class="login-links">
-          <ion-button fill="clear" size="small" routerLink="/forgot-password">
-            Olvidé mi contraseña
-          </ion-button>
-
-          <ion-button fill="clear" size="small" routerLink="/activate">
-            Activar cuenta
-          </ion-button>
+        <div class="brand-metrics">
+          <div class="metric-card">
+            <span class="metric-label">Acceso</span>
+            <strong class="metric-value">Seguro</strong>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Experiencia</span>
+            <strong class="metric-value">Optimizada</strong>
+          </div>
         </div>
-      </form>
+      </section>
+
+      <section class="form-panel">
+        <div class="login-card">
+          <div class="login-head">
+            <p class="eyebrow">Acceso</p>
+            <h2>Iniciar sesión</h2>
+            <p class="subtitle">
+              Ingresa con tu email o nombre de usuario para continuar.
+            </p>
+          </div>
+
+          <div
+            class="auth-error"
+            [class.is-visible]="!!authError()"
+            role="alert"
+            aria-live="assertive"
+          >
+            <p>{{ authError() || ' ' }}</p>
+          </div>
+
+          <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+            <div
+              class="field-group"
+              [class.is-invalid]="!!identifierErrorMessage"
+              [class.is-disabled]="isSubmitting()"
+            >
+              <div class="field-label-row">
+                <label for="identifier-input">Email o usuario</label>
+              </div>
+              <div class="input-shell">
+                <ion-input
+                  id="identifier-input"
+                  formControlName="identifier"
+                  inputmode="email"
+                  autocomplete="username"
+                  enterkeyhint="next"
+                  fill="outline"
+                  placeholder="ejemplo@correo.com"
+                  [clearInput]="true"
+                />
+              </div>
+              <div
+                class="field-error"
+                [class.is-visible]="!!identifierErrorMessage"
+                aria-live="polite"
+              >
+                <p>{{ identifierErrorMessage || ' ' }}</p>
+              </div>
+            </div>
+
+            <div
+              class="field-group"
+              [class.is-invalid]="!!passwordErrorMessage"
+              [class.is-disabled]="isSubmitting()"
+            >
+              <div class="field-label-row">
+                <label for="password-input">Contraseña</label>
+                <button
+                  type="button"
+                  class="field-action"
+                  (click)="togglePasswordVisibility()"
+                  [disabled]="isSubmitting()"
+                >
+                  {{ passwordVisible() ? 'Ocultar' : 'Mostrar' }}
+                </button>
+              </div>
+              <div class="input-shell">
+                <ion-input
+                  id="password-input"
+                  [type]="passwordVisible() ? 'text' : 'password'"
+                  formControlName="password"
+                  autocomplete="current-password"
+                  enterkeyhint="done"
+                  fill="outline"
+                  placeholder="Ingresa tu contraseña"
+                />
+              </div>
+              <div
+                class="field-error"
+                [class.is-visible]="!!passwordErrorMessage"
+                aria-live="polite"
+              >
+                <p>{{ passwordErrorMessage || ' ' }}</p>
+              </div>
+            </div>
+
+            <ion-button
+              expand="block"
+              type="submit"
+              class="submit-button"
+              [disabled]="isSubmitting()"
+            >
+              @if (isSubmitting()) {
+              <ion-spinner
+                slot="start"
+                name="crescent"
+                aria-hidden="true"
+              ></ion-spinner>
+              } {{ isSubmitting() ? 'Ingresando...' : 'Entrar al panel' }}
+            </ion-button>
+
+            <div class="login-links">
+              <ion-button
+                fill="clear"
+                size="small"
+                routerLink="/auth/forgot-password"
+              >
+                Olvidé mi contraseña
+              </ion-button>
+              <ion-button fill="clear" size="small" routerLink="/auth/activate">
+                Activar cuenta
+              </ion-button>
+            </div>
+          </form>
+        </div>
+      </section>
     </div>
   </div>
 </ion-content>

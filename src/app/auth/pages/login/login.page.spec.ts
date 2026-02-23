@@ -16,12 +16,14 @@ describe('LoginPage', () => {
 
   let sessionMock: jasmine.SpyObj<SessionService>;
   let loadingMock: jasmine.SpyObj<LoadingService>;
+  let dismissMock: jasmine.Spy;
 
   beforeEach(async () => {
     sessionMock = jasmine.createSpyObj('SessionService', ['login']);
     loadingMock = jasmine.createSpyObj('LoadingService', ['show']);
+    dismissMock = jasmine.createSpy('dismiss').and.resolveTo();
 
-    loadingMock.show.and.resolveTo(async () => {});
+    loadingMock.show.and.resolveTo(dismissMock);
 
     await TestBed.configureTestingModule({
       imports: [LoginPage],
@@ -45,6 +47,8 @@ describe('LoginPage', () => {
     await component.onSubmit();
 
     expect(sessionMock.login).not.toHaveBeenCalled();
+    expect(component.submitAttempted()).toBeTrue();
+    expect(component.identifierErrorMessage).toBeTruthy();
   });
 
   it('debería ejecutar login si el formulario es válido', fakeAsync(() => {
@@ -58,13 +62,16 @@ describe('LoginPage', () => {
     component.onSubmit();
     flushMicrotasks();
 
+    expect(loadingMock.show).toHaveBeenCalledWith('Iniciando sesion...');
     expect(sessionMock.login).toHaveBeenCalledWith({
       identifier: 'mati',
       password: '1234',
     });
+    expect(dismissMock).toHaveBeenCalled();
+    expect(component.authError()).toBeNull();
   }));
 
-  it('debería ejecutar login y no navegar si falla', fakeAsync(() => {
+  it('debería mostrar error de autenticación si falla', fakeAsync(() => {
     sessionMock.login.and.returnValue(throwError(() => new Error('error')));
 
     component.form.setValue({
@@ -77,5 +84,17 @@ describe('LoginPage', () => {
     flushMicrotasks();
 
     expect(sessionMock.login).toHaveBeenCalled();
+    expect(dismissMock).toHaveBeenCalled();
+    expect(component.authError()).toContain('No pudimos iniciar sesion');
   }));
+
+  it('debería alternar visibilidad de contraseña', () => {
+    expect(component.passwordVisible()).toBeFalse();
+
+    component.togglePasswordVisibility();
+    expect(component.passwordVisible()).toBeTrue();
+
+    component.togglePasswordVisibility();
+    expect(component.passwordVisible()).toBeFalse();
+  });
 });
