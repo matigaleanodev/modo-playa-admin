@@ -19,7 +19,6 @@ import {
   IonFooter,
 } from '@ionic/angular/standalone';
 import { PasswordRecoveryService } from '@auth/services/password-recovery.service';
-import { LoadingService } from '@shared/services/loading/loading.service';
 import { NavService } from '@shared/services/nav/nav.service';
 
 @Component({
@@ -42,7 +41,6 @@ import { NavService } from '@shared/services/nav/nav.service';
 })
 export class ForgotPasswordPage {
   private readonly _recovery = inject(PasswordRecoveryService);
-  private readonly _loading = inject(LoadingService);
   private readonly _nav = inject(NavService);
 
   readonly isSubmitting = signal(false);
@@ -78,7 +76,6 @@ export class ForgotPasswordPage {
 
     this.isSubmitting.set(true);
     this.form.disable({ emitEvent: false });
-    const dismiss = await this._loading.show('Enviando instrucciones...');
 
     try {
       await firstValueFrom(this._recovery.requestCode(this.form.getRawValue()));
@@ -94,7 +91,6 @@ export class ForgotPasswordPage {
     } finally {
       this.isSubmitting.set(false);
       this.form.enable({ emitEvent: false });
-      await dismiss();
     }
   }
 

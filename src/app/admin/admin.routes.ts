@@ -18,13 +18,13 @@ export const ADMIN_ROUTES: Routes = [
       },
       {
         path: 'lodgings',
-        loadComponent: () =>
-          import('../lodgings/lodgings.page').then((m) => m.LodgingsPage),
+        loadChildren: () =>
+          import('../lodgings/lodgings.routes').then((m) => m.LODGINGS_ROUTES),
       },
       {
         path: 'contacts',
-        loadComponent: () =>
-          import('../contacs/contacs.page').then((m) => m.ContacsPage),
+        loadChildren: () =>
+          import('../contacs/contacs.routes').then((m) => m.CONTACS_ROUTES),
       },
       {
         path: 'contacs',

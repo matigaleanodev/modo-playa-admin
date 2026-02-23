@@ -1,0 +1,58 @@
+<ion-header class="app-page-header">
+  <ion-toolbar class="app-page-toolbar">
+    <ion-buttons slot="start">
+      <ion-menu-button menu="admin-main-menu"></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Alojamientos</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="lodgings-list-page">
+    <app-list-shell
+      [items]="resource.items()"
+      [loading]="resource.loading()"
+      [error]="resource.error()"
+      [page]="resource.page()"
+      [limit]="resource.limit()"
+      [total]="resource.total()"
+      [emptyState]="{
+        title: 'Todavía no hay alojamientos',
+        description: 'Crea el primer alojamiento para empezar a gestionar disponibilidad y datos.'
+      }"
+      [itemTemplate]="lodgingItemTpl"
+      (create)="newElement()"
+      (refresh)="onRefresh()"
+      (pageChange)="onPageChange($event.page)"
+      (limitChange)="onLimitChange($event.limit)"
+      (edit)="editElement($event.item)"
+      (delete)="onDelete($event.item)"
+    />
+
+    <ng-template #lodgingItemTpl let-item="item">
+      <div class="lodging-card">
+        <header class="lodging-card__header">
+          <h3>{{ item.title }}</h3>
+          <span class="lodging-card__badge" [class.inactive]="!item.active">
+            {{ item.active ? 'Activo' : 'Inactivo' }}
+          </span>
+        </header>
+
+        <p class="lodging-card__meta">
+          {{ item.city }} · {{ item.type | titlecase }} · {{ item.maxGuests }} huéspedes
+        </p>
+
+        <p class="lodging-card__address">{{ item.location }}</p>
+        <p class="lodging-card__email">
+          ${{ item.price | number: '1.0-0' }} / {{ item.priceUnit }}
+        </p>
+      </div>
+    </ng-template>
+  </div>
+</ion-content>
+
+<ion-footer class="app-page-footer">
+  <ion-toolbar class="app-page-toolbar">
+    <div class="app-page-footer-note">Modo Playa App</div>
+  </ion-toolbar>
+</ion-footer>

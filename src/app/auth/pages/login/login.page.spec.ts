@@ -8,29 +8,21 @@ import { of, throwError } from 'rxjs';
 import { provideRouter } from '@angular/router';
 import { LoginPage } from './login.page';
 import { SessionService } from '@auth/services/session.service';
-import { LoadingService } from '@shared/services/loading/loading.service';
 
 describe('LoginPage', () => {
   let component: LoginPage;
   let fixture: ComponentFixture<LoginPage>;
 
   let sessionMock: jasmine.SpyObj<SessionService>;
-  let loadingMock: jasmine.SpyObj<LoadingService>;
-  let dismissMock: jasmine.Spy;
 
   beforeEach(async () => {
     sessionMock = jasmine.createSpyObj('SessionService', ['login']);
-    loadingMock = jasmine.createSpyObj('LoadingService', ['show']);
-    dismissMock = jasmine.createSpy('dismiss').and.resolveTo();
-
-    loadingMock.show.and.resolveTo(dismissMock);
 
     await TestBed.configureTestingModule({
       imports: [LoginPage],
       providers: [
         provideRouter([]),
         { provide: SessionService, useValue: sessionMock },
-        { provide: LoadingService, useValue: loadingMock },
       ],
     }).compileComponents();
 
@@ -62,12 +54,10 @@ describe('LoginPage', () => {
     component.onSubmit();
     flushMicrotasks();
 
-    expect(loadingMock.show).toHaveBeenCalledWith('Iniciando sesion...');
     expect(sessionMock.login).toHaveBeenCalledWith({
       identifier: 'mati',
       password: '1234',
     });
-    expect(dismissMock).toHaveBeenCalled();
     expect(component.authError()).toBeNull();
   }));
 
@@ -84,7 +74,6 @@ describe('LoginPage', () => {
     flushMicrotasks();
 
     expect(sessionMock.login).toHaveBeenCalled();
-    expect(dismissMock).toHaveBeenCalled();
     expect(component.authError()).toContain('No pudimos iniciar sesion');
   }));
 

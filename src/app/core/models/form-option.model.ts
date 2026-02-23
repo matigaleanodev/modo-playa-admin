@@ -5,15 +5,28 @@ export interface FormOption<T> {
   key: string;
   label: string;
   value?: T;
-
-  validaciones: ValidationList;
-  errores: ErrorMessages;
-  helper: string;
+  placeholder?: string;
+  required?: boolean;
+  hidden?: boolean;
+  disabled?: boolean;
   readonly?: boolean;
+  helper?: string;
+  hint?: string;
+  options?: FormOptionChoice<T>[];
+  multiple?: boolean;
+  order?: number;
+  inputMode?: FormInputMode;
+  columns?: number;
+
+  validaciones?: ValidationList;
+  errores?: ErrorMessages;
 }
 
-type FormType =
+export type FormType =
   | 'text'
+  | 'email'
+  | 'password'
+  | 'textarea'
   | 'number'
   | 'numberstring'
   | 'boolean'
@@ -22,5 +35,20 @@ type FormType =
   | 'hidden'
   | 'date';
 
-type ValidationList = Validation[];
-type ErrorMessages = Record<string, string>;
+export type ValidationList = Validation[];
+export type ErrorMessages = Record<string, string>;
+
+export interface FormOptionChoice<T = unknown> {
+  label: string;
+  value: T;
+  disabled?: boolean;
+}
+
+export type FormInputMode =
+  | 'text'
+  | 'search'
+  | 'email'
+  | 'tel'
+  | 'url'
+  | 'numeric'
+  | 'decimal';

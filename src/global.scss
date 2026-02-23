@@ -75,7 +75,7 @@ ion-tab-button.tab-selected {
 ion-header.app-page-header,
 ion-footer.app-page-footer {
   background: var(--app-surface-toolbar);
-  box-shadow: none;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
   backdrop-filter: saturate(140%) blur(14px);
   -webkit-backdrop-filter: saturate(140%) blur(14px);
 }
@@ -113,6 +113,10 @@ ion-footer.app-page-footer .app-page-toolbar {
   --min-height: calc(40px + var(--ion-safe-area-bottom, 0px));
   --padding-top: 0;
   --padding-bottom: var(--ion-safe-area-bottom, 0px);
+}
+
+ion-footer.app-page-footer {
+  box-shadow: 0 -4px 14px rgba(15, 23, 42, 0.06);
 }
 
 .app-page-footer-note {

@@ -138,15 +138,31 @@
 .logout-button {
   margin: 6px 8px 8px;
   --border-radius: 14px;
-  --color: var(--app-logout-color);
-  --background: var(--app-logout-bg);
-  --background-hover: var(--app-logout-hover-bg);
+  --min-height: 42px;
+  --padding-start: 14px;
+  --padding-end: 14px;
+  --color: var(--app-menu-active-color);
+  --background: rgba(var(--ion-color-medium-rgb), 0.12);
+  --background-hover: rgba(var(--ion-color-medium-rgb), 0.18);
+  --background-activated: rgba(var(--ion-color-medium-rgb), 0.2);
+  --background-focused: rgba(var(--ion-color-medium-rgb), 0.18);
   border: 1px solid var(--app-logout-border);
   border-radius: 14px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
 }
 
 .logout-button ion-icon {
-  color: var(--ion-color-danger);
+  color: var(--app-menu-active-color);
+  font-size: 1rem;
+  margin-inline-end: 4px;
+}
+
+.logout-button::part(native) {
+  color: var(--app-menu-active-color);
+  font-weight: 500;
 }
 
 .admin-content-outlet {
