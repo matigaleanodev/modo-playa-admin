@@ -37,10 +37,6 @@ jobs:
           cache: npm
           cache-dependency-path: package-lock.json
 
-      - name: Setup Chrome
-        id: setup-chrome
-        uses: browser-actions/setup-chrome@v1
-
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
 
@@ -48,9 +44,7 @@ jobs:
         run: npm run lint
 
       - name: Run tests
-        env:
-          CHROME_BIN: ${{ steps.setup-chrome.outputs.chrome-path }}
-        run: npm run test -- --watch=false --browsers=ChromeHeadless --no-progress
+        run: npm run test -- --watch=false --browsers=ChromeHeadlessCI
 
       - name: Build project
         run: npm run build -- --configuration production --no-progress
