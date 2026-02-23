@@ -42,6 +42,18 @@ export class AuthService extends ApiService {
     return this._http.post<AuthResponse>(this._path('set-password'), dto);
   }
 
+  setPasswordWithToken(
+    dto: { password: string },
+    accessToken: string,
+  ): Observable<AuthResponse> {
+    return this._http.post<AuthResponse>(this._path('set-password'), dto, {
+      context: new HttpContext().set(SKIP_AUTH, true),
+      headers: new HttpHeaders({
+        Authorization: `Bearer ${accessToken}`,
+      }),
+    });
+  }
+
   login(credentials: Credentials): Observable<AuthResponse> {
     return this._http.post<AuthResponse>(this._path('login'), credentials, {
       context: new HttpContext().set(SKIP_AUTH, true),
