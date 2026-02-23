@@ -1,0 +1,49 @@
+.login-shell {
+  min-height: calc(100dvh - 56px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--ion-background-color);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.login-head {
+  margin-bottom: 12px;
+
+  h1 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 6px 0 0;
+    color: var(--ion-color-medium);
+    font-size: 0.95rem;
+    line-height: 1.35;
+  }
+}
+
+.field-error {
+  display: block;
+
+  p {
+    margin: 6px 0 0;
+    padding-left: 12px;
+    font-size: 0.85rem;
+  }
+}
+
+.login-links {
+  margin-top: 6px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}

@@ -2,25 +2,26 @@ import { Routes } from '@angular/router';
 
 export const routes: Routes = [
   {
-    path: '',
-    redirectTo: 'folder/inbox',
-    pathMatch: 'full',
-  },
-  {
-    path: 'folder/:id',
-    loadComponent: () =>
-      import('./folder/folder.page').then((m) => m.FolderPage),
+    path: 'auth',
+    loadChildren: () => import('@auth/auth.routes').then((m) => m.AUTH_ROUTES),
   },
   {
     path: 'lodgings',
-    loadComponent: () => import('./lodgings/lodgings.page').then( m => m.LodgingsPage)
+    loadComponent: () =>
+      import('./lodgings/lodgings.page').then((m) => m.LodgingsPage),
   },
   {
     path: 'contacs',
-    loadComponent: () => import('./contacs/contacs.page').then( m => m.ContacsPage)
+    loadComponent: () =>
+      import('./contacs/contacs.page').then((m) => m.ContacsPage),
   },
   {
     path: 'users',
-    loadComponent: () => import('./users/users.page').then( m => m.UsersPage)
+    loadComponent: () => import('./users/users.page').then((m) => m.UsersPage),
+  },
+  {
+    path: '',
+    redirectTo: 'auth/login',
+    pathMatch: 'full',
   },
 ];
