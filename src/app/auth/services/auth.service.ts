@@ -60,12 +60,15 @@ export class AuthService extends ApiService {
     });
   }
 
-  refresh(): Observable<AuthResponse> {
+  refresh(refreshToken: string): Observable<AuthResponse> {
     return this._http.post<AuthResponse>(
       this._path('refresh'),
       {},
       {
         context: new HttpContext().set(SKIP_AUTH, true),
+        headers: new HttpHeaders({
+          Authorization: `Bearer ${refreshToken}`,
+        }),
       },
     );
   }

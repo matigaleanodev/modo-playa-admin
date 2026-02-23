@@ -52,11 +52,14 @@ describe('AuthService', () => {
   });
 
   it('debería llamar a refresh', () => {
-    service.refresh().subscribe();
+    service.refresh('refresh-token').subscribe();
 
     const req = httpMock.expectOne(`${API}/refresh`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual({});
+    expect(req.request.headers.get('Authorization')).toBe(
+      'Bearer refresh-token',
+    );
 
     req.flush({ accessToken: '', refreshToken: '', user: {} });
   });

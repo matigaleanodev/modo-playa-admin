@@ -33,12 +33,48 @@
  */
 
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
-/* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import '@ionic/angular/css/palettes/dark.system.css';
+/*@import '@ionic/angular/css/palettes/dark.system.css'; */
+@import "@ionic/angular/css/palettes/dark.class.css";
+
+ion-app,
+ion-content,
+ion-router-outlet {
+  background: var(--ion-background-color);
+}
+
+ion-modal,
+ion-popover,
+ion-alert,
+ion-action-sheet {
+  --background: var(--ion-modal-background, var(--ion-card-background));
+}
+
+ion-action-sheet {
+  --button-background: var(--ion-item-background);
+  --button-background-selected: rgba(var(--ion-color-primary-rgb), 0.12);
+  --button-color: var(--ion-text-color);
+}
+
+ion-tab-bar {
+  --background: var(--app-tabbar-surface);
+  --border: 1px solid var(--app-tabbar-border);
+  --color: var(--app-tabbar-color);
+  --color-selected: var(--app-tabbar-color-active);
+  background: var(--app-tabbar-surface);
+  border-top: 1px solid var(--app-tabbar-border);
+}
+
+ion-tab-button {
+  color: var(--app-tabbar-color);
+}
+
+ion-tab-button.tab-selected {
+  color: var(--app-tabbar-color-active);
+}
 
 ion-header.app-page-header,
 ion-footer.app-page-footer {
-  background: rgba(var(--ion-background-color-rgb), 0.26);
+  background: var(--app-surface-toolbar);
   box-shadow: none;
   backdrop-filter: saturate(140%) blur(14px);
   -webkit-backdrop-filter: saturate(140%) blur(14px);
@@ -50,15 +86,15 @@ ion-footer.app-page-footer::before {
 }
 
 .app-page-toolbar {
-  --background: rgba(var(--ion-background-color-rgb), 0.26);
-  --border-color: rgba(var(--ion-color-medium-rgb), 0.08);
+  --background: var(--app-surface-toolbar);
+  --border-color: var(--app-border-faint);
   box-shadow: none;
   min-height: calc(56px + var(--ion-safe-area-top, 0px));
 }
 
 ion-header.app-page-header .app-page-toolbar,
 ion-footer.app-page-footer .app-page-toolbar {
-  border-color: rgba(var(--ion-color-medium-rgb), 0.08);
+  border-color: var(--app-border-faint);
 }
 
 ion-header.app-page-header .app-page-toolbar {

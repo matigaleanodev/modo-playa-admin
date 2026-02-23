@@ -30,7 +30,7 @@
   flex-direction: column;
   margin: 0;
   border-radius: 0;
-  border: 1px solid rgba(var(--ion-color-medium-rgb), 0.12);
+  border: 1px solid var(--app-border-subtle);
   background:
     radial-gradient(
       22rem 22rem at 0% 0%,
@@ -42,10 +42,10 @@
       rgba(var(--ion-color-tertiary-rgb), 0.06),
       transparent 72%
     ),
-    rgba(var(--ion-background-color-rgb), 0.76);
+    var(--app-surface-glass);
   backdrop-filter: saturate(140%) blur(14px);
   -webkit-backdrop-filter: saturate(140%) blur(14px);
-  box-shadow: 0 10px 26px rgb(0 0 0 / 0.08);
+  box-shadow: var(--app-shadow-md);
   overflow: hidden;
 }
 
@@ -55,8 +55,8 @@
 }
 
 .menu-header-toolbar {
-  --background: rgba(var(--ion-background-color-rgb), 0.26);
-  --border-color: rgba(var(--ion-color-medium-rgb), 0.08);
+  --background: var(--app-surface-toolbar);
+  --border-color: var(--app-border-faint);
   --min-height: calc(56px + var(--ion-safe-area-top, 0px));
   --padding-top: var(--ion-safe-area-top, 0px);
   --padding-bottom: 0;
@@ -75,8 +75,8 @@
 }
 
 .menu-footer-toolbar {
-  --background: rgba(var(--ion-background-color-rgb), 0.26);
-  --border-color: rgba(var(--ion-color-medium-rgb), 0.1);
+  --background: var(--app-surface-toolbar);
+  --border-color: var(--app-border-faint);
   --min-height: 56px;
   box-shadow: none;
 }
@@ -100,7 +100,7 @@
 }
 
 .menu-item {
-  --background: rgba(var(--ion-background-color-rgb), 0.08);
+  --background: var(--app-surface-item);
   --color: var(--ion-text-color);
   --padding-start: 12px;
   --padding-end: 12px;
@@ -108,7 +108,7 @@
   --border-radius: 14px;
   margin: 0;
   border-radius: 14px;
-  border: 1px solid rgba(var(--ion-color-medium-rgb), 0.08);
+  border: 1px solid var(--app-border-faint);
   transition: border-color 0.18s ease, background-color 0.18s ease;
 }
 
@@ -122,13 +122,13 @@
 }
 
 .menu-item.selected {
-  --background: rgba(var(--ion-color-primary-rgb), 0.12);
-  --color: var(--ion-color-primary);
-  border-color: rgba(var(--ion-color-primary-rgb), 0.2);
+  --background: var(--app-menu-active-bg);
+  --color: var(--app-menu-active-color);
+  border-color: var(--app-menu-active-border);
 }
 
 .menu-item.selected ion-icon {
-  color: var(--ion-color-primary);
+  color: var(--app-menu-active-color);
 }
 
 .menu-footer {
@@ -138,10 +138,10 @@
 .logout-button {
   margin: 6px 8px 8px;
   --border-radius: 14px;
-  --color: var(--ion-color-medium);
-  --background: rgba(var(--ion-background-color-rgb), 0.08);
-  --background-hover: rgba(var(--ion-color-danger-rgb), 0.06);
-  border: 1px solid rgba(var(--ion-color-medium-rgb), 0.08);
+  --color: var(--app-logout-color);
+  --background: var(--app-logout-bg);
+  --background-hover: var(--app-logout-hover-bg);
+  border: 1px solid var(--app-logout-border);
   border-radius: 14px;
 }
 
@@ -155,7 +155,19 @@
 
 @media (max-width: 991px) {
   .admin-menu::part(container) {
-    margin: 10px;
-    border-radius: 18px;
+    margin: 0 10px 0 0;
+    border-radius: 0 18px 18px 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .admin-menu {
+    --width: 100vw;
+    --max-width: 100vw;
+  }
+
+  .admin-menu::part(container) {
+    margin: 0;
+    border-radius: 0;
   }
 }

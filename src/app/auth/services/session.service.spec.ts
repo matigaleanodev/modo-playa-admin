@@ -29,6 +29,7 @@ describe('SessionService', () => {
 
     tokenMock = jasmine.createSpyObj<TokenService>('TokenService', [
       'getAccessToken',
+      'getRefreshToken',
       'setTokens',
       'clearTokens',
     ]);
@@ -111,15 +112,18 @@ describe('SessionService', () => {
     };
 
     authMock.refresh.and.returnValue(of(response));
+    tokenMock.getRefreshToken.and.resolveTo('current-refresh');
     tokenMock.setTokens.and.resolveTo();
 
     await service.refresh();
 
+    expect(authMock.refresh).toHaveBeenCalledWith('current-refresh');
     expect(tokenMock.setTokens).toHaveBeenCalledWith('newA', 'newR');
     expect(service.user()).toEqual(fakeUser);
   });
 
   it('refresh fallido debería hacer logout', async () => {
+    tokenMock.getRefreshToken.and.resolveTo('current-refresh');
     authMock.refresh.and.returnValue(throwError(() => new Error()));
 
     tokenMock.clearTokens.and.resolveTo();
