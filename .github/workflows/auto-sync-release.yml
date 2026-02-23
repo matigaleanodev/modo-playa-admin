@@ -24,7 +24,14 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Sync main into dev
+        env:
+          DEV_SYNC_PAT: ${{ secrets.DEV_SYNC_PAT }}
         run: |
+          if [ -z "$DEV_SYNC_PAT" ]; then
+            echo "Falta configurar el secret DEV_SYNC_PAT"
+            exit 1
+          fi
+
           git fetch origin main dev
           git checkout dev
           if git merge-base --is-ancestor HEAD origin/main; then
@@ -34,4 +41,5 @@ jobs:
             echo "Fast-forward no disponible: se crea merge de sincronización."
             git merge --no-ff origin/main -m "chore(sync): sincronización automática de main en dev"
           fi
+          git remote set-url origin https://x-access-token:${DEV_SYNC_PAT}@github.com/${{ github.repository }}.git
           git push origin dev
