@@ -24,6 +24,18 @@
           </ion-menu-toggle>
         }
       </ion-list>
+
+      <ion-list class="menu-list">
+        <ion-list-header>
+          <ion-label>Ajustes</ion-label>
+        </ion-list-header>
+
+        <ion-item class="menu-item" button lines="none" detail="false" (click)="openThemeSelector()">
+          <ion-icon slot="start" name="phone-portrait-outline" aria-hidden="true"></ion-icon>
+          <ion-label>Tema</ion-label>
+          <ion-note slot="end">{{ currentThemeLabel() }}</ion-note>
+        </ion-item>
+      </ion-list>
     </ion-content>
 
     <ion-footer class="menu-footer">

@@ -66,7 +66,13 @@ export class SessionService {
 
   async refresh(): Promise<void> {
     try {
-      const response = await firstValueFrom(this.authService.refresh());
+      const refreshToken = await this.tokenService.getRefreshToken();
+
+      if (!refreshToken) {
+        throw new Error('No hay refresh token');
+      }
+
+      const response = await firstValueFrom(this.authService.refresh(refreshToken));
 
       await this.tokenService.setTokens(
         response.accessToken,

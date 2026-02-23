@@ -1,6 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import {
+  ActionSheetController,
   IonButton,
   IonContent,
   IonFooter,
@@ -9,23 +10,29 @@ import {
   IonItem,
   IonLabel,
   IonList,
+  IonListHeader,
   IonMenu,
   IonMenuToggle,
+  IonNote,
   IonRouterOutlet,
   IonSplitPane,
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
+import { ThemeService } from '@shared/services/theme/theme.service';
 import { addIcons } from 'ionicons';
 import {
   bookOutline,
   bedOutline,
   homeOutline,
   informationCircleOutline,
+  moonOutline,
+  phonePortraitOutline,
   personCircleOutline,
   personOutline,
   powerOutline,
   settingsOutline,
+  sunnyOutline,
 } from 'ionicons/icons';
 import { SessionService } from '@auth/services/session.service';
 
@@ -50,17 +57,31 @@ type AdminMenuItem = {
     IonContent,
     IonTitle,
     IonList,
+    IonListHeader,
     IonMenuToggle,
     IonItem,
     IonIcon,
     IonLabel,
+    IonNote,
     IonRouterOutlet,
     IonFooter,
     IonButton,
   ],
 })
 export class AdminLayoutComponent {
-  constructor(private readonly sessionService: SessionService) {
+  private readonly sessionService = inject(SessionService);
+  private readonly themeService = inject(ThemeService);
+  private readonly actionSheetCtrl = inject(ActionSheetController);
+
+  readonly currentThemeLabel = computed(() => {
+    const theme = this.themeService.currentTheme();
+
+    if (theme === 'light') return 'Claro';
+    if (theme === 'dark') return 'Oscuro';
+    return 'Sistema';
+  });
+
+  constructor() {
     addIcons({
       bookOutline,
       bedOutline,
@@ -70,11 +91,43 @@ export class AdminLayoutComponent {
       informationCircleOutline,
       powerOutline,
       settingsOutline,
+      moonOutline,
+      sunnyOutline,
+      phonePortraitOutline,
     });
   }
 
   async onLogout(): Promise<void> {
     await this.sessionService.logout();
+  }
+
+  async openThemeSelector(): Promise<void> {
+    const sheet = await this.actionSheetCtrl.create({
+      header: 'Tema',
+      buttons: [
+        {
+          text: 'Claro',
+          icon: 'sunny-outline',
+          handler: () => this.themeService.setTheme('light'),
+        },
+        {
+          text: 'Oscuro',
+          icon: 'moon-outline',
+          handler: () => this.themeService.setTheme('dark'),
+        },
+        {
+          text: 'Sistema',
+          icon: 'phone-portrait-outline',
+          handler: () => this.themeService.setTheme('system'),
+        },
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+        },
+      ],
+    });
+
+    await sheet.present();
   }
 
   readonly menuItems = signal<AdminMenuItem[]>([
