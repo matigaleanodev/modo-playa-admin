@@ -45,7 +45,7 @@ jobs:
         run: npm ci --no-audit --no-fund
 
       - name: Run lint
-        run: npm run lint -- --no-progress
+        run: npm run lint
 
       - name: Run tests
         env:
