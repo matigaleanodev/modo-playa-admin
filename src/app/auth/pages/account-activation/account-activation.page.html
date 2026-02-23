@@ -1,13 +1,112 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>account-activation</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content [fullscreen]="true" class="login-content">
+  <div class="login-shell">
+    <div class="login-layout">
+      <section class="brand-panel" aria-hidden="true">
+        <div class="brand-chip">Modo Playa Admin</div>
+        <h1>Activación de cuenta</h1>
+        <p>
+          Solicita tu código de activación para completar la configuración de tu
+          contraseña e ingresar al panel de administración.
+        </p>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">account-activation</ion-title>
-    </ion-toolbar>
-  </ion-header>
+        <div class="brand-metrics">
+          <div class="metric-card">
+            <span class="metric-label">Código</span>
+            <strong class="metric-value">Por email</strong>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Ingreso</span>
+            <strong class="metric-value">Automático</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="form-panel">
+        <div class="login-card">
+          <div class="login-head">
+            <p class="eyebrow">Activación</p>
+            <h2>Solicitar código</h2>
+            <p class="subtitle">
+              Ingresa tu email o nombre de usuario para recibir el código de
+              activación.
+            </p>
+          </div>
+
+          <div
+            class="auth-feedback danger"
+            [class.is-visible]="!!requestError()"
+            role="alert"
+            aria-live="assertive"
+          >
+            <p>{{ requestError() || ' ' }}</p>
+          </div>
+
+          <div
+            class="auth-feedback success"
+            [class.is-visible]="!!successMessage()"
+            role="status"
+            aria-live="polite"
+          >
+            <p>{{ successMessage() || ' ' }}</p>
+          </div>
+
+          <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+            <div
+              class="field-group"
+              [class.is-invalid]="!!identifierErrorMessage"
+              [class.is-disabled]="isSubmitting()"
+            >
+              <div class="field-label-row">
+                <label for="identifier-input">Email o usuario</label>
+              </div>
+              <div class="input-shell">
+                <ion-input
+                  id="identifier-input"
+                  formControlName="identifier"
+                  inputmode="email"
+                  autocomplete="username"
+                  enterkeyhint="done"
+                  fill="outline"
+                  placeholder="ejemplo@correo.com"
+                  [clearInput]="true"
+                />
+              </div>
+              <div
+                class="field-error"
+                [class.is-visible]="!!identifierErrorMessage"
+                aria-live="polite"
+              >
+                <p>{{ identifierErrorMessage || ' ' }}</p>
+              </div>
+            </div>
+
+            <ion-button
+              expand="block"
+              type="submit"
+              class="submit-button"
+              [disabled]="isSubmitting()"
+            >
+              @if (isSubmitting()) {
+                <ion-spinner
+                  slot="start"
+                  name="crescent"
+                  aria-hidden="true"
+                ></ion-spinner>
+              }
+              {{ isSubmitting() ? 'Enviando...' : 'Solicitar activación' }}
+            </ion-button>
+
+            <div class="login-links">
+              <ion-button fill="clear" size="small" routerLink="/auth/login">
+                Volver al login
+              </ion-button>
+              <ion-button fill="clear" size="small" routerLink="/auth/forgot-password">
+                Recuperar contraseña
+              </ion-button>
+            </div>
+          </form>
+        </div>
+      </section>
+    </div>
+  </div>
 </ion-content>

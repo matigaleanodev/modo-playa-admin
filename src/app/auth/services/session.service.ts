@@ -1,6 +1,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { firstValueFrom, from, map, mergeMap, Observable, tap } from 'rxjs';
+import { firstValueFrom, from, mergeMap, Observable, tap } from 'rxjs';
 import { AuthUser } from '@auth/models/auth-user.model';
+import { AuthResponse } from '@auth/models/auth-response.model';
 import { TokenService } from './token.service';
 import { NavService } from '@shared/services/nav/nav.service';
 import { AuthService } from './auth.service';
@@ -42,19 +43,18 @@ export class SessionService {
 
   login(credentials: Credentials): Observable<void> {
     return this.authService.login(credentials).pipe(
-      mergeMap((response) =>
-        from(
-          this.tokenService.setTokens(
-            response.accessToken,
-            response.refreshToken,
-          ),
-        ).pipe(
-          tap(() => {
-            this._user.set(response.user);
-            this.navService.root('/lodgings');
-          }),
-        ),
-      ),
+      mergeMap((response) => this.startAuthenticatedSession(response)),
+    );
+  }
+
+  startAuthenticatedSession(response: AuthResponse): Observable<void> {
+    return from(
+      this.tokenService.setTokens(response.accessToken, response.refreshToken),
+    ).pipe(
+      tap(() => {
+        this._user.set(response.user);
+        this.navService.root('/lodgings');
+      }),
     );
   }
 

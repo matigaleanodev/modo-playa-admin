@@ -1,5 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import {
   AbstractControl,
   FormControl,
@@ -10,23 +10,20 @@ import {
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import {
-  IonIcon,
-  IonContent,
   IonButton,
+  IonContent,
   IonInput,
   IonSpinner,
-  IonHeader,
 } from '@ionic/angular/standalone';
-import { addIcons } from 'ionicons';
-import { eyeOffOutline, eyeOutline } from 'ionicons/icons';
-import { SessionService } from '@auth/services/session.service';
+import { PasswordRecoveryService } from '@auth/services/password-recovery.service';
 import { LoadingService } from '@shared/services/loading/loading.service';
+import { NavService } from '@shared/services/nav/nav.service';
 
 @Component({
-  selector: 'app-login',
+  selector: 'app-forgot-password-verify',
   standalone: true,
-  templateUrl: './login.page.html',
-  styleUrls: ['./login.page.scss'],
+  templateUrl: './forgot-password-verify.page.html',
+  styleUrls: ['./forgot-password-verify.page.scss'],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -35,55 +32,48 @@ import { LoadingService } from '@shared/services/loading/loading.service';
     IonButton,
     IonInput,
     IonSpinner,
-    IonIcon,
   ],
 })
-export class LoginPage {
-  private readonly _session = inject(SessionService);
+export class ForgotPasswordVerifyPage implements OnInit {
+  private readonly _recovery = inject(PasswordRecoveryService);
   private readonly _loading = inject(LoadingService);
+  private readonly _nav = inject(NavService);
+
   readonly isSubmitting = signal(false);
   readonly submitAttempted = signal(false);
-  readonly authError = signal<string | null>(null);
-  readonly passwordVisible = signal(false);
+  readonly verifyError = signal<string | null>(null);
+  readonly identifier = this._recovery.identifier;
 
   readonly form = new FormGroup({
-    identifier: new FormControl<string>('', {
+    code: new FormControl<string>('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.minLength(3)],
-    }),
-    password: new FormControl<string>('', {
-      nonNullable: true,
-      validators: [Validators.required, Validators.minLength(4)],
+      validators: [
+        Validators.required,
+        Validators.pattern(/^\d{6}$/),
+      ],
     }),
   });
 
   readonly controls = this.form.controls;
 
-  constructor() {
-    addIcons({ eyeOutline, eyeOffOutline });
+  async ngOnInit(): Promise<void> {
+    await this._recovery.hydrate();
+
+    if (!this._recovery.canVerifyCode()) {
+      this._nav.root('/auth/forgot-password');
+    }
   }
 
-  get identifierErrorMessage(): string | null {
-    return this.getControlErrorMessage(this.controls.identifier, {
-      required: 'Ingresa tu email o nombre de usuario.',
-      minlength: 'Debe tener al menos 3 caracteres.',
+  get codeErrorMessage(): string | null {
+    return this.getControlErrorMessage(this.controls.code, {
+      required: 'Ingresa el código de verificación.',
+      pattern: 'El código debe tener 6 dígitos.',
     });
-  }
-
-  get passwordErrorMessage(): string | null {
-    return this.getControlErrorMessage(this.controls.password, {
-      required: 'Ingresa tu contraseña.',
-      minlength: 'Debe tener al menos 4 caracteres.',
-    });
-  }
-
-  togglePasswordVisibility(): void {
-    this.passwordVisible.update((visible) => !visible);
   }
 
   async onSubmit(): Promise<void> {
     this.submitAttempted.set(true);
-    this.authError.set(null);
+    this.verifyError.set(null);
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -92,19 +82,25 @@ export class LoginPage {
 
     this.isSubmitting.set(true);
     this.form.disable({ emitEvent: false });
-    const dismiss = await this._loading.show('Iniciando sesion...');
+    const dismiss = await this._loading.show('Validando código...');
 
     try {
-      await firstValueFrom(this._session.login(this.form.getRawValue()));
+      await firstValueFrom(this._recovery.verifyCode(this.form.getRawValue()));
+      this._nav.forward('/auth/forgot-password/reset');
     } catch {
-      this.authError.set(
-        'No pudimos iniciar sesion. Verifica tus credenciales e intenta nuevamente.',
+      this.verifyError.set(
+        'No pudimos validar el código. Revisa el código recibido e intenta nuevamente.',
       );
     } finally {
       this.isSubmitting.set(false);
       this.form.enable({ emitEvent: false });
       await dismiss();
     }
+  }
+
+  async restartFlow(): Promise<void> {
+    await this._recovery.clearFlow();
+    this._nav.root('/auth/forgot-password');
   }
 
   hasVisibleError(control: AbstractControl): boolean {
