@@ -35,3 +35,54 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import '@ionic/angular/css/palettes/dark.system.css';
+
+ion-header.app-page-header,
+ion-footer.app-page-footer {
+  background: rgba(var(--ion-background-color-rgb), 0.26);
+  box-shadow: none;
+  backdrop-filter: saturate(140%) blur(14px);
+  -webkit-backdrop-filter: saturate(140%) blur(14px);
+}
+
+ion-header.app-page-header::after,
+ion-footer.app-page-footer::before {
+  display: none;
+}
+
+.app-page-toolbar {
+  --background: rgba(var(--ion-background-color-rgb), 0.26);
+  --border-color: rgba(var(--ion-color-medium-rgb), 0.08);
+  box-shadow: none;
+  min-height: calc(56px + var(--ion-safe-area-top, 0px));
+}
+
+ion-header.app-page-header .app-page-toolbar,
+ion-footer.app-page-footer .app-page-toolbar {
+  border-color: rgba(var(--ion-color-medium-rgb), 0.08);
+}
+
+ion-header.app-page-header .app-page-toolbar {
+  --min-height: calc(56px + var(--ion-safe-area-top, 0px));
+  --padding-top: var(--ion-safe-area-top, 0px);
+  --padding-bottom: 0;
+}
+
+ion-header.app-page-header ion-title {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+ion-footer.app-page-footer .app-page-toolbar {
+  --min-height: calc(40px + var(--ion-safe-area-bottom, 0px));
+  --padding-top: 0;
+  --padding-bottom: var(--ion-safe-area-bottom, 0px);
+}
+
+.app-page-footer-note {
+  width: 100%;
+  text-align: center;
+  color: var(--ion-color-medium);
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+}

@@ -16,6 +16,8 @@ import {
   IonInput,
   IonSpinner,
   IonHeader,
+  IonToolbar,
+  IonFooter,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { eyeOffOutline, eyeOutline } from 'ionicons/icons';
@@ -36,6 +38,9 @@ import { LoadingService } from '@shared/services/loading/loading.service';
     IonInput,
     IonSpinner,
     IonIcon,
+    IonHeader,
+    IonToolbar,
+    IonFooter,
   ],
 })
 export class LoginPage {

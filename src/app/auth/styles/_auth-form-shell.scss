@@ -1,3 +1,23 @@
+.auth-safe-area-header,
+.auth-safe-area-footer {
+  background: transparent;
+  box-shadow: none;
+}
+
+.auth-safe-area-header::after,
+.auth-safe-area-footer::before {
+  display: none;
+}
+
+.auth-safe-area-toolbar {
+  --background: transparent;
+  --border-color: transparent;
+  --min-height: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
+  box-shadow: none;
+}
+
 .login-content {
   --background:
     radial-gradient(32rem 32rem at 8% 8%, rgba(var(--ion-color-primary-rgb), 0.12), transparent 68%),

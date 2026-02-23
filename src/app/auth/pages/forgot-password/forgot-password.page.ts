@@ -14,6 +14,9 @@ import {
   IonContent,
   IonInput,
   IonSpinner,
+  IonHeader,
+  IonToolbar,
+  IonFooter,
 } from '@ionic/angular/standalone';
 import { PasswordRecoveryService } from '@auth/services/password-recovery.service';
 import { LoadingService } from '@shared/services/loading/loading.service';
@@ -32,6 +35,9 @@ import { NavService } from '@shared/services/nav/nav.service';
     IonButton,
     IonInput,
     IonSpinner,
+    IonHeader,
+    IonToolbar,
+    IonFooter,
   ],
 })
 export class ForgotPasswordPage {
