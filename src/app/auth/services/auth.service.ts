@@ -1,4 +1,4 @@
-import { HttpContext } from '@angular/common/http';
+import { HttpContext, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { SKIP_AUTH } from '@auth/interceptors/token-interceptor';
 import { AuthResponse } from '@auth/models/auth-response.model';
@@ -86,10 +86,21 @@ export class AuthService extends ApiService {
     );
   }
 
-  resetPassword(dto: { password: string }): Observable<{ message: string }> {
-    return this._http.post<{ message: string }>(
-      this._path('reset-password'),
-      dto,
-    );
+  resetPassword(
+    dto: { password: string },
+    accessToken?: string,
+  ): Observable<{ message: string }> {
+    const hasCustomToken = !!accessToken;
+
+    return this._http.post<{ message: string }>(this._path('reset-password'), dto, {
+      context: hasCustomToken
+        ? new HttpContext().set(SKIP_AUTH, true)
+        : undefined,
+      headers: hasCustomToken
+        ? new HttpHeaders({
+            Authorization: `Bearer ${accessToken}`,
+          })
+        : undefined,
+    });
   }
 }
