@@ -1,0 +1,111 @@
+<div class="form-field-render" [formGroup]="form()">
+  @for (field of fields(); track trackByFieldKey($index, field)) {
+    @if (isFieldVisible(field)) {
+      <div
+        class="field"
+        [class.field--hidden]="field.hidden"
+        [style.--field-cols]="getFieldColumns(field)"
+      >
+        @if (field.label) {
+          <label class="field__label" [for]="field.key">
+            {{ field.label }}
+            @if (field.required) {
+              <span class="field__required" aria-hidden="true">*</span>
+            }
+          </label>
+        }
+
+        @switch (field.type) {
+          @case ('textarea') {
+            <textarea
+              class="field__control"
+              [id]="field.key"
+              [formControlName]="field.key"
+              [placeholder]="field.placeholder ?? ''"
+              [readOnly]="field.readonly ?? false"
+              (input)="onInput(field, $event)"
+              (blur)="onBlur(field)"
+            ></textarea>
+          }
+          @case ('boolean') {
+            <label class="field__checkbox">
+              <input
+                [id]="field.key"
+                type="checkbox"
+                [formControlName]="field.key"
+                (change)="onInput(field, $event)"
+                (blur)="onBlur(field)"
+              />
+              <span>{{ getFieldHelper(field) ?? 'Activar' }}</span>
+            </label>
+          }
+          @case ('dropdown') {
+            <select
+              class="field__control"
+              [id]="field.key"
+              [formControlName]="field.key"
+              (change)="onInput(field, $event)"
+              (blur)="onBlur(field)"
+            >
+              @if (!field.required) {
+                <option [ngValue]="null">Seleccionar...</option>
+              }
+              @for (option of getFieldOptions(field); track option.label) {
+                <option [value]="option.value" [disabled]="option.disabled ?? false">
+                  {{ option.label }}
+                </option>
+              }
+            </select>
+          }
+          @case ('multiple') {
+            <div class="field__multiple">
+              <select
+                class="field__control field__control--multiple"
+                [id]="field.key"
+                [formControlName]="field.key"
+                multiple
+                (change)="onInput(field, $event)"
+                (blur)="onBlur(field)"
+              >
+                @for (option of getFieldOptions(field); track option.label) {
+                  <option [value]="option.value" [disabled]="option.disabled ?? false">
+                    {{ option.label }}
+                  </option>
+                }
+              </select>
+
+              @if (getMultipleSelectedLabels(field).length > 0) {
+                <div class="field__chips" aria-label="Seleccionados">
+                  @for (label of getMultipleSelectedLabels(field); track label) {
+                    <span class="field__chip">{{ label }}</span>
+                  }
+                </div>
+              }
+            </div>
+          }
+          @default {
+            <input
+              class="field__control"
+              [id]="field.key"
+              [type]="getFieldType(field)"
+              [attr.inputmode]="field.inputMode ?? null"
+              [formControlName]="field.key"
+              [placeholder]="field.placeholder ?? ''"
+              [readOnly]="field.readonly ?? false"
+              (input)="onInput(field, $event)"
+              (blur)="onBlur(field)"
+            />
+          }
+        }
+
+        @if (getFieldHelper(field); as helperText) {
+          <small class="field__helper">{{ helperText }}</small>
+        }
+
+        @if (getFieldError(field); as errorText) {
+          <small class="field__error">{{ errorText }}</small>
+        }
+      </div>
+    }
+  }
+</div>

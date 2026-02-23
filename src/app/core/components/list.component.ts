@@ -19,7 +19,7 @@ export abstract class BaseList<T extends BaseEntity> {
 
     if (!confirmed) return;
 
-    this._service.delete(el);
+    await this._service.delete(el);
     // .subscribe(() => {
     //   this.items.update(list => list.filter(i => i.id !== el.id));
     // });

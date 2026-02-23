@@ -9,7 +9,6 @@ import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { AccountActivationVerifyPage } from './account-activation-verify.page';
 import { AccountActivationService } from '@auth/services/account-activation.service';
-import { LoadingService } from '@shared/services/loading/loading.service';
 import { NavService } from '@shared/services/nav/nav.service';
 
 describe('AccountActivationVerifyPage', () => {
@@ -18,9 +17,7 @@ describe('AccountActivationVerifyPage', () => {
   let activationMock: jasmine.SpyObj<AccountActivationService> & {
     identifier: WritableSignal<string | null>;
   };
-  let loadingMock: jasmine.SpyObj<LoadingService>;
   let navMock: jasmine.SpyObj<NavService>;
-  let dismissMock: jasmine.Spy;
 
   beforeEach(async () => {
     activationMock = Object.assign(
@@ -33,21 +30,17 @@ describe('AccountActivationVerifyPage', () => {
       { identifier: signal<string | null>('user@mail.com') },
     );
 
-    loadingMock = jasmine.createSpyObj<LoadingService>('LoadingService', ['show']);
     navMock = jasmine.createSpyObj<NavService>('NavService', ['forward', 'root']);
-    dismissMock = jasmine.createSpy('dismiss').and.resolveTo();
 
     activationMock.hydrate.and.resolveTo();
     activationMock.canVerifyCode.and.returnValue(true);
     activationMock.clearFlow.and.resolveTo();
-    loadingMock.show.and.resolveTo(dismissMock);
 
     await TestBed.configureTestingModule({
       imports: [AccountActivationVerifyPage],
       providers: [
         provideRouter([]),
         { provide: AccountActivationService, useValue: activationMock },
-        { provide: LoadingService, useValue: loadingMock },
         { provide: NavService, useValue: navMock },
       ],
     }).compileComponents();
@@ -86,7 +79,6 @@ describe('AccountActivationVerifyPage', () => {
 
     expect(activationMock.verifyCode).toHaveBeenCalledWith({ code: '123456' });
     expect(navMock.forward).toHaveBeenCalledWith('/auth/activate/set-password');
-    expect(dismissMock).toHaveBeenCalled();
   }));
 
   it('debería mostrar error si falla la validación', fakeAsync(() => {

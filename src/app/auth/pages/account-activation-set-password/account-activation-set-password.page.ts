@@ -24,7 +24,6 @@ import {
 import { addIcons } from 'ionicons';
 import { eyeOffOutline, eyeOutline } from 'ionicons/icons';
 import { AccountActivationService } from '@auth/services/account-activation.service';
-import { LoadingService } from '@shared/services/loading/loading.service';
 import { NavService } from '@shared/services/nav/nav.service';
 import { ToastrService } from '@shared/services/toastr/toastr.service';
 
@@ -49,7 +48,6 @@ import { ToastrService } from '@shared/services/toastr/toastr.service';
 })
 export class AccountActivationSetPasswordPage implements OnInit {
   private readonly _activation = inject(AccountActivationService);
-  private readonly _loading = inject(LoadingService);
   private readonly _nav = inject(NavService);
   private readonly _toastr = inject(ToastrService);
 
@@ -137,7 +135,6 @@ export class AccountActivationSetPasswordPage implements OnInit {
 
     this.isSubmitting.set(true);
     this.form.disable({ emitEvent: false });
-    const dismiss = await this._loading.show('Configurando contraseña...');
 
     try {
       await firstValueFrom(
@@ -156,7 +153,6 @@ export class AccountActivationSetPasswordPage implements OnInit {
     } finally {
       this.isSubmitting.set(false);
       this.form.enable({ emitEvent: false });
-      await dismiss();
     }
   }
 

@@ -8,33 +8,25 @@ import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { ForgotPasswordPage } from './forgot-password.page';
 import { PasswordRecoveryService } from '@auth/services/password-recovery.service';
-import { LoadingService } from '@shared/services/loading/loading.service';
 import { NavService } from '@shared/services/nav/nav.service';
 
 describe('ForgotPasswordPage', () => {
   let component: ForgotPasswordPage;
   let fixture: ComponentFixture<ForgotPasswordPage>;
   let recoveryMock: jasmine.SpyObj<PasswordRecoveryService>;
-  let loadingMock: jasmine.SpyObj<LoadingService>;
   let navMock: jasmine.SpyObj<NavService>;
-  let dismissMock: jasmine.Spy;
 
   beforeEach(async () => {
     recoveryMock = jasmine.createSpyObj<PasswordRecoveryService>('PasswordRecoveryService', [
       'requestCode',
     ]);
-    loadingMock = jasmine.createSpyObj<LoadingService>('LoadingService', ['show']);
     navMock = jasmine.createSpyObj<NavService>('NavService', ['forward']);
-    dismissMock = jasmine.createSpy('dismiss').and.resolveTo();
-
-    loadingMock.show.and.resolveTo(dismissMock);
 
     await TestBed.configureTestingModule({
       imports: [ForgotPasswordPage],
       providers: [
         provideRouter([]),
         { provide: PasswordRecoveryService, useValue: recoveryMock },
-        { provide: LoadingService, useValue: loadingMock },
         { provide: NavService, useValue: navMock },
       ],
     }).compileComponents();
@@ -66,7 +58,6 @@ describe('ForgotPasswordPage', () => {
     component.onSubmit();
     flushMicrotasks();
 
-    expect(loadingMock.show).toHaveBeenCalledWith('Enviando instrucciones...');
     expect(recoveryMock.requestCode).toHaveBeenCalledWith({
       identifier: 'TEST@MAIL.COM',
     });
@@ -74,7 +65,6 @@ describe('ForgotPasswordPage', () => {
       'Si el usuario existe, enviamos un código de verificación al email registrado.',
     );
     expect(navMock.forward).toHaveBeenCalledWith('/auth/forgot-password/verify');
-    expect(dismissMock).toHaveBeenCalled();
   }));
 
   it('debería mostrar error si falla la solicitud', fakeAsync(() => {
@@ -89,6 +79,5 @@ describe('ForgotPasswordPage', () => {
 
     expect(component.requestError()).toContain('No pudimos procesar la solicitud');
     expect(navMock.forward).not.toHaveBeenCalled();
-    expect(dismissMock).toHaveBeenCalled();
   }));
 });

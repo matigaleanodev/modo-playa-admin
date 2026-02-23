@@ -72,7 +72,7 @@ describe('SessionService', () => {
     await service.init();
 
     expect(tokenMock.clearTokens).toHaveBeenCalled();
-    expect(navMock.root).toHaveBeenCalledWith('/login');
+    expect(navMock.root).toHaveBeenCalledWith('/auth/login');
   });
 
   it('login debería guardar tokens y setear user', (done) => {
@@ -101,7 +101,7 @@ describe('SessionService', () => {
 
     expect(tokenMock.clearTokens).toHaveBeenCalled();
     expect(service.user()).toBeNull();
-    expect(navMock.root).toHaveBeenCalledWith('/login');
+    expect(navMock.root).toHaveBeenCalledWith('/auth/login');
   });
 
   it('refresh exitoso debería actualizar tokens y user', async () => {
@@ -131,6 +131,6 @@ describe('SessionService', () => {
     await expectAsync(service.refresh()).toBeRejected();
 
     expect(tokenMock.clearTokens).toHaveBeenCalled();
-    expect(navMock.root).toHaveBeenCalledWith('/login');
+    expect(navMock.root).toHaveBeenCalledWith('/auth/login');
   });
 });
