@@ -15,9 +15,28 @@ export const AUTH_ROUTES: Routes = [
   },
   {
     path: 'forgot-password',
-    loadComponent: () =>
-      import('./pages/forgot-password/forgot-password.page').then(
-        (m) => m.ForgotPasswordPage,
-      ),
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./pages/forgot-password/forgot-password.page').then(
+            (m) => m.ForgotPasswordPage,
+          ),
+      },
+      {
+        path: 'verify',
+        loadComponent: () =>
+          import('./pages/forgot-password-verify/forgot-password-verify.page').then(
+            (m) => m.ForgotPasswordVerifyPage,
+          ),
+      },
+      {
+        path: 'reset',
+        loadComponent: () =>
+          import('./pages/forgot-password-reset/forgot-password-reset.page').then(
+            (m) => m.ForgotPasswordResetPage,
+          ),
+      },
+    ],
   },
 ];

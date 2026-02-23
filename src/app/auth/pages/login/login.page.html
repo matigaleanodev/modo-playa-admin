@@ -77,14 +77,6 @@
             >
               <div class="field-label-row">
                 <label for="password-input">Contraseña</label>
-                <button
-                  type="button"
-                  class="field-action"
-                  (click)="togglePasswordVisibility()"
-                  [disabled]="isSubmitting()"
-                >
-                  {{ passwordVisible() ? 'Ocultar' : 'Mostrar' }}
-                </button>
               </div>
               <div class="input-shell">
                 <ion-input
@@ -95,7 +87,26 @@
                   enterkeyhint="done"
                   fill="outline"
                   placeholder="Ingresa tu contraseña"
-                />
+                >
+                  <ion-button
+                    type="button"
+                    fill="clear"
+                    size="small"
+                    slot="end"
+                    (click)="togglePasswordVisibility()"
+                    [disabled]="isSubmitting()"
+                    [attr.aria-label]="
+                      passwordVisible()
+                        ? 'Ocultar contraseña'
+                        : 'Mostrar contraseña'
+                    "
+                  >
+                    <ion-icon
+                      [name]="passwordVisible() ? 'eye-off-outline' : 'eye-outline'"
+                      aria-hidden="true"
+                    ></ion-icon>
+                  </ion-button>
+                </ion-input>
               </div>
               <div
                 class="field-error"

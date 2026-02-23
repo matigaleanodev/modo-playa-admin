@@ -1,5 +1,5 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { firstValueFrom, from, map, mergeMap, Observable, tap } from 'rxjs';
+import { firstValueFrom, from, mergeMap, Observable, tap } from 'rxjs';
 import { AuthUser } from '@auth/models/auth-user.model';
 import { TokenService } from './token.service';
 import { NavService } from '@shared/services/nav/nav.service';
