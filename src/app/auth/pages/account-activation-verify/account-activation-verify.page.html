@@ -3,20 +3,20 @@
     <div class="login-layout">
       <section class="brand-panel" aria-hidden="true">
         <div class="brand-chip">Modo Playa Admin</div>
-        <h1>Activación de cuenta</h1>
+        <h1>Verificación de activación</h1>
         <p>
-          Solicita tu código de activación para completar la configuración de tu
-          contraseña e ingresar al panel de administración.
+          Ingresa el código de 6 dígitos enviado al email asociado a tu cuenta
+          para habilitar la configuración de contraseña.
         </p>
 
         <div class="brand-metrics">
           <div class="metric-card">
             <span class="metric-label">Código</span>
-            <strong class="metric-value">Por email</strong>
+            <strong class="metric-value">6 dígitos</strong>
           </div>
           <div class="metric-card">
-            <span class="metric-label">Ingreso</span>
-            <strong class="metric-value">Automático</strong>
+            <span class="metric-label">Validez</span>
+            <strong class="metric-value">15 min</strong>
           </div>
         </div>
       </section>
@@ -25,58 +25,49 @@
         <div class="login-card">
           <div class="login-head">
             <p class="eyebrow">Activación</p>
-            <h2>Solicitar código</h2>
+            <h2>Validar código</h2>
             <p class="subtitle">
-              Ingresa tu email o nombre de usuario para recibir el código de
-              activación.
+              Enviamos un código a
+              <strong>{{ identifier() || 'tu email registrado' }}</strong>.
             </p>
           </div>
 
           <div
             class="auth-feedback danger"
-            [class.is-visible]="!!requestError()"
+            [class.is-visible]="!!verifyError()"
             role="alert"
             aria-live="assertive"
           >
-            <p>{{ requestError() || ' ' }}</p>
-          </div>
-
-          <div
-            class="auth-feedback success"
-            [class.is-visible]="!!successMessage()"
-            role="status"
-            aria-live="polite"
-          >
-            <p>{{ successMessage() || ' ' }}</p>
+            <p>{{ verifyError() || ' ' }}</p>
           </div>
 
           <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
             <div
               class="field-group"
-              [class.is-invalid]="!!identifierErrorMessage"
+              [class.is-invalid]="!!codeErrorMessage"
               [class.is-disabled]="isSubmitting()"
             >
               <div class="field-label-row">
-                <label for="identifier-input">Email o usuario</label>
+                <label for="code-input">Código de activación</label>
               </div>
               <div class="input-shell">
                 <ion-input
-                  id="identifier-input"
-                  formControlName="identifier"
-                  inputmode="email"
-                  autocomplete="username"
+                  id="code-input"
+                  formControlName="code"
+                  inputmode="numeric"
+                  autocomplete="one-time-code"
                   enterkeyhint="done"
                   fill="outline"
-                  placeholder="ejemplo@correo.com"
-                  [clearInput]="true"
+                  placeholder="123456"
+                  maxlength="6"
                 />
               </div>
               <div
                 class="field-error"
-                [class.is-visible]="!!identifierErrorMessage"
+                [class.is-visible]="!!codeErrorMessage"
                 aria-live="polite"
               >
-                <p>{{ identifierErrorMessage || ' ' }}</p>
+                <p>{{ codeErrorMessage || ' ' }}</p>
               </div>
             </div>
 
@@ -93,15 +84,15 @@
                   aria-hidden="true"
                 ></ion-spinner>
               }
-              {{ isSubmitting() ? 'Enviando...' : 'Solicitar activación' }}
+              {{ isSubmitting() ? 'Validando...' : 'Validar código' }}
             </ion-button>
 
             <div class="login-links">
-              <ion-button fill="clear" size="small" routerLink="/auth/login">
-                Volver al login
+              <ion-button fill="clear" size="small" routerLink="/auth/activate">
+                Cambiar usuario/email
               </ion-button>
-              <ion-button fill="clear" size="small" routerLink="/auth/forgot-password">
-                Recuperar contraseña
+              <ion-button fill="clear" size="small" (click)="restartFlow()">
+                Reiniciar flujo
               </ion-button>
             </div>
           </form>

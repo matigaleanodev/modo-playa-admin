@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import {
   AbstractControl,
   FormControl,
@@ -20,10 +20,10 @@ import { LoadingService } from '@shared/services/loading/loading.service';
 import { NavService } from '@shared/services/nav/nav.service';
 
 @Component({
-  selector: 'app-account-activation',
-  templateUrl: './account-activation.page.html',
-  styleUrls: ['./account-activation.page.scss'],
+  selector: 'app-account-activation-verify',
   standalone: true,
+  templateUrl: './account-activation-verify.page.html',
+  styleUrls: ['./account-activation-verify.page.scss'],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -34,36 +34,43 @@ import { NavService } from '@shared/services/nav/nav.service';
     IonSpinner,
   ],
 })
-export class AccountActivationPage {
+export class AccountActivationVerifyPage implements OnInit {
   private readonly _activation = inject(AccountActivationService);
   private readonly _loading = inject(LoadingService);
   private readonly _nav = inject(NavService);
 
   readonly isSubmitting = signal(false);
   readonly submitAttempted = signal(false);
-  readonly requestError = signal<string | null>(null);
-  readonly successMessage = signal<string | null>(null);
+  readonly verifyError = signal<string | null>(null);
+  readonly identifier = this._activation.identifier;
 
   readonly form = new FormGroup({
-    identifier: new FormControl<string>('', {
+    code: new FormControl<string>('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.minLength(3)],
+      validators: [Validators.required, Validators.pattern(/^\d{6}$/)],
     }),
   });
 
   readonly controls = this.form.controls;
 
-  get identifierErrorMessage(): string | null {
-    return this.getControlErrorMessage(this.controls.identifier, {
-      required: 'Ingresa tu email o nombre de usuario.',
-      minlength: 'Debe tener al menos 3 caracteres.',
+  async ngOnInit(): Promise<void> {
+    await this._activation.hydrate();
+
+    if (!this._activation.canVerifyCode()) {
+      this._nav.root('/auth/activate');
+    }
+  }
+
+  get codeErrorMessage(): string | null {
+    return this.getControlErrorMessage(this.controls.code, {
+      required: 'Ingresa el código de activación.',
+      pattern: 'El código debe tener 6 dígitos.',
     });
   }
 
   async onSubmit(): Promise<void> {
     this.submitAttempted.set(true);
-    this.requestError.set(null);
-    this.successMessage.set(null);
+    this.verifyError.set(null);
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -72,23 +79,25 @@ export class AccountActivationPage {
 
     this.isSubmitting.set(true);
     this.form.disable({ emitEvent: false });
-    const dismiss = await this._loading.show('Enviando código de activación...');
+    const dismiss = await this._loading.show('Validando código...');
 
     try {
-      await firstValueFrom(this._activation.requestCode(this.form.getRawValue()));
-      this.successMessage.set(
-        'Si el usuario existe, enviamos un código de activación al email registrado.',
-      );
-      this._nav.forward('/auth/activate/verify');
+      await firstValueFrom(this._activation.verifyCode(this.form.getRawValue()));
+      this._nav.forward('/auth/activate/set-password');
     } catch {
-      this.requestError.set(
-        'No pudimos procesar la solicitud. Intenta nuevamente en unos minutos.',
+      this.verifyError.set(
+        'No pudimos validar el código. Revisa el código recibido e intenta nuevamente.',
       );
     } finally {
       this.isSubmitting.set(false);
       this.form.enable({ emitEvent: false });
       await dismiss();
     }
+  }
+
+  async restartFlow(): Promise<void> {
+    await this._activation.clearFlow();
+    this._nav.root('/auth/activate');
   }
 
   hasVisibleError(control: AbstractControl): boolean {

@@ -1,0 +1,12 @@
+@use '../../styles/auth-form-shell';
+
+@media (min-width: 901px) {
+  .login-links {
+    gap: 4px;
+
+    ion-button {
+      font-size: 0.8rem;
+      letter-spacing: -0.01em;
+    }
+  }
+}

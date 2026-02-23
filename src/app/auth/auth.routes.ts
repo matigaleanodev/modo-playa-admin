@@ -8,10 +8,29 @@ export const AUTH_ROUTES: Routes = [
   },
   {
     path: 'activate',
-    loadComponent: () =>
-      import('./pages/account-activation/account-activation.page').then(
-        (m) => m.AccountActivationPage,
-      ),
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./pages/account-activation/account-activation.page').then(
+            (m) => m.AccountActivationPage,
+          ),
+      },
+      {
+        path: 'verify',
+        loadComponent: () =>
+          import('./pages/account-activation-verify/account-activation-verify.page').then(
+            (m) => m.AccountActivationVerifyPage,
+          ),
+      },
+      {
+        path: 'set-password',
+        loadComponent: () =>
+          import('./pages/account-activation-set-password/account-activation-set-password.page').then(
+            (m) => m.AccountActivationSetPasswordPage,
+          ),
+      },
+    ],
   },
   {
     path: 'forgot-password',
