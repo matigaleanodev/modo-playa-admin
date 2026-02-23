@@ -36,6 +36,8 @@ describe('NavService', () => {
 
     expect(navControllerMock.navigateForward).toHaveBeenCalledWith('/test', {
       queryParams: undefined,
+      animated: true,
+      animationDirection: 'forward',
     });
   });
 
@@ -66,6 +68,8 @@ describe('NavService', () => {
 
     expect(navControllerMock.navigateForward).toHaveBeenCalledWith('/search', {
       queryParams: { q: 'pollo' },
+      animated: true,
+      animationDirection: 'forward',
     });
   });
 
