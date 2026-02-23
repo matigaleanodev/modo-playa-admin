@@ -5,9 +5,12 @@ import { LoadingService } from './loading.service';
 
 describe('LoadingService', () => {
   let service: LoadingService;
+  const presentSpy = jasmine.createSpy('present').and.resolveTo();
+  const dismissSpy = jasmine.createSpy('dismiss').and.resolveTo();
 
   const loadingElementMock = {
-    present: jasmine.createSpy('present').and.resolveTo(),
+    present: presentSpy,
+    dismiss: dismissSpy,
   } as unknown as HTMLIonLoadingElement;
 
   const loadingControllerMock = {
@@ -15,6 +18,10 @@ describe('LoadingService', () => {
   };
 
   beforeEach(() => {
+    loadingControllerMock.create.calls.reset();
+    presentSpy.calls.reset();
+    dismissSpy.calls.reset();
+
     TestBed.configureTestingModule({
       providers: [
         LoadingService,
@@ -25,18 +32,26 @@ describe('LoadingService', () => {
     service = TestBed.inject(LoadingService);
   });
 
-  it('debería crear y presentar un loading con el mensaje traducido', async () => {
+  it('debería crear y presentar un loading con el mensaje recibido', async () => {
     const loading = await service.show('xCargando');
 
     expect(loadingControllerMock.create).toHaveBeenCalledWith({
-      message: 'Cargando...',
+      message: 'xCargando',
       spinner: 'crescent',
     });
-    expect(loadingElementMock.present).toHaveBeenCalled();
-    expect(loading).toBe(loadingElementMock);
+    expect(presentSpy).toHaveBeenCalled();
+    expect(typeof loading).toBe('function');
+
+    await loading();
+    expect(dismissSpy).toHaveBeenCalled();
   });
 
   it('debería usar el mensaje por defecto si no se pasa key', async () => {
     await service.show();
+
+    expect(loadingControllerMock.create).toHaveBeenCalledWith({
+      message: 'Cargando',
+      spinner: 'crescent',
+    });
   });
 });

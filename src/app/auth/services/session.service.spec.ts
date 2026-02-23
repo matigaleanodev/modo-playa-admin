@@ -124,7 +124,7 @@ describe('SessionService', () => {
 
     tokenMock.clearTokens.and.resolveTo();
 
-    await service.refresh();
+    await expectAsync(service.refresh()).toBeRejected();
 
     expect(tokenMock.clearTokens).toHaveBeenCalled();
     expect(navMock.root).toHaveBeenCalledWith('/login');
