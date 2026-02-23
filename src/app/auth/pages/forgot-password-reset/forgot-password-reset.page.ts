@@ -17,6 +17,9 @@ import {
   IonIcon,
   IonInput,
   IonSpinner,
+  IonHeader,
+  IonToolbar,
+  IonFooter,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { eyeOffOutline, eyeOutline } from 'ionicons/icons';
@@ -39,6 +42,9 @@ import { ToastrService } from '@shared/services/toastr/toastr.service';
     IonIcon,
     IonInput,
     IonSpinner,
+    IonHeader,
+    IonToolbar,
+    IonFooter,
   ],
 })
 export class ForgotPasswordResetPage implements OnInit {

@@ -1,0 +1,45 @@
+<ion-split-pane contentId="admin-content" class="admin-split-pane">
+  <ion-menu menuId="admin-main-menu" contentId="admin-content" class="admin-menu">
+    <ion-header class="menu-header">
+      <ion-toolbar class="menu-header-toolbar">
+        <ion-title class="menu-brand">Modo Playa Admin</ion-title>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="menu-content">
+      <ion-list class="menu-list">
+        @for (item of menuItems(); track item.path + item.label) {
+          <ion-menu-toggle auto-hide="false">
+            <ion-item
+              class="menu-item"
+              [routerLink]="item.path"
+              routerDirection="root"
+              routerLinkActive="selected"
+              lines="none"
+              detail="false"
+            >
+              <ion-icon slot="start" [name]="item.icon" aria-hidden="true"></ion-icon>
+              <ion-label>{{ item.label }}</ion-label>
+            </ion-item>
+          </ion-menu-toggle>
+        }
+      </ion-list>
+    </ion-content>
+
+    <ion-footer class="menu-footer">
+      <ion-toolbar class="menu-footer-toolbar">
+        <ion-button
+          class="logout-button"
+          expand="block"
+          fill="clear"
+          (click)="onLogout()"
+        >
+          <ion-icon slot="start" name="power-outline" aria-hidden="true"></ion-icon>
+          Logout
+        </ion-button>
+      </ion-toolbar>
+    </ion-footer>
+  </ion-menu>
+
+  <ion-router-outlet id="admin-content" class="admin-content-outlet"></ion-router-outlet>
+</ion-split-pane>

@@ -53,7 +53,7 @@ export class SessionService {
     ).pipe(
       tap(() => {
         this._user.set(response.user);
-        this.navService.root('/lodgings');
+        this.navService.root('/app/dashboard');
       }),
     );
   }
@@ -61,7 +61,7 @@ export class SessionService {
   async logout(): Promise<void> {
     await this.tokenService.clearTokens();
     this._user.set(null);
-    this.navService.root('/login');
+    this.navService.root('/auth/login');
   }
 
   async refresh(): Promise<void> {

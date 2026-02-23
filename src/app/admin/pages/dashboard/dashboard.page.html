@@ -1,0 +1,212 @@
+<ion-header class="app-page-header">
+  <ion-toolbar class="app-page-toolbar">
+    <ion-buttons slot="start">
+      <ion-menu-button menu="admin-main-menu"></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Dashboard</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="dashboard-content">
+  <div class="dashboard-shell">
+    <section class="dashboard-intro">
+      <p class="eyebrow">Resumen operativo</p>
+      <h1>Panel de administración</h1>
+      <p class="subtitle">
+        Vista inicial enfocada en catálogo, contactos y usuarios del Administrador.
+      </p>
+      @if (loadError()) {
+        <p class="dashboard-error">{{ loadError() }}</p>
+      }
+    </section>
+
+    <section class="metrics-grid" aria-label="Indicadores principales">
+      @if (isLoading()) {
+        @for (item of [0, 1, 2, 3]; track item) {
+          <article class="metric-card is-skeleton">
+            <ion-skeleton-text animated style="width: 62%; height: 12px"></ion-skeleton-text>
+            <ion-skeleton-text animated style="width: 36%; height: 24px"></ion-skeleton-text>
+            <ion-skeleton-text animated style="width: 88%; height: 12px"></ion-skeleton-text>
+          </article>
+        }
+      } @else if (hasMetrics()) {
+        @for (metric of metrics(); track metric.label) {
+          <ion-card
+            class="metric-card"
+            [button]="!!metric.route"
+            [routerLink]="metric.route ?? null"
+            [class.is-clickable]="!!metric.route"
+          >
+            <span class="metric-label">{{ metric.label }}</span>
+            <strong class="metric-value">{{ metric.value }}</strong>
+            <p class="metric-hint">{{ metric.hint }}</p>
+          </ion-card>
+        }
+      } @else {
+        <article class="panel-card empty-panel metrics-empty">
+          <h2>Sin métricas disponibles</h2>
+          <p>Cuando exista el resumen del dashboard, aquí se mostrarán indicadores clave.</p>
+        </article>
+      }
+    </section>
+
+    <section class="dashboard-grid">
+      <article class="panel-card">
+        <div class="panel-head">
+          <h2>Estado del catálogo</h2>
+          <p>Resumen rápido del estado de tus publicaciones y su disponibilidad.</p>
+        </div>
+        @if (isLoading()) {
+          <div class="stack-list">
+            @for (row of [0, 1, 2]; track row) {
+              <div class="stack-item is-skeleton">
+                <div class="stack-item-main">
+                  <ion-skeleton-text animated style="width: 72%; height: 14px"></ion-skeleton-text>
+                  <ion-skeleton-text animated style="width: 92%; height: 12px"></ion-skeleton-text>
+                </div>
+                <ion-skeleton-text animated style="width: 70px; height: 12px"></ion-skeleton-text>
+              </div>
+            }
+          </div>
+        } @else if (hasLodgingHealth()) {
+          <div class="stack-list">
+            @for (item of lodgingHealth(); track item.title) {
+              <div class="stack-item" [class.is-warning]="item.tone === 'warning'">
+                <div class="stack-item-main">
+                  <h3>{{ item.title }}</h3>
+                  <p>{{ item.subtitle }}</p>
+                </div>
+                <span class="stack-meta">{{ item.meta }}</span>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="empty-panel">
+            <h3>Sin datos de catálogo</h3>
+            <p>No hay señales para mostrar sobre alojamientos por el momento.</p>
+          </div>
+        }
+      </article>
+
+      <article class="panel-card">
+        <div class="panel-head">
+          <h2>Actividad reciente</h2>
+          <p>Últimos movimientos registrados en alojamientos, contactos y usuarios.</p>
+        </div>
+        @if (isLoading()) {
+          <div class="stack-list">
+            @for (row of [0, 1, 2, 3]; track row) {
+              <div class="stack-item is-skeleton">
+                <div class="stack-item-main">
+                  <ion-skeleton-text animated style="width: 64%; height: 14px"></ion-skeleton-text>
+                  <ion-skeleton-text animated style="width: 84%; height: 12px"></ion-skeleton-text>
+                </div>
+                <ion-skeleton-text animated style="width: 54px; height: 12px"></ion-skeleton-text>
+              </div>
+            }
+          </div>
+        } @else if (hasRecentActivity()) {
+          <div class="stack-list">
+            @for (item of recentActivity(); track item.title + item.meta) {
+              <div class="stack-item" [class.is-warning]="item.tone === 'warning'">
+                <div class="stack-item-main">
+                  <h3>{{ item.title }}</h3>
+                  <p>{{ item.subtitle }}</p>
+                </div>
+                <span class="stack-meta">{{ item.meta }}</span>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="empty-panel">
+            <h3>Sin actividad reciente</h3>
+            <p>Aún no hay eventos para mostrar en la línea de tiempo.</p>
+          </div>
+        }
+      </article>
+    </section>
+
+    <section class="dashboard-grid">
+      <article class="panel-card">
+        <div class="panel-head">
+          <h2>Distribución por ciudad</h2>
+          <p>Cómo se reparte el catálogo entre ciudades y cuántos están activos.</p>
+        </div>
+        @if (isLoading()) {
+          <div class="city-list">
+            @for (row of [0, 1, 2, 3]; track row) {
+              <div class="city-row is-skeleton">
+                <ion-skeleton-text animated style="width: 45%; height: 13px"></ion-skeleton-text>
+                <ion-skeleton-text animated style="width: 100%; height: 8px"></ion-skeleton-text>
+              </div>
+            }
+          </div>
+        } @else if (hasCityDistribution()) {
+          <div class="city-list">
+            @for (row of cityDistribution(); track row.city) {
+              <div class="city-row">
+                <div class="city-main">
+                  <strong>{{ row.city }}</strong>
+                  <span>{{ row.active }} activos / {{ row.lodgings }} total</span>
+                </div>
+                <div
+                  class="city-bar"
+                  [style.--fill]="((row.active / row.lodgings) * 100) + '%'"
+                  aria-hidden="true"
+                ></div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="empty-panel">
+            <h3>Sin distribución por ciudad</h3>
+            <p>Cuando existan alojamientos cargados se verá su reparto por ciudad.</p>
+          </div>
+        }
+      </article>
+
+      <article class="panel-card">
+        <div class="panel-head">
+          <h2>Tareas sugeridas</h2>
+          <p>Acciones recomendadas para mantener el panel y el catálogo al día.</p>
+        </div>
+        @if (isLoading()) {
+          <div class="stack-list">
+            @for (row of [0, 1, 2]; track row) {
+              <div class="stack-item is-skeleton">
+                <div class="stack-item-main">
+                  <ion-skeleton-text animated style="width: 78%; height: 14px"></ion-skeleton-text>
+                  <ion-skeleton-text animated style="width: 68%; height: 12px"></ion-skeleton-text>
+                </div>
+                <ion-skeleton-text animated style="width: 90px; height: 12px"></ion-skeleton-text>
+              </div>
+            }
+          </div>
+        } @else if (hasAdminTasks()) {
+          <div class="stack-list">
+            @for (item of adminTasks(); track item.title + item.meta) {
+              <div class="stack-item" [class.is-warning]="item.tone === 'warning'">
+                <div class="stack-item-main">
+                  <h3>{{ item.title }}</h3>
+                  <p>{{ item.subtitle }}</p>
+                </div>
+                <span class="stack-meta">{{ item.meta }}</span>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="empty-panel">
+            <h3>Sin tareas sugeridas</h3>
+            <p>No hay alertas ni acciones pendientes para mostrar.</p>
+          </div>
+        }
+      </article>
+    </section>
+  </div>
+</ion-content>
+
+<ion-footer class="app-page-footer">
+  <ion-toolbar class="app-page-toolbar">
+    <div class="app-page-footer-note">Modo Playa App</div>
+  </ion-toolbar>
+</ion-footer>
