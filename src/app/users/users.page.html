@@ -1,13 +1,210 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>users</ion-title>
+<ion-header class="app-page-header">
+  <ion-toolbar class="app-page-toolbar">
+    <ion-buttons slot="start">
+      <ion-menu-button menu="admin-main-menu"></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Usuarios</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">users</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <div class="users-page">
+    <section class="users-page__hero">
+      <div>
+        <p class="users-page__eyebrow">Administradores</p>
+        <h1>Usuarios del propietario</h1>
+        <p class="users-page__subtitle">
+          Todos los usuarios tienen permisos de administrador y acceso completo a los datos del
+          propietario.
+        </p>
+      </div>
+
+      <div class="users-page__hero-actions">
+        <button
+          type="button"
+          class="users-page__btn users-page__btn--secondary"
+          [disabled]="loading() || submitting()"
+          (click)="loadUsers()"
+        >
+          Actualizar
+        </button>
+
+        <button
+          type="button"
+          class="users-page__btn users-page__btn--primary"
+          [disabled]="!canCreateMore()"
+          (click)="toggleForm()"
+        >
+          {{ formOpen() ? 'Cancelar alta' : 'Dar de alta usuario' }}
+        </button>
+      </div>
+    </section>
+
+    <section class="users-page__summary" aria-label="Resumen de cupo de usuarios">
+      <div class="users-page__summary-item">
+        <span class="label">Usuarios cargados</span>
+        <strong>{{ total() }}</strong>
+      </div>
+      <div class="users-page__summary-item">
+        <span class="label">Límite por propietario</span>
+        <strong>{{ ownerUsersLimit }}</strong>
+      </div>
+      <div class="users-page__summary-item">
+        <span class="label">Cupos disponibles</span>
+        <strong>{{ remainingSlots() }}</strong>
+      </div>
+    </section>
+
+    @if (limitReached()) {
+      <section class="users-page__notice users-page__notice--warning" role="status">
+        Se alcanzó el límite de usuarios por propietario. No se pueden dar de alta más usuarios.
+      </section>
+    }
+
+    @if (formOpen()) {
+      <section
+        class="users-page__panel users-page__panel--form-enter"
+        aria-labelledby="user-create-title"
+      >
+        <div class="users-page__panel-head">
+          <h2 id="user-create-title">Alta de usuario administrador</h2>
+          <p>Se enviará un usuario para activación de contraseña y acceso al panel.</p>
+        </div>
+
+        <div class="users-page__notice users-page__notice--alert">
+          Dar de alta un usuario administrador le da acceso a todos los datos de este propietario y
+          pasa a considerarse un propietario más.
+        </div>
+
+        <form class="users-form" [formGroup]="createForm" (ngSubmit)="submit()">
+          <div class="users-form__grid">
+            <label class="users-form__field">
+              <span>Username</span>
+              <input
+                type="text"
+                formControlName="username"
+                placeholder="admin-playa"
+                autocomplete="username"
+                [class.is-invalid]="
+                  createForm.controls.username.invalid &&
+                  (createForm.controls.username.touched || createForm.controls.username.dirty)
+                "
+              />
+              @if (
+                createForm.controls.username.invalid &&
+                (createForm.controls.username.touched || createForm.controls.username.dirty)
+              ) {
+                <small>
+                  @if (createForm.controls.username.hasError('required')) {
+                    El username es obligatorio.
+                  } @else if (createForm.controls.username.hasError('minlength')) {
+                    El username debe tener al menos 3 caracteres.
+                  }
+                </small>
+              }
+            </label>
+
+            <label class="users-form__field">
+              <span>Email</span>
+              <input
+                type="email"
+                formControlName="email"
+                placeholder="admin@dominio.com"
+                autocomplete="email"
+                [class.is-invalid]="
+                  createForm.controls.email.invalid &&
+                  (createForm.controls.email.touched || createForm.controls.email.dirty)
+                "
+              />
+              @if (
+                createForm.controls.email.invalid &&
+                (createForm.controls.email.touched || createForm.controls.email.dirty)
+              ) {
+                <small>
+                  @if (createForm.controls.email.hasError('required')) {
+                    El email es obligatorio.
+                  } @else if (createForm.controls.email.hasError('email')) {
+                    Ingresá un email válido.
+                  }
+                </small>
+              }
+            </label>
+          </div>
+
+          <div class="users-form__actions">
+            <button
+              type="button"
+              class="users-page__btn users-page__btn--secondary"
+              [disabled]="submitting()"
+              (click)="closeForm()"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              class="users-page__btn users-page__btn--primary"
+              [disabled]="createForm.invalid || submitting() || limitReached()"
+            >
+              {{ submitting() ? 'Guardando...' : 'Confirmar alta' }}
+            </button>
+          </div>
+        </form>
+      </section>
+    }
+
+    <section class="users-page__panel" aria-labelledby="users-table-title">
+      <div class="users-page__panel-head">
+        <h2 id="users-table-title">Listado de usuarios</h2>
+        <p>Solo se permite listar y dar de alta usuarios desde este módulo.</p>
+      </div>
+
+      @if (loadError()) {
+        <div class="users-page__state users-page__state--error">
+          {{ loadError() }}
+        </div>
+      } @else if (loading()) {
+        <div class="users-page__state">Cargando usuarios...</div>
+      } @else if (users().length === 0) {
+        <div class="users-page__state">
+          Todavía no hay usuarios administrativos cargados para este propietario.
+        </div>
+      } @else {
+        <div class="users-table-wrap">
+          <table class="users-table">
+            <thead>
+              <tr>
+                <th scope="col">Username</th>
+                <th scope="col">Email</th>
+                <th scope="col">Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (user of users(); track trackByUserId($index, user)) {
+                <tr>
+                  <td data-label="Username">{{ user.username }}</td>
+                  <td data-label="Email">{{ user.email }}</td>
+                  <td data-label="Estado">
+                    <span
+                      class="users-table__status"
+                      [class.is-active]="userStatusTone(user) === 'active'"
+                      [class.is-pending]="userStatusTone(user) === 'pending'"
+                      [class.is-inactive]="userStatusTone(user) === 'inactive'"
+                    >
+                      {{ userStatusLabel(user) }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  </div>
 </ion-content>
+
+<ion-footer class="app-page-footer">
+  <ion-toolbar class="app-page-toolbar">
+    <div class="app-page-footer-note">Modo Playa App</div>
+  </ion-toolbar>
+</ion-footer>
