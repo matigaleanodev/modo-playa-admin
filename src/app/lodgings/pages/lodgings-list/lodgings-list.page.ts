@@ -73,4 +73,15 @@ export class LodgingsListPage extends BaseList<Lodging> implements OnInit {
   }
 
   trackByLodging = (_index: number, item: BaseEntity) => item.id;
+
+  getCardImage(item: Lodging): string | null {
+    const defaultMedia = item.mediaImages?.find((image) => image.isDefault);
+    return (
+      defaultMedia?.variants?.card ||
+      defaultMedia?.variants?.thumb ||
+      defaultMedia?.url ||
+      item.mainImage ||
+      null
+    );
+  }
 }

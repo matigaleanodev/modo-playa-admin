@@ -24,16 +24,32 @@
 
 .field__control {
   width: 100%;
-  border: 1px solid rgba(0, 0, 0, 0.14);
+  border: 1px solid rgba(var(--ion-color-medium-rgb), 0.24);
   border-radius: 0.75rem;
   padding: 0.75rem 0.9rem;
-  background: rgba(255, 255, 255, 0.9);
-  color: inherit;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--ion-text-color, #0f172a);
+  caret-color: rgb(var(--ion-color-primary-rgb));
 }
 
 .field__control--multiple {
   min-height: 7rem;
   line-height: 1.35;
+}
+
+.field__control::placeholder {
+  color: rgba(var(--ion-color-medium-rgb), 0.9);
+}
+
+.field__control:focus {
+  outline: none;
+  border-color: rgba(var(--ion-color-primary-rgb), 0.38);
+  box-shadow: 0 0 0 3px rgba(var(--ion-color-primary-rgb), 0.12);
+}
+
+.field__control option {
+  background: #ffffff;
+  color: var(--ion-text-color, #0f172a);
 }
 
 .field__multiple {
@@ -71,6 +87,23 @@
 .field__error {
   color: var(--ion-color-danger, #d7263d);
   font-weight: 500;
+}
+
+:host-context(.ion-palette-dark) {
+  .field__control {
+    background: rgba(var(--ion-color-step-150-rgb, 50, 56, 64), 0.9);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: var(--ion-text-color, #f8fafc);
+  }
+
+  .field__control::placeholder {
+    color: rgba(226, 232, 240, 0.6);
+  }
+
+  .field__control option {
+    background: rgb(var(--ion-color-step-100-rgb, 40, 45, 52));
+    color: var(--ion-text-color, #f8fafc);
+  }
 }
 
 @media (min-width: 768px) {

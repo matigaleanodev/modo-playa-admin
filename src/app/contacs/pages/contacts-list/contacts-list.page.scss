@@ -16,6 +16,31 @@
   min-width: 0;
 }
 
+.contact-card__badges {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.contact-card__status {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.22rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid rgba(var(--ion-color-success-rgb), 0.14);
+  background: rgba(var(--ion-color-success-rgb), 0.08);
+  color: #0f766e;
+  white-space: nowrap;
+}
+
+.contact-card__status.inactive {
+  border-color: rgba(var(--ion-color-medium-rgb), 0.16);
+  background: rgba(var(--ion-color-medium-rgb), 0.08);
+  color: #475569;
+}
+
 .contact-card__header h3 {
   margin: 0;
   font-size: 0.98rem;

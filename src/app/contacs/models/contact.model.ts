@@ -6,4 +6,5 @@ export interface Contact extends BaseEntity {
   whatsapp?: string;
   isDefault?: boolean;
   notes?: string;
+  active?: boolean;
 }
