@@ -34,9 +34,14 @@
       <div class="contact-card">
         <header class="contact-card__header">
           <h3>{{ item.name }}</h3>
-          @if (item.isDefault) {
-            <span class="contact-card__badge">Predeterminado</span>
-          }
+          <div class="contact-card__badges">
+            <span class="contact-card__status" [class.inactive]="item.active === false">
+              {{ item.active === false ? 'Inactivo' : 'Activo' }}
+            </span>
+            @if (item.isDefault) {
+              <span class="contact-card__badge">Predeterminado</span>
+            }
+          </div>
         </header>
 
         <p class="contact-card__line">{{ item.email || 'Sin email' }}</p>

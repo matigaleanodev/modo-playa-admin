@@ -18,6 +18,25 @@ export interface AvailabilityRange {
   to: string;
 }
 
+export interface LodgingImageVariants {
+  thumb: string;
+  card: string;
+  hero: string;
+}
+
+export interface LodgingMediaImage {
+  imageId: string;
+  key: string;
+  isDefault: boolean;
+  width?: number;
+  height?: number;
+  bytes?: number;
+  mime?: string;
+  createdAt: string;
+  url: string;
+  variants?: LodgingImageVariants;
+}
+
 export interface Lodging extends BaseEntity {
   title: string;
   description: string;
@@ -34,6 +53,7 @@ export interface Lodging extends BaseEntity {
   amenities?: LodgingAmenity[];
   mainImage: string;
   images?: string[];
+  mediaImages?: LodgingMediaImage[];
   occupiedRanges?: AvailabilityRange[];
   contactId?: string | null;
   active: boolean;
@@ -59,6 +79,7 @@ export function createEmptyLodging(): Lodging {
     amenities: [],
     mainImage: '',
     images: [],
+    mediaImages: [],
     occupiedRanges: [],
     contactId: null,
     active: true,

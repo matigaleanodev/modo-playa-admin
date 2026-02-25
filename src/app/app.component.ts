@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
+import { ThemeService } from '@shared/services/theme/theme.service';
 
 @Component({
   selector: 'app-root',
@@ -8,5 +9,6 @@ import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
   imports: [IonApp, IonRouterOutlet],
 })
 export class AppComponent {
-  constructor() {}
+  // Fuerza la inicialización global del tema desde el arranque de la app.
+  private readonly _themeService = inject(ThemeService);
 }

@@ -35,6 +35,10 @@ export class LodgingsResourceService extends ResourceService<
     this._current.set(null);
   }
 
+  normalizePayloadForSave(data: LodgingSaveDto): LodgingSaveDto {
+    return this._normalizePayload(data);
+  }
+
   async guardar(data: LodgingSaveDto): Promise<void> {
     const payload = this._normalizePayload(data);
 
