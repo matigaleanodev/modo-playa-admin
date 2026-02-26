@@ -8,13 +8,25 @@ import { signal } from '@angular/core';
 describe('AdminLayoutComponent', () => {
   let component: AdminLayoutComponent;
   let fixture: ComponentFixture<AdminLayoutComponent>;
-  let sessionMock: jasmine.SpyObj<SessionService>;
+  let sessionMock: jasmine.SpyObj<SessionService> & {
+    user: ReturnType<typeof signal<any | null>>;
+  };
   let themeMock: jasmine.SpyObj<ThemeService> & {
     currentTheme: ReturnType<typeof signal<'system' | 'light' | 'dark'>>;
   };
 
   beforeEach(async () => {
-    sessionMock = jasmine.createSpyObj('SessionService', ['logout']);
+    sessionMock = Object.assign(
+      jasmine.createSpyObj<SessionService>('SessionService', ['logout']),
+      {
+        user: signal<any | null>({
+          id: 'u1',
+          username: 'admin',
+          email: 'admin@test.com',
+          role: 'OWNER',
+        }),
+      },
+    );
     sessionMock.logout.and.resolveTo();
     themeMock = Object.assign(
       jasmine.createSpyObj<ThemeService>('ThemeService', ['setTheme']),
@@ -55,5 +67,11 @@ describe('AdminLayoutComponent', () => {
     await component.onLogout();
 
     expect(sessionMock.logout).toHaveBeenCalled();
+  });
+
+  it('debería exponer datos del usuario para el header del menú', () => {
+    expect(component.menuHeaderName()).toBe('admin');
+    expect(component.menuHeaderEmail()).toBe('admin@test.com');
+    expect(component.menuHeaderAvatar()).toBe('assets/images/profile_image.png');
   });
 });

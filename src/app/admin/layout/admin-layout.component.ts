@@ -2,6 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import {
   ActionSheetController,
+  IonAvatar,
   IonButton,
   IonContent,
   IonFooter,
@@ -35,6 +36,7 @@ import {
   sunnyOutline,
 } from 'ionicons/icons';
 import { SessionService } from '@auth/services/session.service';
+import { AuthUser } from '@auth/models/auth-user.model';
 
 type AdminMenuItem = {
   label: string;
@@ -52,6 +54,7 @@ type AdminMenuItem = {
     RouterLinkActive,
     IonHeader,
     IonToolbar,
+    IonAvatar,
     IonSplitPane,
     IonMenu,
     IonContent,
@@ -80,6 +83,25 @@ export class AdminLayoutComponent {
     if (theme === 'dark') return 'Oscuro';
     return 'Sistema';
   });
+
+  readonly currentUser = computed(() => this.sessionService.user());
+
+  readonly menuHeaderName = computed(() => {
+    const user = this.currentUser();
+    if (!user) return 'Modo Playa Admin';
+
+    const fullName = [user.firstName, user.lastName]
+      .filter(Boolean)
+      .join(' ')
+      .trim();
+    return fullName || user.username;
+  });
+
+  readonly menuHeaderEmail = computed(() => this.currentUser()?.email ?? '');
+
+  readonly menuHeaderAvatar = computed(() =>
+    this.resolveMenuAvatar(this.currentUser()),
+  );
 
   constructor() {
     addIcons({
@@ -153,7 +175,7 @@ export class AdminLayoutComponent {
     },
     {
       label: 'Perfil',
-      path: '',
+      path: '/app/profile',
       icon: 'person-circle-outline',
     },
     {
@@ -167,4 +189,12 @@ export class AdminLayoutComponent {
       icon: 'settings-outline',
     },
   ]);
+
+  private resolveMenuAvatar(user: AuthUser | null): string {
+    return (
+      user?.profileImage?.url ||
+      user?.avatarUrl ||
+      'assets/images/profile_image.png'
+    );
+  }
 }

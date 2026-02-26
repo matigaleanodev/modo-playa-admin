@@ -68,10 +68,61 @@
   min-height: calc(56px + var(--ion-safe-area-top, 0px));
   display: flex;
   align-items: center;
-  padding-inline: 14px;
   font-weight: 600;
   letter-spacing: -0.02em;
   font-size: 1rem;
+  padding: 0;
+}
+
+.menu-user-header {
+  min-height: calc(56px + var(--ion-safe-area-top, 0px));
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+}
+
+.menu-user-header__avatar {
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--app-border-subtle);
+  box-shadow: var(--app-shadow-card-soft);
+  background: var(--app-surface-soft);
+}
+
+.menu-user-header__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.menu-brand {
+  min-width: 0;
+}
+
+.menu-brand__name,
+.menu-brand__email {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.menu-brand__name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1.15;
+}
+
+.menu-brand__email {
+  margin-top: 2px;
+  font-size: 0.72rem;
+  line-height: 1.2;
+  color: var(--ion-color-medium);
+  opacity: 0.85;
+  font-weight: 500;
 }
 
 .menu-footer-toolbar {
