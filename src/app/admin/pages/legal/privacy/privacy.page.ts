@@ -25,5 +25,5 @@ import {
   ],
 })
 export class PrivacyPage {
-  readonly contactEmail = 'contacto@foodlynotes.app';
+  readonly contactEmail = 'contacto@modoplaya.app';
 }

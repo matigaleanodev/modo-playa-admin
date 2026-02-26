@@ -29,7 +29,7 @@ describe('InfoPage', () => {
   });
 
   it('debería conservar el mail de contacto', () => {
-    expect(component.contactEmail).toBe('contacto@foodlynotes.app');
+    expect(component.contactEmail).toBe('contacto@modoplaya.app');
   });
 
   it('debería renderizar accesos a términos y privacidad', () => {

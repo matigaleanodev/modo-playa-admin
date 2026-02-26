@@ -25,5 +25,5 @@ import {
   ],
 })
 export class TermsPage {
-  readonly contactEmail = 'contacto@foodlynotes.app';
+  readonly contactEmail = 'contacto@modoplaya.app';
 }

@@ -32,7 +32,6 @@ import {
   personCircleOutline,
   personOutline,
   powerOutline,
-  settingsOutline,
   sunnyOutline,
 } from 'ionicons/icons';
 import { SessionService } from '@auth/services/session.service';
@@ -112,7 +111,6 @@ export class AdminLayoutComponent {
       personCircleOutline,
       informationCircleOutline,
       powerOutline,
-      settingsOutline,
       moonOutline,
       sunnyOutline,
       phonePortraitOutline,
@@ -182,11 +180,6 @@ export class AdminLayoutComponent {
       label: 'Informacion',
       path: '/app/info',
       icon: 'information-circle-outline',
-    },
-    {
-      label: 'Configuracion',
-      path: '',
-      icon: 'settings-outline',
     },
   ]);
 

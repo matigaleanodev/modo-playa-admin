@@ -50,7 +50,7 @@ export class InfoPage {
   readonly appVersion = 'N/D';
   readonly appStage = 'Producción';
 
-  readonly contactEmail = 'contacto@foodlynotes.app';
+  readonly contactEmail = 'contacto@modoplaya.app';
   readonly githubUrl = 'https://github.com/matigaleanodev/modo-playa-admin';
   readonly helpUrl = 'https://github.com/matigaleanodev/modo-playa-admin/issues';
 

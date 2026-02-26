@@ -22,7 +22,7 @@ describe('PrivacyPage', () => {
   });
 
   it('debería exponer el mail de contacto esperado', () => {
-    expect(component.contactEmail).toBe('contacto@foodlynotes.app');
+    expect(component.contactEmail).toBe('contacto@modoplaya.app');
   });
 
   it('debería renderizar el título y la sección de contacto', () => {

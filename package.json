@@ -1,8 +1,24 @@
 {
   "name": "modo-playa-admin",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "description": "Panel de administracion de Modo Playa construido con Ionic y Angular",
   "author": "Matias Galeano",
-  "homepage": "https://ionicframework.com/",
+  "homepage": "https://github.com/matigaleanodev/modo-playa-admin",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/matigaleanodev/modo-playa-admin.git"
+  },
+  "bugs": {
+    "url": "https://github.com/matigaleanodev/modo-playa-admin/issues",
+    "email": "contacto@modoplaya.app"
+  },
+  "keywords": [
+    "modo-playa",
+    "admin",
+    "ionic",
+    "angular",
+    "capacitor"
+  ],
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -60,6 +76,5 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
     "typescript": "~5.9.0"
-  },
-  "description": "An Ionic project"
+  }
 }
