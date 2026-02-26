@@ -58,6 +58,15 @@ export class SessionService {
     );
   }
 
+  async applyAuthResponse(response: AuthResponse): Promise<void> {
+    await this.tokenService.setTokens(response.accessToken, response.refreshToken);
+    this._user.set(response.user);
+  }
+
+  setCurrentUser(user: AuthUser | null): void {
+    this._user.set(user);
+  }
+
   async logout(): Promise<void> {
     await this.tokenService.clearTokens();
     this._user.set(null);

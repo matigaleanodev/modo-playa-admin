@@ -32,6 +32,11 @@ export const routes: Routes = [
     pathMatch: 'full',
   },
   {
+    path: 'profile',
+    redirectTo: 'app/profile',
+    pathMatch: 'full',
+  },
+  {
     path: '',
     redirectTo: 'auth/login',
     pathMatch: 'full',

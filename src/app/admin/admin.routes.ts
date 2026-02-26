@@ -36,6 +36,11 @@ export const ADMIN_ROUTES: Routes = [
         loadComponent: () =>
           import('../users/users.page').then((m) => m.UsersPage),
       },
+      {
+        path: 'profile',
+        loadChildren: () =>
+          import('../profile/profile.routes').then((m) => m.PROFILE_ROUTES),
+      },
     ],
   },
 ];

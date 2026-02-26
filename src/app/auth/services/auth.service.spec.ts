@@ -73,6 +73,38 @@ describe('AuthService', () => {
     req.flush({});
   });
 
+  it('debería llamar a updateMe', () => {
+    const dto = {
+      firstName: 'Matias',
+      lastName: 'Galeano',
+      displayName: 'Mati',
+      phone: '+549...',
+    };
+
+    service.updateMe(dto).subscribe();
+
+    const req = httpMock.expectOne(`${API}/me`);
+    expect(req.request.method).toBe('PATCH');
+    expect(req.request.body).toEqual(dto);
+
+    req.flush({});
+  });
+
+  it('debería llamar a change-password', () => {
+    const dto = {
+      currentPassword: 'Password123',
+      newPassword: 'NuevaPassword456',
+    };
+
+    service.changePassword(dto).subscribe();
+
+    const req = httpMock.expectOne(`${API}/change-password`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual(dto);
+
+    req.flush({ accessToken: '', refreshToken: '', user: {} });
+  });
+
   it('debería llamar a reset-password', () => {
     const dto = { password: 'newpass' };
 

@@ -1,0 +1,139 @@
+<ion-header class="app-page-header">
+  <ion-toolbar class="app-page-toolbar">
+    <ion-buttons slot="start">
+      <ion-menu-button menu="admin-main-menu"></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Perfil</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="profile-page">
+    <section class="profile-card profile-hero">
+      <div class="profile-hero__identity">
+        <div class="profile-hero__avatar-block">
+          <ion-avatar class="profile-hero__avatar">
+            <img [src]="profileImageUrl()" [alt]="'Foto de perfil de ' + displayName()" />
+          </ion-avatar>
+
+          <input
+            #profileImageInput
+            type="file"
+            accept="image/*"
+            class="profile-hero__image-input"
+            [disabled]="imageBusy()"
+            (change)="onProfileImageSelected($event)"
+          />
+
+          <div class="profile-hero__avatar-actions">
+            <button
+              type="button"
+              class="profile-btn profile-btn--secondary profile-btn--small"
+              [disabled]="imageBusy()"
+              (click)="triggerProfileImageSelection()"
+            >
+              {{ imageBusy() ? 'Subiendo...' : 'Cambiar imagen' }}
+            </button>
+
+            @if (hasProfileImage()) {
+              <button
+                type="button"
+                class="profile-btn profile-btn--ghost-danger profile-btn--small"
+                [disabled]="imageBusy()"
+                (click)="removeProfileImage()"
+              >
+                Quitar
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="profile-hero__text">
+          <p class="eyebrow">Cuenta</p>
+          <h1>{{ displayName() }}</h1>
+          <p class="subtitle">{{ user()?.email || 'Sin email' }}</p>
+          <small>@{{ user()?.username || 'usuario' }}</small>
+        </div>
+      </div>
+
+      <div class="profile-hero__actions">
+        <button
+          type="button"
+          class="profile-btn profile-btn--secondary"
+          [disabled]="loading() || imageBusy()"
+          (click)="loadProfile()"
+        >
+          Actualizar
+        </button>
+        <button type="button" class="profile-btn profile-btn--primary" (click)="goToEdit()">
+          Editar perfil
+        </button>
+        <button
+          type="button"
+          class="profile-btn profile-btn--secondary"
+          (click)="goToChangePassword()"
+        >
+          Cambiar contraseña
+        </button>
+      </div>
+    </section>
+
+    @if (error()) {
+      <section class="profile-state profile-state--error">{{ error() }}</section>
+    }
+
+    <section class="profile-card">
+      <header class="panel-head">
+        <h2>Datos del perfil</h2>
+        <p>Información del usuario autenticado obtenida desde `auth/me`.</p>
+      </header>
+
+      @if (loading() && !user()) {
+        <div class="profile-state">Cargando perfil...</div>
+      } @else if (user(); as currentUser) {
+        <div class="profile-grid">
+          <div class="profile-field">
+            <span>Nombre</span>
+            <strong>{{ valueOrDash(currentUser.firstName) }}</strong>
+          </div>
+          <div class="profile-field">
+            <span>Apellido</span>
+            <strong>{{ valueOrDash(currentUser.lastName) }}</strong>
+          </div>
+          <div class="profile-field">
+            <span>Nombre para mostrar</span>
+            <strong>{{ valueOrDash(currentUser.displayName) }}</strong>
+          </div>
+          <div class="profile-field">
+            <span>Teléfono</span>
+            <strong>{{ valueOrDash(currentUser.phone) }}</strong>
+          </div>
+          <div class="profile-field">
+            <span>Email</span>
+            <strong>{{ currentUser.email }}</strong>
+          </div>
+          <div class="profile-field">
+            <span>Username</span>
+            <strong>{{ currentUser.username }}</strong>
+          </div>
+          <div class="profile-field">
+            <span>Rol</span>
+            <strong>{{ currentUser.role }}</strong>
+          </div>
+          <div class="profile-field">
+            <span>Iniciales</span>
+            <strong>{{ initials() }}</strong>
+          </div>
+        </div>
+      } @else {
+        <div class="profile-state">No hay datos de perfil disponibles.</div>
+      }
+    </section>
+  </div>
+</ion-content>
+
+<ion-footer class="app-page-footer">
+  <ion-toolbar class="app-page-toolbar">
+    <div class="app-page-footer-note">Modo Playa App</div>
+  </ion-toolbar>
+</ion-footer>
