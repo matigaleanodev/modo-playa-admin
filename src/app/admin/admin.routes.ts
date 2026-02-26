@@ -41,6 +41,21 @@ export const ADMIN_ROUTES: Routes = [
         loadChildren: () =>
           import('../profile/profile.routes').then((m) => m.PROFILE_ROUTES),
       },
+      {
+        path: 'info',
+        loadComponent: () =>
+          import('./pages/info/info.page').then((m) => m.InfoPage),
+      },
+      {
+        path: 'legal/terms',
+        loadComponent: () =>
+          import('./pages/legal/terms/terms.page').then((m) => m.TermsPage),
+      },
+      {
+        path: 'legal/privacy',
+        loadComponent: () =>
+          import('./pages/legal/privacy/privacy.page').then((m) => m.PrivacyPage),
+      },
     ],
   },
 ];
