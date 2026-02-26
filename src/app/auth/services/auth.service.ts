@@ -60,12 +60,15 @@ export class AuthService extends ApiService {
     });
   }
 
-  refresh(): Observable<AuthResponse> {
+  refresh(refreshToken: string): Observable<AuthResponse> {
     return this._http.post<AuthResponse>(
       this._path('refresh'),
       {},
       {
         context: new HttpContext().set(SKIP_AUTH, true),
+        headers: new HttpHeaders({
+          Authorization: `Bearer ${refreshToken}`,
+        }),
       },
     );
   }
@@ -74,7 +77,19 @@ export class AuthService extends ApiService {
     return this._http.get<AuthUser>(this._path('me'));
   }
 
-  changePassword(dto: { password: string }): Observable<AuthResponse> {
+  updateMe(dto: {
+    firstName?: string;
+    lastName?: string;
+    displayName?: string;
+    phone?: string;
+  }): Observable<AuthUser> {
+    return this._http.patch<AuthUser>(this._path('me'), dto);
+  }
+
+  changePassword(dto: {
+    currentPassword: string;
+    newPassword: string;
+  }): Observable<AuthResponse> {
     return this._http.post<AuthResponse>(this._path('change-password'), dto);
   }
 

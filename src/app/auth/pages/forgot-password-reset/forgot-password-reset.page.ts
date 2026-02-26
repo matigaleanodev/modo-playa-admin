@@ -17,11 +17,13 @@ import {
   IonIcon,
   IonInput,
   IonSpinner,
+  IonHeader,
+  IonToolbar,
+  IonFooter,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { eyeOffOutline, eyeOutline } from 'ionicons/icons';
 import { PasswordRecoveryService } from '@auth/services/password-recovery.service';
-import { LoadingService } from '@shared/services/loading/loading.service';
 import { NavService } from '@shared/services/nav/nav.service';
 import { ToastrService } from '@shared/services/toastr/toastr.service';
 
@@ -39,11 +41,13 @@ import { ToastrService } from '@shared/services/toastr/toastr.service';
     IonIcon,
     IonInput,
     IonSpinner,
+    IonHeader,
+    IonToolbar,
+    IonFooter,
   ],
 })
 export class ForgotPasswordResetPage implements OnInit {
   private readonly _recovery = inject(PasswordRecoveryService);
-  private readonly _loading = inject(LoadingService);
   private readonly _nav = inject(NavService);
   private readonly _toastr = inject(ToastrService);
 
@@ -131,7 +135,6 @@ export class ForgotPasswordResetPage implements OnInit {
 
     this.isSubmitting.set(true);
     this.form.disable({ emitEvent: false });
-    const dismiss = await this._loading.show('Actualizando contraseña...');
 
     try {
       await firstValueFrom(
@@ -152,7 +155,6 @@ export class ForgotPasswordResetPage implements OnInit {
     } finally {
       this.isSubmitting.set(false);
       this.form.enable({ emitEvent: false });
-      await dismiss();
     }
   }
 

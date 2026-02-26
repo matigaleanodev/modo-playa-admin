@@ -14,9 +14,11 @@ import {
   IonContent,
   IonInput,
   IonSpinner,
+  IonHeader,
+  IonToolbar,
+  IonFooter,
 } from '@ionic/angular/standalone';
 import { AccountActivationService } from '@auth/services/account-activation.service';
-import { LoadingService } from '@shared/services/loading/loading.service';
 import { NavService } from '@shared/services/nav/nav.service';
 
 @Component({
@@ -32,11 +34,13 @@ import { NavService } from '@shared/services/nav/nav.service';
     IonButton,
     IonInput,
     IonSpinner,
+    IonHeader,
+    IonToolbar,
+    IonFooter,
   ],
 })
 export class AccountActivationVerifyPage implements OnInit {
   private readonly _activation = inject(AccountActivationService);
-  private readonly _loading = inject(LoadingService);
   private readonly _nav = inject(NavService);
 
   readonly isSubmitting = signal(false);
@@ -79,7 +83,6 @@ export class AccountActivationVerifyPage implements OnInit {
 
     this.isSubmitting.set(true);
     this.form.disable({ emitEvent: false });
-    const dismiss = await this._loading.show('Validando código...');
 
     try {
       await firstValueFrom(this._activation.verifyCode(this.form.getRawValue()));
@@ -91,7 +94,6 @@ export class AccountActivationVerifyPage implements OnInit {
     } finally {
       this.isSubmitting.set(false);
       this.form.enable({ emitEvent: false });
-      await dismiss();
     }
   }
 

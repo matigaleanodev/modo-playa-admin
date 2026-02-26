@@ -52,11 +52,14 @@ describe('AuthService', () => {
   });
 
   it('debería llamar a refresh', () => {
-    service.refresh().subscribe();
+    service.refresh('refresh-token').subscribe();
 
     const req = httpMock.expectOne(`${API}/refresh`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual({});
+    expect(req.request.headers.get('Authorization')).toBe(
+      'Bearer refresh-token',
+    );
 
     req.flush({ accessToken: '', refreshToken: '', user: {} });
   });
@@ -68,6 +71,38 @@ describe('AuthService', () => {
     expect(req.request.method).toBe('GET');
 
     req.flush({});
+  });
+
+  it('debería llamar a updateMe', () => {
+    const dto = {
+      firstName: 'Matias',
+      lastName: 'Galeano',
+      displayName: 'Mati',
+      phone: '+549...',
+    };
+
+    service.updateMe(dto).subscribe();
+
+    const req = httpMock.expectOne(`${API}/me`);
+    expect(req.request.method).toBe('PATCH');
+    expect(req.request.body).toEqual(dto);
+
+    req.flush({});
+  });
+
+  it('debería llamar a change-password', () => {
+    const dto = {
+      currentPassword: 'Password123',
+      newPassword: 'NuevaPassword456',
+    };
+
+    service.changePassword(dto).subscribe();
+
+    const req = httpMock.expectOne(`${API}/change-password`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual(dto);
+
+    req.flush({ accessToken: '', refreshToken: '', user: {} });
   });
 
   it('debería llamar a reset-password', () => {

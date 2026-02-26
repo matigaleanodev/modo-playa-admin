@@ -9,7 +9,6 @@ import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { ForgotPasswordResetPage } from './forgot-password-reset.page';
 import { PasswordRecoveryService } from '@auth/services/password-recovery.service';
-import { LoadingService } from '@shared/services/loading/loading.service';
 import { NavService } from '@shared/services/nav/nav.service';
 import { ToastrService } from '@shared/services/toastr/toastr.service';
 
@@ -20,10 +19,8 @@ describe('ForgotPasswordResetPage', () => {
   let recoveryMock: jasmine.SpyObj<PasswordRecoveryService> & {
     identifier: WritableSignal<string | null>;
   };
-  let loadingMock: jasmine.SpyObj<LoadingService>;
   let navMock: jasmine.SpyObj<NavService>;
   let toastrMock: jasmine.SpyObj<ToastrService>;
-  let dismissMock: jasmine.Spy;
 
   beforeEach(async () => {
     recoveryMock = Object.assign(
@@ -38,15 +35,12 @@ describe('ForgotPasswordResetPage', () => {
       },
     );
 
-    loadingMock = jasmine.createSpyObj<LoadingService>('LoadingService', ['show']);
     navMock = jasmine.createSpyObj<NavService>('NavService', ['root']);
     toastrMock = jasmine.createSpyObj<ToastrService>('ToastrService', ['success']);
-    dismissMock = jasmine.createSpy('dismiss').and.resolveTo();
 
     recoveryMock.hydrate.and.resolveTo();
     recoveryMock.canResetPassword.and.returnValue(true);
     recoveryMock.clearFlow.and.resolveTo();
-    loadingMock.show.and.resolveTo(dismissMock);
     toastrMock.success.and.resolveTo();
 
     await TestBed.configureTestingModule({
@@ -54,7 +48,6 @@ describe('ForgotPasswordResetPage', () => {
       providers: [
         provideRouter([]),
         { provide: PasswordRecoveryService, useValue: recoveryMock },
-        { provide: LoadingService, useValue: loadingMock },
         { provide: NavService, useValue: navMock },
         { provide: ToastrService, useValue: toastrMock },
       ],
@@ -111,14 +104,12 @@ describe('ForgotPasswordResetPage', () => {
     component.onSubmit();
     flushMicrotasks();
 
-    expect(loadingMock.show).toHaveBeenCalledWith('Actualizando contraseña...');
     expect(recoveryMock.resetPassword).toHaveBeenCalledWith({ password: 'Abcd12' });
     expect(toastrMock.success).toHaveBeenCalledWith(
       'Contraseña actualizada correctamente. Inicia sesión para continuar.',
       'Recuperación completada',
     );
     expect(navMock.root).toHaveBeenCalledWith('/auth/login');
-    expect(dismissMock).toHaveBeenCalled();
   }));
 
   it('debería mostrar error si falla resetPassword', fakeAsync(() => {

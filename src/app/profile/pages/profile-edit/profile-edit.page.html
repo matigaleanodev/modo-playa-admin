@@ -1,0 +1,71 @@
+<ion-header class="app-page-header">
+  <ion-toolbar class="app-page-toolbar">
+    <ion-buttons slot="start">
+      <ion-menu-button menu="admin-main-menu"></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Editar perfil</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="profile-edit-page">
+    <section class="profile-card">
+      <header class="panel-head">
+        <h1>Editar perfil</h1>
+        <p>Completá o actualizá los datos personales del usuario autenticado.</p>
+      </header>
+
+      @if (error()) {
+        <div class="state state--error">{{ error() }}</div>
+      }
+
+      <form class="profile-form" [formGroup]="form" (ngSubmit)="submit()">
+        <div class="profile-form__grid">
+          <label class="profile-form__field">
+            <span>Nombre</span>
+            <input type="text" formControlName="firstName" placeholder="Matías" />
+          </label>
+
+          <label class="profile-form__field">
+            <span>Apellido</span>
+            <input type="text" formControlName="lastName" placeholder="Galeano" />
+          </label>
+
+          <label class="profile-form__field">
+            <span>Nombre para mostrar</span>
+            <input type="text" formControlName="displayName" placeholder="Mati Admin" />
+          </label>
+
+          <label class="profile-form__field">
+            <span>Teléfono</span>
+            <input type="text" formControlName="phone" placeholder="+549..." />
+          </label>
+        </div>
+
+        <div class="profile-form__actions">
+          <button
+            type="button"
+            class="profile-btn profile-btn--secondary"
+            [disabled]="saving()"
+            (click)="cancel()"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            class="profile-btn profile-btn--primary"
+            [disabled]="saving() || loading()"
+          >
+            {{ saving() ? 'Guardando...' : 'Guardar cambios' }}
+          </button>
+        </div>
+      </form>
+    </section>
+  </div>
+</ion-content>
+
+<ion-footer class="app-page-footer">
+  <ion-toolbar class="app-page-toolbar">
+    <div class="app-page-footer-note">Modo Playa App</div>
+  </ion-toolbar>
+</ion-footer>

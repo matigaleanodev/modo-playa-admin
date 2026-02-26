@@ -16,11 +16,12 @@ import {
   IonInput,
   IonSpinner,
   IonHeader,
+  IonToolbar,
+  IonFooter,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { eyeOffOutline, eyeOutline } from 'ionicons/icons';
 import { SessionService } from '@auth/services/session.service';
-import { LoadingService } from '@shared/services/loading/loading.service';
 
 @Component({
   selector: 'app-login',
@@ -36,11 +37,13 @@ import { LoadingService } from '@shared/services/loading/loading.service';
     IonInput,
     IonSpinner,
     IonIcon,
+    IonHeader,
+    IonToolbar,
+    IonFooter,
   ],
 })
 export class LoginPage {
   private readonly _session = inject(SessionService);
-  private readonly _loading = inject(LoadingService);
   readonly isSubmitting = signal(false);
   readonly submitAttempted = signal(false);
   readonly authError = signal<string | null>(null);
@@ -92,7 +95,6 @@ export class LoginPage {
 
     this.isSubmitting.set(true);
     this.form.disable({ emitEvent: false });
-    const dismiss = await this._loading.show('Iniciando sesion...');
 
     try {
       await firstValueFrom(this._session.login(this.form.getRawValue()));
@@ -103,7 +105,6 @@ export class LoginPage {
     } finally {
       this.isSubmitting.set(false);
       this.form.enable({ emitEvent: false });
-      await dismiss();
     }
   }
 

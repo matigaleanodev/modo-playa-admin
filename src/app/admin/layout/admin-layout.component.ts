@@ -1,0 +1,193 @@
+import { Component, computed, inject, signal } from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+import {
+  ActionSheetController,
+  IonAvatar,
+  IonButton,
+  IonContent,
+  IonFooter,
+  IonHeader,
+  IonIcon,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonListHeader,
+  IonMenu,
+  IonMenuToggle,
+  IonNote,
+  IonRouterOutlet,
+  IonSplitPane,
+  IonTitle,
+  IonToolbar,
+} from '@ionic/angular/standalone';
+import { ThemeService } from '@shared/services/theme/theme.service';
+import { addIcons } from 'ionicons';
+import {
+  bookOutline,
+  bedOutline,
+  homeOutline,
+  informationCircleOutline,
+  moonOutline,
+  phonePortraitOutline,
+  personCircleOutline,
+  personOutline,
+  powerOutline,
+  sunnyOutline,
+} from 'ionicons/icons';
+import { SessionService } from '@auth/services/session.service';
+import { AuthUser } from '@auth/models/auth-user.model';
+
+type AdminMenuItem = {
+  label: string;
+  path: string;
+  icon: string;
+};
+
+@Component({
+  selector: 'app-admin-layout',
+  standalone: true,
+  templateUrl: './admin-layout.component.html',
+  styleUrls: ['./admin-layout.component.scss'],
+  imports: [
+    RouterLink,
+    RouterLinkActive,
+    IonHeader,
+    IonToolbar,
+    IonAvatar,
+    IonSplitPane,
+    IonMenu,
+    IonContent,
+    IonTitle,
+    IonList,
+    IonListHeader,
+    IonMenuToggle,
+    IonItem,
+    IonIcon,
+    IonLabel,
+    IonNote,
+    IonRouterOutlet,
+    IonFooter,
+    IonButton,
+  ],
+})
+export class AdminLayoutComponent {
+  private readonly sessionService = inject(SessionService);
+  private readonly themeService = inject(ThemeService);
+  private readonly actionSheetCtrl = inject(ActionSheetController);
+
+  readonly currentThemeLabel = computed(() => {
+    const theme = this.themeService.currentTheme();
+
+    if (theme === 'light') return 'Claro';
+    if (theme === 'dark') return 'Oscuro';
+    return 'Sistema';
+  });
+
+  readonly currentUser = computed(() => this.sessionService.user());
+
+  readonly menuHeaderName = computed(() => {
+    const user = this.currentUser();
+    if (!user) return 'Modo Playa Admin';
+
+    const fullName = [user.firstName, user.lastName]
+      .filter(Boolean)
+      .join(' ')
+      .trim();
+    return fullName || user.username;
+  });
+
+  readonly menuHeaderEmail = computed(() => this.currentUser()?.email ?? '');
+
+  readonly menuHeaderAvatar = computed(() =>
+    this.resolveMenuAvatar(this.currentUser()),
+  );
+
+  constructor() {
+    addIcons({
+      bookOutline,
+      bedOutline,
+      homeOutline,
+      personOutline,
+      personCircleOutline,
+      informationCircleOutline,
+      powerOutline,
+      moonOutline,
+      sunnyOutline,
+      phonePortraitOutline,
+    });
+  }
+
+  async onLogout(): Promise<void> {
+    await this.sessionService.logout();
+  }
+
+  async openThemeSelector(): Promise<void> {
+    const sheet = await this.actionSheetCtrl.create({
+      header: 'Tema',
+      buttons: [
+        {
+          text: 'Claro',
+          icon: 'sunny-outline',
+          handler: () => this.themeService.setTheme('light'),
+        },
+        {
+          text: 'Oscuro',
+          icon: 'moon-outline',
+          handler: () => this.themeService.setTheme('dark'),
+        },
+        {
+          text: 'Sistema',
+          icon: 'phone-portrait-outline',
+          handler: () => this.themeService.setTheme('system'),
+        },
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+        },
+      ],
+    });
+
+    await sheet.present();
+  }
+
+  readonly menuItems = signal<AdminMenuItem[]>([
+    {
+      label: 'Dashboard',
+      path: '/app/dashboard',
+      icon: 'home-outline',
+    },
+    {
+      label: 'Alojamientos',
+      path: '/app/lodgings',
+      icon: 'bed-outline',
+    },
+    {
+      label: 'Contactos',
+      path: '/app/contacts',
+      icon: 'book-outline',
+    },
+    {
+      label: 'Usuarios',
+      path: '/app/users',
+      icon: 'person-outline',
+    },
+    {
+      label: 'Perfil',
+      path: '/app/profile',
+      icon: 'person-circle-outline',
+    },
+    {
+      label: 'Informacion',
+      path: '/app/info',
+      icon: 'information-circle-outline',
+    },
+  ]);
+
+  private resolveMenuAvatar(user: AuthUser | null): string {
+    return (
+      user?.profileImage?.url ||
+      user?.avatarUrl ||
+      'assets/images/profile_image.png'
+    );
+  }
+}

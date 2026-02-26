@@ -53,20 +53,35 @@ export class SessionService {
     ).pipe(
       tap(() => {
         this._user.set(response.user);
-        this.navService.root('/lodgings');
+        this.navService.root('/app/dashboard');
       }),
     );
+  }
+
+  async applyAuthResponse(response: AuthResponse): Promise<void> {
+    await this.tokenService.setTokens(response.accessToken, response.refreshToken);
+    this._user.set(response.user);
+  }
+
+  setCurrentUser(user: AuthUser | null): void {
+    this._user.set(user);
   }
 
   async logout(): Promise<void> {
     await this.tokenService.clearTokens();
     this._user.set(null);
-    this.navService.root('/login');
+    this.navService.root('/auth/login');
   }
 
   async refresh(): Promise<void> {
     try {
-      const response = await firstValueFrom(this.authService.refresh());
+      const refreshToken = await this.tokenService.getRefreshToken();
+
+      if (!refreshToken) {
+        throw new Error('No hay refresh token');
+      }
+
+      const response = await firstValueFrom(this.authService.refresh(refreshToken));
 
       await this.tokenService.setTokens(
         response.accessToken,

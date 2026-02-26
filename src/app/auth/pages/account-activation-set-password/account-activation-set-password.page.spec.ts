@@ -9,7 +9,6 @@ import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { AccountActivationSetPasswordPage } from './account-activation-set-password.page';
 import { AccountActivationService } from '@auth/services/account-activation.service';
-import { LoadingService } from '@shared/services/loading/loading.service';
 import { NavService } from '@shared/services/nav/nav.service';
 import { ToastrService } from '@shared/services/toastr/toastr.service';
 
@@ -19,10 +18,8 @@ describe('AccountActivationSetPasswordPage', () => {
   let activationMock: jasmine.SpyObj<AccountActivationService> & {
     identifier: WritableSignal<string | null>;
   };
-  let loadingMock: jasmine.SpyObj<LoadingService>;
   let navMock: jasmine.SpyObj<NavService>;
   let toastrMock: jasmine.SpyObj<ToastrService>;
-  let dismissMock: jasmine.Spy;
 
   beforeEach(async () => {
     activationMock = Object.assign(
@@ -35,16 +32,13 @@ describe('AccountActivationSetPasswordPage', () => {
       { identifier: signal<string | null>('user@mail.com') },
     );
 
-    loadingMock = jasmine.createSpyObj<LoadingService>('LoadingService', ['show']);
     navMock = jasmine.createSpyObj<NavService>('NavService', ['root']);
     toastrMock = jasmine.createSpyObj<ToastrService>('ToastrService', ['success']);
-    dismissMock = jasmine.createSpy('dismiss').and.resolveTo();
 
     activationMock.hydrate.and.resolveTo();
     activationMock.canSetPassword.and.returnValue(true);
     activationMock.clearFlow.and.resolveTo();
     activationMock.setPassword.and.returnValue(of(void 0));
-    loadingMock.show.and.resolveTo(dismissMock);
     toastrMock.success.and.resolveTo();
 
     await TestBed.configureTestingModule({
@@ -52,7 +46,6 @@ describe('AccountActivationSetPasswordPage', () => {
       providers: [
         provideRouter([]),
         { provide: AccountActivationService, useValue: activationMock },
-        { provide: LoadingService, useValue: loadingMock },
         { provide: NavService, useValue: navMock },
         { provide: ToastrService, useValue: toastrMock },
       ],
@@ -106,7 +99,6 @@ describe('AccountActivationSetPasswordPage', () => {
       'Cuenta activada correctamente. Ingreso completado.',
       'Activación completada',
     );
-    expect(dismissMock).toHaveBeenCalled();
   }));
 
   it('debería mostrar error si falla setPassword', fakeAsync(() => {

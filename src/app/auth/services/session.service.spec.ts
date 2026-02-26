@@ -29,6 +29,7 @@ describe('SessionService', () => {
 
     tokenMock = jasmine.createSpyObj<TokenService>('TokenService', [
       'getAccessToken',
+      'getRefreshToken',
       'setTokens',
       'clearTokens',
     ]);
@@ -71,7 +72,7 @@ describe('SessionService', () => {
     await service.init();
 
     expect(tokenMock.clearTokens).toHaveBeenCalled();
-    expect(navMock.root).toHaveBeenCalledWith('/login');
+    expect(navMock.root).toHaveBeenCalledWith('/auth/login');
   });
 
   it('login debería guardar tokens y setear user', (done) => {
@@ -100,7 +101,7 @@ describe('SessionService', () => {
 
     expect(tokenMock.clearTokens).toHaveBeenCalled();
     expect(service.user()).toBeNull();
-    expect(navMock.root).toHaveBeenCalledWith('/login');
+    expect(navMock.root).toHaveBeenCalledWith('/auth/login');
   });
 
   it('refresh exitoso debería actualizar tokens y user', async () => {
@@ -111,15 +112,18 @@ describe('SessionService', () => {
     };
 
     authMock.refresh.and.returnValue(of(response));
+    tokenMock.getRefreshToken.and.resolveTo('current-refresh');
     tokenMock.setTokens.and.resolveTo();
 
     await service.refresh();
 
+    expect(authMock.refresh).toHaveBeenCalledWith('current-refresh');
     expect(tokenMock.setTokens).toHaveBeenCalledWith('newA', 'newR');
     expect(service.user()).toEqual(fakeUser);
   });
 
   it('refresh fallido debería hacer logout', async () => {
+    tokenMock.getRefreshToken.and.resolveTo('current-refresh');
     authMock.refresh.and.returnValue(throwError(() => new Error()));
 
     tokenMock.clearTokens.and.resolveTo();
@@ -127,6 +131,6 @@ describe('SessionService', () => {
     await expectAsync(service.refresh()).toBeRejected();
 
     expect(tokenMock.clearTokens).toHaveBeenCalled();
-    expect(navMock.root).toHaveBeenCalledWith('/login');
+    expect(navMock.root).toHaveBeenCalledWith('/auth/login');
   });
 });

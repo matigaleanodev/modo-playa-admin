@@ -1,6 +1,7 @@
 import { ApiService } from '@core/api/api.service';
-import { ApiListResponse } from '@core/models/api-response.model';
+import { ApiListQuery, ApiListResponse } from '@core/models/api-response.model';
 import { BaseEntity } from '@core/models/entity.model';
+import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export abstract class CrudService<T extends BaseEntity> extends ApiService {
@@ -24,7 +25,20 @@ export abstract class CrudService<T extends BaseEntity> extends ApiService {
     return this._http.get<T>(this._path(id));
   }
 
-  findAll(): Observable<ApiListResponse<T[]>> {
-    return this._http.get<ApiListResponse<T[]>>(this._path());
+  find(query: ApiListQuery = {}): Observable<ApiListResponse<T>> {
+    return this._http.get<ApiListResponse<T>>(this._path(), {
+      params: this._buildParams(query),
+    });
+  }
+
+  private _buildParams(query: ApiListQuery): HttpParams {
+    let params = new HttpParams();
+
+    for (const [key, value] of Object.entries(query)) {
+      if (value === null || value === undefined || value === '') continue;
+      params = params.set(key, String(value));
+    }
+
+    return params;
   }
 }

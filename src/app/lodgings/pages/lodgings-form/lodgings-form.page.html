@@ -1,0 +1,149 @@
+<ion-header class="app-page-header">
+  <ion-toolbar class="app-page-toolbar">
+    <ion-buttons slot="start">
+      <ion-menu-button menu="admin-main-menu"></ion-menu-button>
+    </ion-buttons>
+    <ion-title>{{ pageTitle() }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="lodgings-form-page">
+    <section class="lodgings-form-panel">
+      <form class="lodgings-form" (submit)="onSubmit($event)">
+        <app-form-field-render [form]="form" [fields]="fields" />
+
+        <section class="lodgings-images" aria-labelledby="lodgings-images-title">
+          <div class="lodgings-images__header">
+            <div>
+              <h3 id="lodgings-images-title">Imágenes</h3>
+              <p>
+                Hasta 5 imágenes por alojamiento. Debes seleccionar una como
+                predeterminada.
+              </p>
+            </div>
+            <span class="lodgings-images__counter">
+              {{ imagesCount() }}/5
+            </span>
+          </div>
+
+          <input
+            #imageInput
+            class="lodgings-images__input"
+            type="file"
+            accept="image/*"
+            multiple
+            (change)="onImageInputChange($event)"
+          />
+
+          <button
+            class="lodgings-images__dropzone"
+            type="button"
+            [class.is-active]="isDropzoneActive()"
+            [class.is-disabled]="remainingImageSlots() <= 0 || isUploadingImages()"
+            [disabled]="remainingImageSlots() <= 0 || isUploadingImages()"
+            (click)="openImagePicker()"
+            (dragover)="onDropzoneDragOver($event)"
+            (dragleave)="onDropzoneDragLeave($event)"
+            (drop)="onDropzoneDrop($event)"
+          >
+            <span class="lodgings-images__dropzone-title">
+              Arrastra imágenes aquí o haz click para seleccionar
+            </span>
+            <span class="lodgings-images__dropzone-subtitle">
+              JPG, PNG, WEBP · máximo 5 por alojamiento
+            </span>
+            @if (!resource.isEditMode()) {
+              <span class="lodgings-images__dropzone-note">
+                En alta nueva, las imágenes se subirán cuando guardes el alojamiento.
+              </span>
+            }
+            @if (isUploadingImages()) {
+              <span class="lodgings-images__dropzone-note">
+                Subiendo imágenes...
+              </span>
+            }
+          </button>
+
+          @if (imageError()) {
+            <p class="lodgings-images__error">{{ imageError() }}</p>
+          }
+
+          @if (imageItems().length > 0) {
+            <div class="lodgings-images__grid">
+              @for (image of imageItems(); track trackImage($index, image)) {
+                <article class="lodgings-image-card" [class.is-uploading]="image.uploading">
+                  <div class="lodgings-image-card__preview">
+                    <img [src]="image.previewUrl" alt="Vista previa de imagen del alojamiento" />
+                    @if (image.uploading) {
+                      <div class="lodgings-image-card__overlay">
+                        <ion-spinner name="crescent"></ion-spinner>
+                        <span>Subiendo...</span>
+                      </div>
+                    }
+                    @if (image.isDefault) {
+                      <span class="lodgings-image-card__pill">Principal</span>
+                    }
+                  </div>
+
+                  <div class="lodgings-image-card__footer">
+                    <label class="lodgings-image-card__default">
+                      <input
+                        type="radio"
+                        name="lodging-default-image"
+                        [checked]="image.isDefault"
+                        [disabled]="image.uploading"
+                        (change)="onSelectDefaultImage(image)"
+                      />
+                      <span>Predeterminada</span>
+                    </label>
+
+                    <button
+                      type="button"
+                      class="lodgings-image-card__remove"
+                      [disabled]="image.uploading || isUploadingImages()"
+                      (click)="onRemoveImage(image)"
+                    >
+                      Quitar
+                    </button>
+                  </div>
+                </article>
+              }
+            </div>
+          }
+        </section>
+
+        <div class="lodgings-form__actions">
+          <ion-button
+            class="lodgings-form__btn lodgings-form__btn--secondary"
+            type="button"
+            fill="solid"
+            color="medium"
+            [disabled]="isSubmitting()"
+            (click)="cancelar()"
+          >
+            Cancelar
+          </ion-button>
+
+          <ion-button
+            class="lodgings-form__btn lodgings-form__btn--primary"
+            type="submit"
+            [disabled]="isSubmitting()"
+          >
+            @if (isSubmitting()) {
+              <ion-spinner name="crescent"></ion-spinner>
+            } @else {
+              {{ resource.isEditMode() ? 'Guardar cambios' : 'Crear alojamiento' }}
+            }
+          </ion-button>
+        </div>
+      </form>
+    </section>
+  </div>
+</ion-content>
+
+<ion-footer class="app-page-footer">
+  <ion-toolbar class="app-page-toolbar">
+    <div class="app-page-footer-note">Modo Playa App</div>
+  </ion-toolbar>
+</ion-footer>

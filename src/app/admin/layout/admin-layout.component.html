@@ -1,0 +1,68 @@
+<ion-split-pane contentId="admin-content" class="admin-split-pane">
+  <ion-menu menuId="admin-main-menu" contentId="admin-content" class="admin-menu">
+    <ion-header class="menu-header">
+      <ion-toolbar class="menu-header-toolbar">
+        <div class="menu-user-header">
+          <ion-avatar class="menu-user-header__avatar">
+            <img [src]="menuHeaderAvatar()" alt="Foto de perfil" />
+          </ion-avatar>
+
+          <ion-title class="menu-brand">
+            <span class="menu-brand__name">{{ menuHeaderName() }}</span>
+            @if (menuHeaderEmail()) {
+              <small class="menu-brand__email">{{ menuHeaderEmail() }}</small>
+            }
+          </ion-title>
+        </div>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="menu-content">
+      <ion-list class="menu-list">
+        @for (item of menuItems(); track item.path + item.label) {
+          <ion-menu-toggle auto-hide="false">
+            <ion-item
+              class="menu-item"
+              [routerLink]="item.path"
+              routerDirection="root"
+              routerLinkActive="selected"
+              lines="none"
+              detail="false"
+            >
+              <ion-icon slot="start" [name]="item.icon" aria-hidden="true"></ion-icon>
+              <ion-label>{{ item.label }}</ion-label>
+            </ion-item>
+          </ion-menu-toggle>
+        }
+      </ion-list>
+
+      <ion-list class="menu-list">
+        <ion-list-header>
+          <ion-label>Ajustes</ion-label>
+        </ion-list-header>
+
+        <ion-item class="menu-item" button lines="none" detail="false" (click)="openThemeSelector()">
+          <ion-icon slot="start" name="phone-portrait-outline" aria-hidden="true"></ion-icon>
+          <ion-label>Tema</ion-label>
+          <ion-note slot="end">{{ currentThemeLabel() }}</ion-note>
+        </ion-item>
+      </ion-list>
+    </ion-content>
+
+    <ion-footer class="menu-footer">
+      <ion-toolbar class="menu-footer-toolbar">
+        <ion-button
+          class="logout-button"
+          expand="block"
+          fill="solid"
+          (click)="onLogout()"
+        >
+          <ion-icon slot="start" name="power-outline" aria-hidden="true"></ion-icon>
+          Cerrar sesión
+        </ion-button>
+      </ion-toolbar>
+    </ion-footer>
+  </ion-menu>
+
+  <ion-router-outlet id="admin-content" class="admin-content-outlet"></ion-router-outlet>
+</ion-split-pane>

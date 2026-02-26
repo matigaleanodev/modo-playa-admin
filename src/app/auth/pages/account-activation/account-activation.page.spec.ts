@@ -8,34 +8,26 @@ import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { AccountActivationPage } from './account-activation.page';
 import { AccountActivationService } from '@auth/services/account-activation.service';
-import { LoadingService } from '@shared/services/loading/loading.service';
 import { NavService } from '@shared/services/nav/nav.service';
 
 describe('AccountActivationPage', () => {
   let component: AccountActivationPage;
   let fixture: ComponentFixture<AccountActivationPage>;
   let activationMock: jasmine.SpyObj<AccountActivationService>;
-  let loadingMock: jasmine.SpyObj<LoadingService>;
   let navMock: jasmine.SpyObj<NavService>;
-  let dismissMock: jasmine.Spy;
 
   beforeEach(async () => {
     activationMock = jasmine.createSpyObj<AccountActivationService>(
       'AccountActivationService',
       ['requestCode'],
     );
-    loadingMock = jasmine.createSpyObj<LoadingService>('LoadingService', ['show']);
     navMock = jasmine.createSpyObj<NavService>('NavService', ['forward']);
-    dismissMock = jasmine.createSpy('dismiss').and.resolveTo();
-
-    loadingMock.show.and.resolveTo(dismissMock);
 
     await TestBed.configureTestingModule({
       imports: [AccountActivationPage],
       providers: [
         provideRouter([]),
         { provide: AccountActivationService, useValue: activationMock },
-        { provide: LoadingService, useValue: loadingMock },
         { provide: NavService, useValue: navMock },
       ],
     }).compileComponents();
@@ -68,7 +60,6 @@ describe('AccountActivationPage', () => {
     });
     expect(component.successMessage()).toContain('Si el usuario existe');
     expect(navMock.forward).toHaveBeenCalledWith('/auth/activate/verify');
-    expect(dismissMock).toHaveBeenCalled();
   }));
 
   it('debería mostrar error si falla la solicitud', fakeAsync(() => {

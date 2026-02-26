@@ -9,7 +9,6 @@ import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { ForgotPasswordVerifyPage } from './forgot-password-verify.page';
 import { PasswordRecoveryService } from '@auth/services/password-recovery.service';
-import { LoadingService } from '@shared/services/loading/loading.service';
 import { NavService } from '@shared/services/nav/nav.service';
 
 describe('ForgotPasswordVerifyPage', () => {
@@ -19,9 +18,7 @@ describe('ForgotPasswordVerifyPage', () => {
   let recoveryMock: jasmine.SpyObj<PasswordRecoveryService> & {
     identifier: WritableSignal<string | null>;
   };
-  let loadingMock: jasmine.SpyObj<LoadingService>;
   let navMock: jasmine.SpyObj<NavService>;
-  let dismissMock: jasmine.Spy;
 
   beforeEach(async () => {
     recoveryMock = Object.assign(
@@ -36,21 +33,17 @@ describe('ForgotPasswordVerifyPage', () => {
       },
     );
 
-    loadingMock = jasmine.createSpyObj<LoadingService>('LoadingService', ['show']);
     navMock = jasmine.createSpyObj<NavService>('NavService', ['forward', 'root']);
-    dismissMock = jasmine.createSpy('dismiss').and.resolveTo();
 
     recoveryMock.hydrate.and.resolveTo();
     recoveryMock.canVerifyCode.and.returnValue(true);
     recoveryMock.clearFlow.and.resolveTo();
-    loadingMock.show.and.resolveTo(dismissMock);
 
     await TestBed.configureTestingModule({
       imports: [ForgotPasswordVerifyPage],
       providers: [
         provideRouter([]),
         { provide: PasswordRecoveryService, useValue: recoveryMock },
-        { provide: LoadingService, useValue: loadingMock },
         { provide: NavService, useValue: navMock },
       ],
     }).compileComponents();
@@ -87,10 +80,8 @@ describe('ForgotPasswordVerifyPage', () => {
     component.onSubmit();
     flushMicrotasks();
 
-    expect(loadingMock.show).toHaveBeenCalledWith('Validando código...');
     expect(recoveryMock.verifyCode).toHaveBeenCalledWith({ code: '123456' });
     expect(navMock.forward).toHaveBeenCalledWith('/auth/forgot-password/reset');
-    expect(dismissMock).toHaveBeenCalled();
   }));
 
   it('debería mostrar error si falla la validación del código', fakeAsync(() => {

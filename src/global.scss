@@ -33,5 +33,96 @@
  */
 
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
-/* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import '@ionic/angular/css/palettes/dark.system.css';
+/*@import '@ionic/angular/css/palettes/dark.system.css'; */
+@import "@ionic/angular/css/palettes/dark.class.css";
+
+ion-app,
+ion-content,
+ion-router-outlet {
+  background: var(--ion-background-color);
+}
+
+ion-modal,
+ion-popover,
+ion-alert,
+ion-action-sheet {
+  --background: var(--ion-modal-background, var(--ion-card-background));
+}
+
+ion-action-sheet {
+  --button-background: var(--ion-item-background);
+  --button-background-selected: rgba(var(--ion-color-primary-rgb), 0.12);
+  --button-color: var(--ion-text-color);
+}
+
+ion-tab-bar {
+  --background: var(--app-tabbar-surface);
+  --border: 1px solid var(--app-tabbar-border);
+  --color: var(--app-tabbar-color);
+  --color-selected: var(--app-tabbar-color-active);
+  background: var(--app-tabbar-surface);
+  border-top: 1px solid var(--app-tabbar-border);
+}
+
+ion-tab-button {
+  color: var(--app-tabbar-color);
+}
+
+ion-tab-button.tab-selected {
+  color: var(--app-tabbar-color-active);
+}
+
+ion-header.app-page-header,
+ion-footer.app-page-footer {
+  background: var(--app-surface-toolbar);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+  backdrop-filter: saturate(140%) blur(14px);
+  -webkit-backdrop-filter: saturate(140%) blur(14px);
+}
+
+ion-header.app-page-header::after,
+ion-footer.app-page-footer::before {
+  display: none;
+}
+
+.app-page-toolbar {
+  --background: var(--app-surface-toolbar);
+  --border-color: var(--app-border-faint);
+  box-shadow: none;
+  min-height: calc(56px + var(--ion-safe-area-top, 0px));
+}
+
+ion-header.app-page-header .app-page-toolbar,
+ion-footer.app-page-footer .app-page-toolbar {
+  border-color: var(--app-border-faint);
+}
+
+ion-header.app-page-header .app-page-toolbar {
+  --min-height: calc(56px + var(--ion-safe-area-top, 0px));
+  --padding-top: var(--ion-safe-area-top, 0px);
+  --padding-bottom: 0;
+}
+
+ion-header.app-page-header ion-title {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+ion-footer.app-page-footer .app-page-toolbar {
+  --min-height: calc(40px + var(--ion-safe-area-bottom, 0px));
+  --padding-top: 0;
+  --padding-bottom: var(--ion-safe-area-bottom, 0px);
+}
+
+ion-footer.app-page-footer {
+  box-shadow: 0 -4px 14px rgba(15, 23, 42, 0.06);
+}
+
+.app-page-footer-note {
+  width: 100%;
+  text-align: center;
+  color: var(--ion-color-medium);
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+}

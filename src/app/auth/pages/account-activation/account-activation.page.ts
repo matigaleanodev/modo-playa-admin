@@ -14,9 +14,11 @@ import {
   IonContent,
   IonInput,
   IonSpinner,
+  IonHeader,
+  IonToolbar,
+  IonFooter,
 } from '@ionic/angular/standalone';
 import { AccountActivationService } from '@auth/services/account-activation.service';
-import { LoadingService } from '@shared/services/loading/loading.service';
 import { NavService } from '@shared/services/nav/nav.service';
 
 @Component({
@@ -32,11 +34,13 @@ import { NavService } from '@shared/services/nav/nav.service';
     IonButton,
     IonInput,
     IonSpinner,
+    IonHeader,
+    IonToolbar,
+    IonFooter,
   ],
 })
 export class AccountActivationPage {
   private readonly _activation = inject(AccountActivationService);
-  private readonly _loading = inject(LoadingService);
   private readonly _nav = inject(NavService);
 
   readonly isSubmitting = signal(false);
@@ -72,10 +76,11 @@ export class AccountActivationPage {
 
     this.isSubmitting.set(true);
     this.form.disable({ emitEvent: false });
-    const dismiss = await this._loading.show('Enviando código de activación...');
 
     try {
-      await firstValueFrom(this._activation.requestCode(this.form.getRawValue()));
+      await firstValueFrom(
+        this._activation.requestCode(this.form.getRawValue()),
+      );
       this.successMessage.set(
         'Si el usuario existe, enviamos un código de activación al email registrado.',
       );
@@ -87,7 +92,6 @@ export class AccountActivationPage {
     } finally {
       this.isSubmitting.set(false);
       this.form.enable({ emitEvent: false });
-      await dismiss();
     }
   }
 

@@ -17,18 +17,18 @@ export abstract class BaseForm<T extends BaseEntity> {
 
   abstract readonly form: FormGroup;
 
-  onSubmit(ev?: Event): void {
+  async onSubmit(ev?: Event): Promise<void> {
     ev?.preventDefault();
     if (this.form.valid) {
-      this.guardar();
+      await this.guardar();
     } else {
       this.form.markAllAsTouched();
     }
   }
 
-  guardar(): void {
+  async guardar(): Promise<void> {
     const formulario: T = this.form.getRawValue();
-    this._service.guardar(formulario);
+    await this._service.guardar(formulario);
   }
 
   cancelar(): void {
@@ -39,9 +39,12 @@ export abstract class BaseForm<T extends BaseEntity> {
     const group: Record<string, FormControl<any>> = {};
 
     for (const option of options) {
-      const validators = this.mapValidaciones(option.validaciones);
+      const validators = this.mapValidaciones(option.validaciones ?? []);
       group[option.key] = new FormControl(
-        { value: option.value ?? null, disabled: option.readonly },
+        {
+          value: option.value ?? null,
+          disabled: option.disabled ?? option.readonly ?? false,
+        },
         { validators },
       );
     }
