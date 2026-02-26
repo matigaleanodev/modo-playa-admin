@@ -1,0 +1,87 @@
+<ion-header class="app-page-header">
+  <ion-toolbar class="app-page-toolbar">
+    <ion-buttons slot="start">
+      <ion-menu-button menu="admin-main-menu" />
+    </ion-buttons>
+    <ion-title>Información</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="info-hero">
+    <div class="info-hero-inner">
+      <h1>{{ appName }}</h1>
+      <p>Panel de administración de Modo Playa</p>
+    </div>
+  </div>
+
+  <div class="info-wrapper">
+    <ion-list inset>
+      <ion-list-header>
+        <ion-label>Información</ion-label>
+      </ion-list-header>
+
+      <ion-item button detail routerLink="/app/legal/terms">
+        <ion-icon name="document-text-outline" slot="start"></ion-icon>
+        <ion-label>Términos y condiciones</ion-label>
+      </ion-item>
+
+      <ion-item button detail routerLink="/app/legal/privacy">
+        <ion-icon name="shield-checkmark-outline" slot="start"></ion-icon>
+        <ion-label>Política de privacidad</ion-label>
+      </ion-item>
+
+      <ion-item button detail [href]="helpUrl" target="_blank">
+        <ion-icon name="help-circle-outline" slot="start"></ion-icon>
+        <ion-label>Ayuda / Issues</ion-label>
+      </ion-item>
+    </ion-list>
+
+    <ion-list inset>
+      <ion-list-header>
+        <ion-label>Contacto</ion-label>
+      </ion-list-header>
+
+      <ion-item button detail [href]="'mailto:' + contactEmail">
+        <ion-icon name="mail-outline" slot="start"></ion-icon>
+        <ion-label>
+          <p>Email</p>
+          <h3>{{ contactEmail }}</h3>
+        </ion-label>
+      </ion-item>
+
+      <ion-item button detail [href]="githubUrl" target="_blank">
+        <ion-icon name="logo-github" slot="start"></ion-icon>
+        <ion-label>Repositorio del proyecto</ion-label>
+      </ion-item>
+    </ion-list>
+
+    <ion-list inset>
+      <ion-list-header>
+        <ion-label>Aplicación</ion-label>
+      </ion-list-header>
+
+      <ion-item>
+        <ion-icon name="information-circle-outline" slot="start"></ion-icon>
+        <ion-label>
+          <p>Versión</p>
+          <h3>{{ appVersion }}</h3>
+        </ion-label>
+      </ion-item>
+
+      <ion-item>
+        <ion-icon name="information-circle-outline" slot="start"></ion-icon>
+        <ion-label>
+          <p>Entorno</p>
+          <h3>{{ appStage }}</h3>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+  </div>
+</ion-content>
+
+<ion-footer class="app-page-footer">
+  <ion-toolbar class="app-page-toolbar">
+    <div class="app-page-footer-note">Modo Playa App</div>
+  </ion-toolbar>
+</ion-footer>

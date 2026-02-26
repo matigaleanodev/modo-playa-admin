@@ -1,0 +1,70 @@
+.info-hero {
+  padding: 1.5rem 1rem 1rem;
+  background: linear-gradient(
+    135deg,
+    rgba(var(--ion-color-primary-rgb), 0.95),
+    rgba(var(--ion-color-primary-rgb), 0.7)
+  );
+  color: var(--ion-color-primary-contrast);
+}
+
+.info-hero-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.info-hero h1 {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.info-hero p {
+  margin: 0.35rem 0 0;
+  font-size: 0.9rem;
+  opacity: 0.95;
+}
+
+.info-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem 0;
+}
+
+ion-list {
+  margin-bottom: 0.85rem;
+  border-radius: 12px;
+  overflow: hidden;
+  padding: 0;
+}
+
+ion-list-header {
+  background: rgba(var(--ion-color-primary-rgb), 0.08);
+  min-height: 44px;
+}
+
+ion-list-header ion-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+ion-item {
+  --min-height: 52px;
+}
+
+ion-item ion-icon {
+  color: var(--ion-color-primary);
+  font-size: 1.2rem;
+}
+
+ion-item h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+ion-item p {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--ion-color-medium);
+}

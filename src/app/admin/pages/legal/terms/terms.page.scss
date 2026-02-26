@@ -1,0 +1,47 @@
+ion-content.legal-content {
+  --padding-bottom: calc(56px + var(--ion-safe-area-bottom, 0px));
+}
+
+ion-header {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.terms-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 2rem;
+}
+
+.terms-section {
+  margin-bottom: 1.75rem;
+}
+
+.terms-section h2 {
+  margin-bottom: 0.5rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--ion-color-dark);
+}
+
+.terms-section p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--ion-color-medium);
+}
+
+.terms-section ul {
+  margin: 0.5rem 0 0;
+  padding-left: 1.25rem;
+}
+
+.terms-section li {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--ion-color-medium);
+  margin-bottom: 0.25rem;
+}
+
+ion-footer.app-page-footer {
+  z-index: 10;
+}

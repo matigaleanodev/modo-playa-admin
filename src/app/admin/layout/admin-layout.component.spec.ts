@@ -63,6 +63,17 @@ describe('AdminLayoutComponent', () => {
     );
   });
 
+  it('debería incluir acceso a información en el menú', () => {
+    const infoItem = component.menuItems().find((item) => item.label === 'Informacion');
+
+    expect(infoItem).toEqual(
+      jasmine.objectContaining({
+        path: '/app/info',
+        icon: 'information-circle-outline',
+      }),
+    );
+  });
+
   it('debería ejecutar logout desde el layout', async () => {
     await component.onLogout();
 

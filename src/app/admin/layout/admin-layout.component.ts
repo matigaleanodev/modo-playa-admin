@@ -180,7 +180,7 @@ export class AdminLayoutComponent {
     },
     {
       label: 'Informacion',
-      path: '',
+      path: '/app/info',
       icon: 'information-circle-outline',
     },
     {
