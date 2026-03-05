@@ -150,6 +150,56 @@ describe('LodgingsResourceService', () => {
     expect(service.current()?.title).toBe('Nuevo título');
   });
 
+  it('debería normalizar valores numéricos de texto con coma decimal', () => {
+    const normalized = service.normalizePayloadForSave({
+      ...createEmptyLodging(),
+      title: 'Casa 1',
+      description: 'Desc',
+      location: 'Calle 1',
+      city: 'Mar Azul',
+      mainImage: 'https://img.test/1.jpg',
+      price: '100,5' as unknown as number,
+      maxGuests: '4,9' as unknown as number,
+      bedrooms: '2,7' as unknown as number,
+      bathrooms: '1,4' as unknown as number,
+      minNights: '3,8' as unknown as number,
+      distanceToBeach: '250,9' as unknown as number,
+      active: true,
+    });
+
+    expect(normalized.price).toBe(100.5);
+    expect(normalized.maxGuests).toBe(4);
+    expect(normalized.bedrooms).toBe(2);
+    expect(normalized.bathrooms).toBe(1);
+    expect(normalized.minNights).toBe(3);
+    expect(normalized.distanceToBeach).toBe(250);
+  });
+
+  it('debería aplicar defaults cuando los numéricos no son válidos', () => {
+    const normalized = service.normalizePayloadForSave({
+      ...createEmptyLodging(),
+      title: 'Casa 2',
+      description: 'Desc',
+      location: 'Calle 2',
+      city: 'Las Gaviotas',
+      mainImage: 'https://img.test/2.jpg',
+      price: 'abc' as unknown as number,
+      maxGuests: 'abc' as unknown as number,
+      bedrooms: 'abc' as unknown as number,
+      bathrooms: 'abc' as unknown as number,
+      minNights: 'abc' as unknown as number,
+      distanceToBeach: 'abc' as unknown as number,
+      active: true,
+    });
+
+    expect(normalized.price).toBe(0);
+    expect(normalized.maxGuests).toBe(1);
+    expect(normalized.bedrooms).toBe(0);
+    expect(normalized.bathrooms).toBe(0);
+    expect(normalized.minNights).toBe(1);
+    expect(normalized.distanceToBeach).toBeNull();
+  });
+
   it('debería navegar en newElement, editElement y availability', () => {
     const lodging = { ...createEmptyLodging(), id: 'lod_9', title: 'X' };
 

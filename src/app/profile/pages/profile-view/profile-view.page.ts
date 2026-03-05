@@ -55,7 +55,7 @@ export class ProfileViewPage implements OnInit {
 
   readonly fallbackAvatar = 'assets/images/profile_image.png';
 
-  readonly user = signal<AuthUser | null>(null);
+  readonly user = computed<AuthUser | null>(() => this.sessionService.user());
   readonly loading = signal(false);
   readonly imageBusy = signal(false);
   readonly error = signal<string | null>(null);
@@ -93,11 +93,6 @@ export class ProfileViewPage implements OnInit {
   });
 
   ngOnInit(): void {
-    const current = this.sessionService.user();
-    if (current) {
-      this.user.set(current);
-    }
-
     void this.loadProfile();
   }
 
@@ -107,7 +102,6 @@ export class ProfileViewPage implements OnInit {
 
     try {
       const user = await firstValueFrom(this.authService.me());
-      this.user.set(user);
       this.sessionService.setCurrentUser(user);
     } catch {
       this.error.set('No se pudieron cargar los datos del perfil.');
@@ -181,7 +175,6 @@ export class ProfileViewPage implements OnInit {
 
   private async refreshProfileState(): Promise<void> {
     const user = await firstValueFrom(this.authService.me());
-    this.user.set(user);
     this.sessionService.setCurrentUser(user);
   }
 }
