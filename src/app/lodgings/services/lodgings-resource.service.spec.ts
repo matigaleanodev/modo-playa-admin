@@ -71,14 +71,14 @@ describe('LodgingsResourceService', () => {
       location: '  Calle 1 ',
       description: ' Desc ',
       mainImage: ' https://img.test/x.jpg ',
-      price: 100,
+      price: '100' as unknown as number,
       priceUnit: 'night',
       type: 'house',
-      maxGuests: 4.7,
-      bedrooms: 2.2,
-      bathrooms: 1.8,
-      minNights: 2.9,
-      distanceToBeach: '' as unknown as number,
+      maxGuests: '4.7' as unknown as number,
+      bedrooms: '2.2' as unknown as number,
+      bathrooms: '1.8' as unknown as number,
+      minNights: '2.9' as unknown as number,
+      distanceToBeach: '350' as unknown as number,
       amenities: ['wifi', '' as unknown as any],
       images: ['  a.jpg ', '  '],
       contactId: '  cont_1 ',
@@ -99,7 +99,7 @@ describe('LodgingsResourceService', () => {
     expect(payload.bedrooms).toBe(2);
     expect(payload.bathrooms).toBe(1);
     expect(payload.minNights).toBe(2);
-    expect(payload.distanceToBeach).toBeNull();
+    expect(payload.distanceToBeach).toBe(350);
     expect(payload.images).toEqual(['a.jpg']);
     expect(payload).not.toEqual(jasmine.objectContaining({ occupiedRanges: jasmine.anything() }));
     expect(payload.contactId).toBe('cont_1');

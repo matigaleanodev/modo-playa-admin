@@ -481,6 +481,7 @@ export class LodgingsFormPage
       selectedDefaultBeforeSave,
       updated,
       existingServerImageIds,
+      queuedImages,
     );
 
     if (queuedDefaultImageId) {
@@ -742,13 +743,13 @@ export class LodgingsFormPage
     selectedDefaultBeforeSave: FormLodgingImageItem | null,
     updated: Lodging,
     existingServerImageIds: Set<string>,
+    queuedItemsBeforeSave: FormLodgingImageItem[],
   ): string | null {
     if (!selectedDefaultBeforeSave || selectedDefaultBeforeSave.source !== 'queued') {
       return null;
     }
 
-    const queuedItems = this.imageItems().filter((image) => image.source === 'queued');
-    const queuedIndex = queuedItems.findIndex(
+    const queuedIndex = queuedItemsBeforeSave.findIndex(
       (image) => image.localId === selectedDefaultBeforeSave.localId,
     );
 
