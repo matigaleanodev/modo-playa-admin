@@ -1,0 +1,171 @@
+<ion-header class="app-page-header">
+  <ion-toolbar class="app-page-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/app/lodgings" text="Volver"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ pageTitle() }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="lodgings-availability-page">
+    <div class="lodgings-submenu">
+      <button type="button" class="lodgings-submenu__item" (click)="goToGeneralData()">
+        Datos generales
+      </button>
+      <button type="button" class="lodgings-submenu__item is-active">
+        Disponibilidad
+      </button>
+    </div>
+
+    <section class="availability-panel">
+      <header class="availability-panel__head">
+        <h2>Calendario y rangos ocupados</h2>
+        <p>Visualiza días ocupados y administra los rangos existentes.</p>
+      </header>
+
+      <div class="availability-overview">
+        <div class="availability-overview__calendar">
+          <ion-datetime
+            class="availability-calendar"
+            presentation="date"
+            locale="es-AR"
+            firstDayOfWeek="1"
+            [highlightedDates]="highlightedDates()"
+          ></ion-datetime>
+        </div>
+
+        <div class="availability-overview__ranges">
+          @if (loadError()) {
+            <p class="availability-state availability-state--error">{{ loadError() }}</p>
+          } @else if (loading()) {
+            <p class="availability-state">
+              <ion-spinner name="crescent"></ion-spinner>
+              <span>Cargando disponibilidad...</span>
+            </p>
+          } @else if (!hasRanges()) {
+            <p class="availability-state">Todavía no hay rangos ocupados cargados.</p>
+          } @else {
+            <ul class="availability-list">
+              @for (range of ranges(); track rangeKey(range)) {
+                <li class="availability-item">
+                  <div>
+                    <strong>{{ formatDate(range.from) }} - {{ formatDate(range.to) }}</strong>
+                    <p>{{ range.from }} a {{ range.to }}</p>
+                  </div>
+                  <button
+                    type="button"
+                    class="availability-item__remove"
+                    [disabled]="deletingKey() === rangeKey(range)"
+                    (click)="onRemoveRange(range)"
+                  >
+                    @if (deletingKey() === rangeKey(range)) {
+                      Eliminando...
+                    } @else {
+                      Eliminar
+                    }
+                  </button>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="availability-panel">
+      <header class="availability-panel__head">
+        <h2>Agregar días de ocupación</h2>
+        <p>Elegí desde y hasta para bloquear fechas de reserva en este alojamiento.</p>
+      </header>
+
+      @if (!isAddFormOpen()) {
+        <ion-button type="button" (click)="openAddForm()">
+          Agregar días de ocupación
+        </ion-button>
+      } @else {
+        <form class="availability-form" [formGroup]="form" (ngSubmit)="onAddRange()">
+          <div class="availability-form__calendar-grid">
+            <div class="availability-form__calendar-field">
+              <span>Desde</span>
+              <ion-datetime-button datetime="availability-from"></ion-datetime-button>
+              <small class="availability-form__date-preview">
+                {{ form.controls.from.value ? formatDate(form.controls.from.value) : 'Sin fecha seleccionada' }}
+              </small>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <ion-datetime
+                    id="availability-from"
+                    presentation="date"
+                    locale="es-AR"
+                    firstDayOfWeek="1"
+                    [showDefaultButtons]="true"
+                    cancelText="Cancelar"
+                    doneText="Confirmar"
+                    [value]="form.controls.from.value || undefined"
+                    (ionChange)="onFromChange($event)"
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
+            </div>
+
+            <div class="availability-form__calendar-field">
+              <span>Hasta</span>
+              <ion-datetime-button datetime="availability-to"></ion-datetime-button>
+              <small class="availability-form__date-preview">
+                {{ form.controls.to.value ? formatDate(form.controls.to.value) : 'Sin fecha seleccionada' }}
+              </small>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <ion-datetime
+                    id="availability-to"
+                    presentation="date"
+                    locale="es-AR"
+                    firstDayOfWeek="1"
+                    [showDefaultButtons]="true"
+                    cancelText="Cancelar"
+                    doneText="Confirmar"
+                    [value]="form.controls.to.value || undefined"
+                    (ionChange)="onToChange($event)"
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
+            </div>
+          </div>
+
+          @if (form.hasError('invalidRangeOrder') && (form.touched || form.dirty)) {
+            <p class="availability-form__error">La fecha "Desde" no puede ser mayor que "Hasta".</p>
+          }
+          @if (
+            (form.controls.from.invalid && (form.controls.from.touched || form.controls.from.dirty)) ||
+            (form.controls.to.invalid && (form.controls.to.touched || form.controls.to.dirty))
+          ) {
+            <p class="availability-form__error">Debes completar ambas fechas.</p>
+          }
+          @if (formError()) {
+            <p class="availability-form__error">{{ formError() }}</p>
+          }
+
+          <div class="availability-form__actions">
+            <ion-button type="button" fill="outline" color="medium" (click)="closeAddForm()">
+              Cancelar
+            </ion-button>
+            <ion-button type="submit" [disabled]="submitting() || loading()">
+              @if (submitting()) {
+                <ion-spinner name="crescent"></ion-spinner>
+              } @else {
+                Guardar rango
+              }
+            </ion-button>
+          </div>
+        </form>
+      }
+    </section>
+  </div>
+</ion-content>
+
+<ion-footer class="app-page-footer">
+  <ion-toolbar class="app-page-toolbar">
+    <div class="app-page-footer-note">Modo Playa App</div>
+  </ion-toolbar>
+</ion-footer>

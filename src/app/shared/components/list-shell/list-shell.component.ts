@@ -40,6 +40,8 @@ export class ListShellComponent<T = unknown> {
   readonly total = input<number>(0);
   readonly limitOptions = input<number[]>([10, 20, 50]);
   readonly showCreate = input<boolean>(true);
+  readonly showExtraAction = input<boolean>(false);
+  readonly extraActionLabel = input<string>('Acción');
   readonly createLabel = input<string>('Nuevo');
   readonly refreshLabel = input<string>('Actualizar');
   readonly emptyState = input<ListShellEmptyState>({
@@ -57,6 +59,7 @@ export class ListShellComponent<T = unknown> {
   readonly itemClick = output<ListShellItemEvent<T>>();
   readonly edit = output<ListShellItemEvent<T>>();
   readonly delete = output<ListShellItemEvent<T>>();
+  readonly extraAction = output<ListShellItemEvent<T>>();
 
   readonly totalPages = computed(() => {
     const limit = this.limit();
@@ -120,6 +123,12 @@ export class ListShellComponent<T = unknown> {
     event?.stopPropagation();
     this.blurActiveElement();
     this.delete.emit({ item });
+  }
+
+  onExtraAction(item: T, event?: Event): void {
+    event?.stopPropagation();
+    this.blurActiveElement();
+    this.extraAction.emit({ item });
   }
 
   getItemContext(item: T, index: number): ListShellItemTemplateContext<T> {

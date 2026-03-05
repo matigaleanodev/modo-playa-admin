@@ -12,6 +12,7 @@ describe('LodgingsFormPage', () => {
   let fixture: ComponentFixture<LodgingsFormPage>;
   let resourceMock: jasmine.SpyObj<LodgingsResourceService> & {
     isEditMode: ReturnType<typeof signal<boolean>>;
+    current: ReturnType<typeof signal<any>>;
   };
   let contactsCrudMock: jasmine.SpyObj<ContactsCrudService>;
   let activatedRouteMock: any;
@@ -24,7 +25,7 @@ describe('LodgingsFormPage', () => {
         'setCurrent',
         'resetCurrent',
       ]),
-      { isEditMode: signal(false) },
+      { isEditMode: signal(false), current: signal(null) },
     );
     resourceMock.guardar.and.resolveTo();
 

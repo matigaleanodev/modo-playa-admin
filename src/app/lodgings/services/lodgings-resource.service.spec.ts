@@ -81,7 +81,6 @@ describe('LodgingsResourceService', () => {
       distanceToBeach: '' as unknown as number,
       amenities: ['wifi', '' as unknown as any],
       images: ['  a.jpg ', '  '],
-      occupiedRanges: [],
       contactId: '  cont_1 ',
       active: 1 as unknown as boolean,
     };
@@ -102,6 +101,7 @@ describe('LodgingsResourceService', () => {
     expect(payload.minNights).toBe(2);
     expect(payload.distanceToBeach).toBeNull();
     expect(payload.images).toEqual(['a.jpg']);
+    expect(payload).not.toEqual(jasmine.objectContaining({ occupiedRanges: jasmine.anything() }));
     expect(payload.contactId).toBe('cont_1');
     expect(payload.active).toBeTrue();
 
@@ -150,7 +150,7 @@ describe('LodgingsResourceService', () => {
     expect(service.current()?.title).toBe('Nuevo título');
   });
 
-  it('debería navegar en newElement y editElement', () => {
+  it('debería navegar en newElement, editElement y availability', () => {
     const lodging = { ...createEmptyLodging(), id: 'lod_9', title: 'X' };
 
     service.newElement();
@@ -160,6 +160,9 @@ describe('LodgingsResourceService', () => {
     service.editElement(lodging);
     expect(navMock.forward).toHaveBeenCalledWith('/app/lodgings/lod_9');
     expect(service.current()?.id).toBe('lod_9');
+
+    service.openAvailability(lodging);
+    expect(navMock.forward).toHaveBeenCalledWith('/app/lodgings/lod_9/availability');
   });
 });
 

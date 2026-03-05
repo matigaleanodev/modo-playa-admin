@@ -114,6 +114,7 @@ export class LodgingsFormPage
   readonly hasUploadingImages = computed(() =>
     this.imageItems().some((image) => !!image.uploading),
   );
+  readonly currentLodgingId = computed(() => this.resource.current()?.id ?? null);
   readonly selectedDefaultImage = computed(
     () => this.imageItems().find((image) => image.isDefault) ?? null,
   );
@@ -443,6 +444,12 @@ export class LodgingsFormPage
   }
 
   trackImage = (_index: number, item: FormLodgingImageItem) => item.localId;
+
+  goToAvailability(): void {
+    const lodgingId = this.currentLodgingId();
+    if (!lodgingId) return;
+    this._nav.forward(`/app/lodgings/${lodgingId}/availability`);
+  }
 
   private async saveExistingLodging(): Promise<void> {
     const current = this.resource.current();

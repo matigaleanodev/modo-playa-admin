@@ -80,7 +80,6 @@ export function createEmptyLodging(): Lodging {
     mainImage: '',
     images: [],
     mediaImages: [],
-    occupiedRanges: [],
     contactId: null,
     active: true,
   };

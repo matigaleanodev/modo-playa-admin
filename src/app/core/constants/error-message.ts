@@ -4,6 +4,8 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   CONTACT_DEFAULT_DELETE_FORBIDDEN:
     'No se puede eliminar el contacto por defecto.',
   INVALID_AVAILABILITY_RANGE: 'El rango de disponibilidad es inválido.',
+  OCCUPIED_RANGE_CONFLICT:
+    'El rango de disponibilidad se superpone con otro existente.',
   USER_ALREADY_EXISTS: 'Ya existe un usuario con ese email.',
   USER_NOT_FOUND: 'Usuario no encontrado.',
   PASSWORD_ALREADY_SET: 'La contraseña ya fue configurada.',

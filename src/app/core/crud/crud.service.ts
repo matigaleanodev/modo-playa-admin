@@ -14,7 +14,7 @@ export abstract class CrudService<T extends BaseEntity> extends ApiService {
   }
 
   update(id: string, data: Partial<T>): Observable<T> {
-    return this._http.put<T>(this._path(id), data);
+    return this._http.patch<T>(this._path(id), data);
   }
 
   delete(id: string): Observable<void> {

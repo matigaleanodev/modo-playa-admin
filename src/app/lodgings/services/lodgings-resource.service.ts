@@ -82,6 +82,11 @@ export class LodgingsResourceService extends ResourceService<
     this._nav.forward(`/app/lodgings/${dat.id}`);
   }
 
+  openAvailability(dat: Lodging): void {
+    this._current.set(dat);
+    this._nav.forward(`/app/lodgings/${dat.id}/availability`);
+  }
+
   private _normalizePayload(data: LodgingSaveDto): LodgingSaveDto {
     const amenities = Array.isArray(data.amenities)
       ? data.amenities.filter(Boolean)
@@ -120,7 +125,6 @@ export class LodgingsResourceService extends ResourceService<
       amenities: amenities as LodgingAmenity[],
       mainImage: data.mainImage.trim(),
       images,
-      occupiedRanges: data.occupiedRanges ?? [],
       contactId: data.contactId ? data.contactId.trim() : null,
       active: !!data.active,
     };
