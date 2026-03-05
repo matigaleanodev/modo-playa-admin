@@ -114,6 +114,7 @@ export class LodgingsFormPage
   readonly hasUploadingImages = computed(() =>
     this.imageItems().some((image) => !!image.uploading),
   );
+  readonly currentLodgingId = computed(() => this.resource.current()?.id ?? null);
   readonly selectedDefaultImage = computed(
     () => this.imageItems().find((image) => image.isDefault) ?? null,
   );
@@ -444,6 +445,12 @@ export class LodgingsFormPage
 
   trackImage = (_index: number, item: FormLodgingImageItem) => item.localId;
 
+  goToAvailability(): void {
+    const lodgingId = this.currentLodgingId();
+    if (!lodgingId) return;
+    this._nav.forward(`/app/lodgings/${lodgingId}/availability`);
+  }
+
   private async saveExistingLodging(): Promise<void> {
     const current = this.resource.current();
 
@@ -451,10 +458,40 @@ export class LodgingsFormPage
       throw new Error('No hay alojamiento seleccionado para editar.');
     }
 
-    const payload = this.buildSavePayload();
-    const updated = await firstValueFrom(this._lodgingsCrud.update(current.id, payload));
+    const selectedDefaultBeforeSave = this.selectedDefaultImage();
+    const existingServerImageIds = new Set(
+      this.imageItems()
+        .filter((image) => image.source === 'server' && !!image.imageId)
+        .map((image) => image.imageId as string),
+    );
+    const queuedImages = this.imageItems().filter((image) => image.source === 'queued');
+    const queuedFiles = queuedImages
+      .map((image) => image.file)
+      .filter((file): file is File => !!file);
+    const payload = this.buildUpdateWithImagesPayload();
+
+    const updated = await firstValueFrom(
+      this._lodgingsCrud.updateWithImages(current.id, payload, queuedFiles),
+    );
 
     this.resource.setCurrent(updated);
+    this.setImageItemsFromLodging(updated);
+
+    const queuedDefaultImageId = this.resolveQueuedDefaultImageId(
+      selectedDefaultBeforeSave,
+      updated,
+      existingServerImageIds,
+      queuedImages,
+    );
+
+    if (queuedDefaultImageId) {
+      const synced = await this._lodgingImages.setDefaultImage(
+        updated.id,
+        queuedDefaultImageId,
+      );
+      this.replaceServerImages(synced);
+    }
+
     await this.resource.refresh();
     await this._toastr.success(
       'Alojamiento actualizado correctamente.',
@@ -472,82 +509,68 @@ export class LodgingsFormPage
       return;
     }
 
-    const basePayload = this.resource.normalizePayloadForSave({
+    const payload = this.buildCreateWithImagesPayload();
+    const files = queuedImages
+      .map((image) => image.file)
+      .filter((file): file is File => !!file);
+    const selectedDefaultIndex = queuedImages.findIndex((image) => image.isDefault);
+
+    const created = await firstValueFrom(
+      this._lodgingsCrud.createWithImages(payload, files),
+    );
+
+    for (const item of queuedImages) {
+      URL.revokeObjectURL(item.previewUrl);
+    }
+
+    this.resource.setCurrent(created);
+    this.setImageItemsFromLodging(created);
+
+    const selectedDefaultServerImage = created.mediaImages?.[selectedDefaultIndex];
+    if (selectedDefaultServerImage?.imageId && !selectedDefaultServerImage.isDefault) {
+      const synced = await this._lodgingImages.setDefaultImage(
+        created.id,
+        selectedDefaultServerImage.imageId,
+      );
+      this.replaceServerImages(synced);
+    }
+
+    await this.resource.refresh();
+    await this._toastr.success(
+      'Alojamiento creado correctamente.',
+      'Alta completada',
+    );
+    this._nav.root('/app/lodgings');
+  }
+
+  private buildCreateWithImagesPayload(): Record<string, unknown> {
+    const normalized = this.resource.normalizePayloadForSave({
       ...(this.form.getRawValue() as LodgingSaveDto),
       mainImage: PENDING_MAIN_IMAGE_URL,
       images: [],
     });
+    const { mainImage, images, ...payload } = normalized;
 
-    let created: Lodging | null = null;
-
-    try {
-      created = await firstValueFrom(this._lodgingsCrud.save(basePayload));
-      this.resource.setCurrent(created);
-
-      await this.uploadQueuedImagesForLodging(created.id);
-
-      const selectedDefault = this.imageItems().find((image) => image.isDefault) ?? null;
-      if (selectedDefault?.imageId) {
-        const synced = await this._lodgingImages.setDefaultImage(
-          created.id,
-          selectedDefault.imageId,
-        );
-        this.replaceServerImages(synced);
-      }
-
-      const finalPayload = this.buildSavePayload();
-      const updated = await firstValueFrom(
-        this._lodgingsCrud.update(created.id, finalPayload),
-      );
-
-      this.resource.setCurrent(updated);
-      await this.resource.refresh();
-      await this._toastr.success(
-        'Alojamiento creado correctamente.',
-        'Alta completada',
-      );
-      this._nav.root('/app/lodgings');
-    } catch (error) {
-      if (created?.id) {
-        await this._toastr.warning(
-          'El alojamiento se creó, pero hubo un problema con la carga de imágenes. Continúa desde la edición.',
-          'Carga parcial',
-        );
-        this._nav.root(`/app/lodgings/${created.id}`);
-        return;
-      }
-
-      throw error;
+    if (!payload.contactId) {
+      delete payload.contactId;
     }
+
+    return payload as Record<string, unknown>;
   }
 
-  private async uploadQueuedImagesForLodging(lodgingId: string): Promise<void> {
-    const queued = this.imageItems().filter((image) => image.source === 'queued');
+  private buildUpdateWithImagesPayload(): Record<string, unknown> {
+    const normalized = this.resource.normalizePayloadForSave({
+      ...(this.form.getRawValue() as LodgingSaveDto),
+      mainImage: PENDING_MAIN_IMAGE_URL,
+      images: [],
+    });
+    const { mainImage, images, ...payload } = normalized;
 
-    if (queued.length === 0) {
-      return;
+    if (!payload.contactId) {
+      delete payload.contactId;
     }
 
-    this.isUploadingImages.set(true);
-
-    try {
-      for (const item of queued) {
-        if (!item.file) {
-          continue;
-        }
-
-        this.setImageUploading(item.localId, true);
-        const uploaded = await this._lodgingImages.uploadImage(lodgingId, item.file);
-        this.replaceQueuedWithServerImage(item.localId, uploaded);
-      }
-    } finally {
-      this.isUploadingImages.set(false);
-      for (const item of this.imageItems()) {
-        if (item.uploading) {
-          this.setImageUploading(item.localId, false);
-        }
-      }
-    }
+    return payload as Record<string, unknown>;
   }
 
   private async handleSelectedFiles(files: File[]): Promise<void> {
@@ -576,50 +599,7 @@ export class LodgingsFormPage
       return;
     }
 
-    const lodgingId = this.resource.current()?.id;
-    if (lodgingId) {
-      await this.uploadFilesImmediately(lodgingId, imageFiles);
-      return;
-    }
-
     this.queueLocalImages(imageFiles);
-  }
-
-  private async uploadFilesImmediately(lodgingId: string, files: File[]): Promise<void> {
-    this.isUploadingImages.set(true);
-
-    try {
-      for (const file of files) {
-        const tempId = this.createLocalId();
-        this.imageItems.update((items) => [
-          ...items,
-          {
-            localId: tempId,
-            source: 'queued',
-            isDefault: items.length === 0,
-            previewUrl: URL.createObjectURL(file),
-            publicUrl: '',
-            file,
-            uploading: true,
-          },
-        ]);
-
-        this.ensureLocalDefaultSelection();
-
-        try {
-          const uploaded = await this._lodgingImages.uploadImage(lodgingId, file);
-          this.replaceQueuedWithServerImage(tempId, uploaded);
-        } catch {
-          this.removeImageLocally(tempId);
-          await this._toastr.danger(
-            `No se pudo subir la imagen "${file.name}".`,
-            'Error de imágenes',
-          );
-        }
-      }
-    } finally {
-      this.isUploadingImages.set(false);
-    }
   }
 
   private queueLocalImages(files: File[]): void {
@@ -757,6 +737,31 @@ export class LodgingsFormPage
     );
 
     this.ensureLocalDefaultSelection();
+  }
+
+  private resolveQueuedDefaultImageId(
+    selectedDefaultBeforeSave: FormLodgingImageItem | null,
+    updated: Lodging,
+    existingServerImageIds: Set<string>,
+    queuedItemsBeforeSave: FormLodgingImageItem[],
+  ): string | null {
+    if (!selectedDefaultBeforeSave || selectedDefaultBeforeSave.source !== 'queued') {
+      return null;
+    }
+
+    const queuedIndex = queuedItemsBeforeSave.findIndex(
+      (image) => image.localId === selectedDefaultBeforeSave.localId,
+    );
+
+    if (queuedIndex < 0) {
+      return null;
+    }
+
+    const newlyCreatedImages = (updated.mediaImages ?? []).filter(
+      (image) => !existingServerImageIds.has(image.imageId),
+    );
+
+    return newlyCreatedImages[queuedIndex]?.imageId ?? null;
   }
 
   private serverImageToFormItem(

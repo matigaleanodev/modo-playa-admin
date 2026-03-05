@@ -74,6 +74,10 @@ export class LodgingsListPage extends BaseList<Lodging> implements OnInit {
 
   trackByLodging = (_index: number, item: BaseEntity) => item.id;
 
+  openAvailability(item: Lodging): void {
+    this.resource.openAvailability(item);
+  }
+
   getCardImage(item: Lodging): string | null {
     const defaultMedia = item.mediaImages?.find((image) => image.isDefault);
     return (

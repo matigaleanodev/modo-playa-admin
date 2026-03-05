@@ -22,6 +22,30 @@
   gap: 1rem;
 }
 
+.lodgings-submenu {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.9rem;
+}
+
+.lodgings-submenu__item {
+  border: 1px solid var(--app-border-soft);
+  background: var(--app-surface-soft);
+  color: var(--ion-color-medium);
+  border-radius: 999px;
+  padding: 0.42rem 0.8rem;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.lodgings-submenu__item.is-active {
+  color: var(--ion-text-color);
+  border-color: rgba(var(--ion-color-primary-rgb), 0.24);
+  background: rgba(var(--ion-color-primary-rgb), 0.12);
+}
+
 .lodgings-images {
   display: grid;
   gap: 0.9rem;

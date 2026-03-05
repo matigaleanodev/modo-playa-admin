@@ -71,17 +71,16 @@ describe('LodgingsResourceService', () => {
       location: '  Calle 1 ',
       description: ' Desc ',
       mainImage: ' https://img.test/x.jpg ',
-      price: 100,
+      price: '100' as unknown as number,
       priceUnit: 'night',
       type: 'house',
-      maxGuests: 4.7,
-      bedrooms: 2.2,
-      bathrooms: 1.8,
-      minNights: 2.9,
-      distanceToBeach: '' as unknown as number,
+      maxGuests: '4.7' as unknown as number,
+      bedrooms: '2.2' as unknown as number,
+      bathrooms: '1.8' as unknown as number,
+      minNights: '2.9' as unknown as number,
+      distanceToBeach: '350' as unknown as number,
       amenities: ['wifi', '' as unknown as any],
       images: ['  a.jpg ', '  '],
-      occupiedRanges: [],
       contactId: '  cont_1 ',
       active: 1 as unknown as boolean,
     };
@@ -100,8 +99,9 @@ describe('LodgingsResourceService', () => {
     expect(payload.bedrooms).toBe(2);
     expect(payload.bathrooms).toBe(1);
     expect(payload.minNights).toBe(2);
-    expect(payload.distanceToBeach).toBeNull();
+    expect(payload.distanceToBeach).toBe(350);
     expect(payload.images).toEqual(['a.jpg']);
+    expect(payload).not.toEqual(jasmine.objectContaining({ occupiedRanges: jasmine.anything() }));
     expect(payload.contactId).toBe('cont_1');
     expect(payload.active).toBeTrue();
 
@@ -150,7 +150,57 @@ describe('LodgingsResourceService', () => {
     expect(service.current()?.title).toBe('Nuevo título');
   });
 
-  it('debería navegar en newElement y editElement', () => {
+  it('debería normalizar valores numéricos de texto con coma decimal', () => {
+    const normalized = service.normalizePayloadForSave({
+      ...createEmptyLodging(),
+      title: 'Casa 1',
+      description: 'Desc',
+      location: 'Calle 1',
+      city: 'Mar Azul',
+      mainImage: 'https://img.test/1.jpg',
+      price: '100,5' as unknown as number,
+      maxGuests: '4,9' as unknown as number,
+      bedrooms: '2,7' as unknown as number,
+      bathrooms: '1,4' as unknown as number,
+      minNights: '3,8' as unknown as number,
+      distanceToBeach: '250,9' as unknown as number,
+      active: true,
+    });
+
+    expect(normalized.price).toBe(100.5);
+    expect(normalized.maxGuests).toBe(4);
+    expect(normalized.bedrooms).toBe(2);
+    expect(normalized.bathrooms).toBe(1);
+    expect(normalized.minNights).toBe(3);
+    expect(normalized.distanceToBeach).toBe(250);
+  });
+
+  it('debería aplicar defaults cuando los numéricos no son válidos', () => {
+    const normalized = service.normalizePayloadForSave({
+      ...createEmptyLodging(),
+      title: 'Casa 2',
+      description: 'Desc',
+      location: 'Calle 2',
+      city: 'Las Gaviotas',
+      mainImage: 'https://img.test/2.jpg',
+      price: 'abc' as unknown as number,
+      maxGuests: 'abc' as unknown as number,
+      bedrooms: 'abc' as unknown as number,
+      bathrooms: 'abc' as unknown as number,
+      minNights: 'abc' as unknown as number,
+      distanceToBeach: 'abc' as unknown as number,
+      active: true,
+    });
+
+    expect(normalized.price).toBe(0);
+    expect(normalized.maxGuests).toBe(1);
+    expect(normalized.bedrooms).toBe(0);
+    expect(normalized.bathrooms).toBe(0);
+    expect(normalized.minNights).toBe(1);
+    expect(normalized.distanceToBeach).toBeNull();
+  });
+
+  it('debería navegar en newElement, editElement y availability', () => {
     const lodging = { ...createEmptyLodging(), id: 'lod_9', title: 'X' };
 
     service.newElement();
@@ -160,6 +210,9 @@ describe('LodgingsResourceService', () => {
     service.editElement(lodging);
     expect(navMock.forward).toHaveBeenCalledWith('/app/lodgings/lod_9');
     expect(service.current()?.id).toBe('lod_9');
+
+    service.openAvailability(lodging);
+    expect(navMock.forward).toHaveBeenCalledWith('/app/lodgings/lod_9/availability');
   });
 });
 

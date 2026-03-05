@@ -6,6 +6,7 @@ import { Contact } from '../models/contact.model';
 import { ContactsCrudService } from './contacts-crud.service';
 
 export type ContactSaveDto = Contact;
+export type ContactCreateDto = Omit<Contact, 'id'>;
 
 export function createEmptyContact(): Contact {
   return {
@@ -23,7 +24,7 @@ export function createEmptyContact(): Contact {
 })
 export class ContactsResourceService extends ResourceService<
   Contact,
-  ContactSaveDto,
+  ContactCreateDto,
   ContactSaveDto
 > {
   override _service = inject(ContactsCrudService);
@@ -42,7 +43,7 @@ export class ContactsResourceService extends ResourceService<
         'Edición completada',
       );
     } else {
-      const created = await this.createAndRefresh(payload);
+      const created = await this.createAndRefresh(this._toCreatePayload(payload));
       await this._toastr.success(
         `Contacto "${created.name}" creado correctamente.`,
         'Alta completada',
@@ -73,5 +74,10 @@ export class ContactsResourceService extends ResourceService<
       isDefault: !!data.isDefault,
       notes: data.notes?.trim() || '',
     };
+  }
+
+  private _toCreatePayload(payload: ContactSaveDto): ContactCreateDto {
+    const { id: _id, ...createPayload } = payload;
+    return createPayload;
   }
 }

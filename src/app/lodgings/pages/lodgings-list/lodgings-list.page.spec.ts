@@ -50,6 +50,11 @@ describe('LodgingsListPage', () => {
     expect(resourceMock.setPage).toHaveBeenCalledWith(2);
     expect(resourceMock.setLimit).toHaveBeenCalledWith(20);
   });
+
+  it('debería abrir disponibilidad del alojamiento', () => {
+    component.openAvailability({ id: 'lod-1' } as any);
+    expect(resourceMock.openAvailability).toHaveBeenCalledWith({ id: 'lod-1' } as any);
+  });
 });
 
 function createResourceMock() {
@@ -65,6 +70,7 @@ function createResourceMock() {
     setPage: jasmine.createSpy('setPage').and.resolveTo(undefined),
     setLimit: jasmine.createSpy('setLimit').and.resolveTo(undefined),
     editElement: jasmine.createSpy('editElement'),
+    openAvailability: jasmine.createSpy('openAvailability'),
     newElement: jasmine.createSpy('newElement'),
     delete: jasmine.createSpy('delete').and.resolveTo(undefined),
   };

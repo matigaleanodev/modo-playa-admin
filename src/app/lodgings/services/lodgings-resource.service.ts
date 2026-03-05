@@ -82,6 +82,11 @@ export class LodgingsResourceService extends ResourceService<
     this._nav.forward(`/app/lodgings/${dat.id}`);
   }
 
+  openAvailability(dat: Lodging): void {
+    this._current.set(dat);
+    this._nav.forward(`/app/lodgings/${dat.id}/availability`);
+  }
+
   private _normalizePayload(data: LodgingSaveDto): LodgingSaveDto {
     const amenities = Array.isArray(data.amenities)
       ? data.amenities.filter(Boolean)
@@ -90,6 +95,13 @@ export class LodgingsResourceService extends ResourceService<
       ? data.images.map((image) => image.trim()).filter(Boolean)
       : [];
 
+    const price = this._toFiniteNumber(data.price);
+    const maxGuests = this._toFiniteNumber(data.maxGuests);
+    const bedrooms = this._toFiniteNumber(data.bedrooms);
+    const bathrooms = this._toFiniteNumber(data.bathrooms);
+    const minNights = this._toFiniteNumber(data.minNights);
+    const distanceToBeach = this._toOptionalFiniteNumber(data.distanceToBeach);
+
     return {
       ...data,
       title: data.title.trim(),
@@ -97,32 +109,41 @@ export class LodgingsResourceService extends ResourceService<
       location: data.location.trim(),
       city: data.city.trim(),
       type: data.type,
-      price: Number.isFinite(data.price) ? Math.max(0, Number(data.price)) : 0,
+      price: price !== null ? Math.max(0, price) : 0,
       priceUnit: data.priceUnit,
-      maxGuests: Number.isFinite(data.maxGuests)
-        ? Math.max(1, Math.trunc(data.maxGuests))
-        : 1,
-      bedrooms: Number.isFinite(data.bedrooms)
-        ? Math.max(0, Math.trunc(data.bedrooms))
-        : 0,
-      bathrooms: Number.isFinite(data.bathrooms)
-        ? Math.max(0, Math.trunc(data.bathrooms))
-        : 0,
-      minNights: Number.isFinite(data.minNights)
-        ? Math.max(1, Math.trunc(data.minNights))
-        : 1,
+      maxGuests: maxGuests !== null ? Math.max(1, Math.trunc(maxGuests)) : 1,
+      bedrooms: bedrooms !== null ? Math.max(0, Math.trunc(bedrooms)) : 0,
+      bathrooms: bathrooms !== null ? Math.max(0, Math.trunc(bathrooms)) : 0,
+      minNights: minNights !== null ? Math.max(1, Math.trunc(minNights)) : 1,
       distanceToBeach:
-        data.distanceToBeach === null ||
-        data.distanceToBeach === undefined ||
-        data.distanceToBeach === ('' as unknown as number)
-          ? null
-          : Math.max(0, Math.trunc(Number(data.distanceToBeach))),
+        distanceToBeach !== null ? Math.max(0, Math.trunc(distanceToBeach)) : null,
       amenities: amenities as LodgingAmenity[],
       mainImage: data.mainImage.trim(),
       images,
-      occupiedRanges: data.occupiedRanges ?? [],
       contactId: data.contactId ? data.contactId.trim() : null,
       active: !!data.active,
     };
+  }
+
+  private _toFiniteNumber(value: unknown): number | null {
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      return value;
+    }
+
+    if (typeof value === 'string') {
+      const normalized = value.trim().replace(',', '.');
+      if (normalized === '') {
+        return null;
+      }
+
+      const parsed = Number(normalized);
+      return Number.isFinite(parsed) ? parsed : null;
+    }
+
+    return null;
+  }
+
+  private _toOptionalFiniteNumber(value: unknown): number | null {
+    return this._toFiniteNumber(value);
   }
 }

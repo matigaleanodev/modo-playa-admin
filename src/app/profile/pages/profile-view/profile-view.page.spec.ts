@@ -104,6 +104,22 @@ describe('ProfileViewPage', () => {
     expect(authMock.me).toHaveBeenCalled();
     expect(toastrMock.success).toHaveBeenCalled();
   });
+
+  it('debería reflejar cambios del usuario en sesión sin recargar la vista', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    sessionMock.user.set({
+      ...createUser(),
+      firstName: 'Ana',
+      lastName: 'Perez',
+      displayName: 'Ani',
+    });
+    fixture.detectChanges();
+
+    expect(component.displayName()).toBe('Ana Perez');
+    expect(component.valueOrDash(component.user()?.firstName)).toBe('Ana');
+  });
 });
 
 function createUser(): AuthUser {

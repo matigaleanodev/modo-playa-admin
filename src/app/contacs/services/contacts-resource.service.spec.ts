@@ -68,6 +68,11 @@ describe('ContactsResourceService', () => {
         isDefault: true,
       }),
     );
+    const savePayload = crudMock.save.calls.mostRecent().args[0] as Record<
+      string,
+      unknown
+    >;
+    expect(savePayload['id']).toBeUndefined();
     expect(navMock.root).toHaveBeenCalledWith('/app/contacts');
   });
 

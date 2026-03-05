@@ -74,7 +74,20 @@
             <pre class="list-shell__fallback">{{ item | json }}</pre>
           }
 
-          <footer class="list-shell__item-actions">
+          <footer
+            class="list-shell__item-actions"
+            [class.list-shell__item-actions--extra]="showExtraAction()"
+          >
+            @if (showExtraAction()) {
+              <button
+                type="button"
+                class="list-shell__btn list-shell__btn--ghost list-shell__btn--extra-action"
+                [attr.aria-label]="extraActionLabel()"
+                (click)="onExtraAction(item, $event)"
+              >
+                {{ extraActionLabel() }}
+              </button>
+            }
             <button
               type="button"
               class="list-shell__btn list-shell__btn--ghost"

@@ -21,10 +21,13 @@
         description: 'Crea el primer alojamiento para empezar a gestionar disponibilidad y datos.'
       }"
       [itemTemplate]="lodgingItemTpl"
+      [showExtraAction]="true"
+      [extraActionLabel]="'Disponibilidad'"
       (create)="newElement()"
       (refresh)="onRefresh()"
       (pageChange)="onPageChange($event.page)"
       (limitChange)="onLimitChange($event.limit)"
+      (extraAction)="openAvailability($event.item)"
       (edit)="editElement($event.item)"
       (delete)="onDelete($event.item)"
     />
@@ -52,6 +55,7 @@
         <p class="lodging-card__email">
           ${{ item.price | number: '1.0-0' }} / {{ item.priceUnit }}
         </p>
+
       </div>
     </ng-template>
   </div>

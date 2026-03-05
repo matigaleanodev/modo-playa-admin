@@ -10,6 +10,17 @@
 <ion-content>
   <div class="lodgings-form-page">
     <section class="lodgings-form-panel">
+      @if (resource.isEditMode() && currentLodgingId()) {
+        <div class="lodgings-submenu">
+          <button type="button" class="lodgings-submenu__item is-active">
+            Datos generales
+          </button>
+          <button type="button" class="lodgings-submenu__item" (click)="goToAvailability()">
+            Disponibilidad
+          </button>
+        </div>
+      }
+
       <form class="lodgings-form" (submit)="onSubmit($event)">
         <app-form-field-render [form]="form" [fields]="fields" />
 

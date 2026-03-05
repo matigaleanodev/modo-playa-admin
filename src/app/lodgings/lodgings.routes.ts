@@ -30,6 +30,16 @@ export const LODGINGS_ROUTES: Routes = [
             (m) => m.LodgingsFormPage,
           ),
       },
+      {
+        path: ':id/availability',
+        resolve: {
+          lodging: lodgingEditResolver,
+        },
+        loadComponent: () =>
+          import('./pages/lodgings-availability/lodgings-availability.page').then(
+            (m) => m.LodgingsAvailabilityPage,
+          ),
+      },
     ],
   },
 ];
