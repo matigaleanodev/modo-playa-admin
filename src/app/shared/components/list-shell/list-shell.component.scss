@@ -73,9 +73,18 @@
 }
 
 .list-shell__grid {
+  --list-shell-card-min-width: 260px;
+  --list-shell-card-max-width: 340px;
   display: grid;
   gap: 0.9rem;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(
+      min(100%, var(--list-shell-card-min-width)),
+      var(--list-shell-card-max-width)
+    )
+  );
+  justify-content: start;
 }
 
 .list-shell__item {
@@ -334,6 +343,10 @@
 
   .list-shell__item-actions,
   .list-shell__item-actions--extra {
+    grid-template-columns: 1fr;
+  }
+
+  .list-shell__grid {
     grid-template-columns: 1fr;
   }
 
