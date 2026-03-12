@@ -3,6 +3,7 @@ import { firstValueFrom } from 'rxjs';
 import { CrudService } from '../crud/crud.service';
 import { ApiListQuery } from '../models/api-response.model';
 import { BaseEntity } from '../models/entity.model';
+import { resolveDomainErrorMessage } from '../utils/domain-error.util';
 
 export interface ResourcePaginationState {
   page: number;
@@ -200,7 +201,9 @@ export abstract class ResourceService<
   }
 
   private _mapErrorMessage(error: unknown): string {
-    if (error instanceof Error && error.message) return error.message;
-    return 'Ocurrio un error al cargar los datos.';
+    return resolveDomainErrorMessage(error, {
+      fallback: 'Ocurrio un error al cargar los datos.',
+      preferThrownMessage: false,
+    });
   }
 }

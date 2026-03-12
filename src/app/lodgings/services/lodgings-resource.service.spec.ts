@@ -1,5 +1,7 @@
 import { TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Observable, of } from 'rxjs';
+import { ERROR_MESSAGES } from '@core/constants/error-message';
 import { LodgingsResourceService } from './lodgings-resource.service';
 import { LodgingsCrudService } from './lodgings-crud.service';
 import { NavService } from '@shared/services/nav/nav.service';
@@ -213,6 +215,33 @@ describe('LodgingsResourceService', () => {
 
     service.openAvailability(lodging);
     expect(navMock.forward).toHaveBeenCalledWith('/app/lodgings/lod_9/availability');
+  });
+
+  it('debería priorizar LODGING_NOT_FOUND desde error.code al cargar la lista', async () => {
+    crudMock.find.and.returnValue(
+      new Observable((subscriber) => {
+        subscriber.error(
+          new HttpErrorResponse({
+            status: 404,
+            error: { code: 'LODGING_NOT_FOUND', message: 'Alojamiento legacy' },
+          }),
+        );
+      }),
+    );
+
+    await expectAsync(service.loadPage()).toBeRejected();
+    expect(service.error()).toBe(ERROR_MESSAGES.LODGING_NOT_FOUND);
+  });
+
+  it('debería usar fallback genérico ante errores no-http al cargar la lista', async () => {
+    crudMock.find.and.returnValue(
+      new Observable((subscriber) => {
+        subscriber.error(new Error('boom'));
+      }),
+    );
+
+    await expectAsync(service.loadPage()).toBeRejected();
+    expect(service.error()).toBe('Ocurrio un error al cargar los datos.');
   });
 });
 
