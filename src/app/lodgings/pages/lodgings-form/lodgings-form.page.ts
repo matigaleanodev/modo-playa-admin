@@ -1,5 +1,4 @@
 import { CommonModule } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
 import {
   Component,
   ElementRef,
@@ -26,6 +25,7 @@ import {
 } from '@ionic/angular/standalone';
 import { BaseForm } from '@core/components/form.component';
 import { FormOption } from '@core/models/form-option.model';
+import { getHttpErrorCode, resolveDomainErrorMessage } from '@core/utils/domain-error.util';
 import { AppFormFieldRenderImports } from './lodgings-form.shared';
 import {
   Lodging,
@@ -958,31 +958,23 @@ export class LodgingsFormPage
       return 'El backend rechazó la carga porque se excedió el límite de imágenes.';
     }
 
-    if (error instanceof HttpErrorResponse) {
-      if (typeof error.error?.message === 'string' && error.error.message.trim()) {
-        return error.error.message;
-      }
-    }
-
-    return 'No se pudo preparar la imagen para el alta del alojamiento.';
+    return resolveDomainErrorMessage(error, {
+      fallback: 'No se pudo preparar la imagen para el alta del alojamiento.',
+    });
   }
 
   private extractExistingImageError(error: unknown): string {
-    if (error instanceof HttpErrorResponse) {
-      if (typeof error.error?.message === 'string' && error.error.message.trim()) {
-        return error.error.message;
-      }
-    }
-
-    return 'No se pudo subir la imagen del alojamiento.';
+    return resolveDomainErrorMessage(error, {
+      fallback: 'No se pudo subir la imagen del alojamiento.',
+      overrides: {
+        LODGING_IMAGE_NOT_FOUND:
+          'La imagen que intentas administrar ya no existe en el alojamiento.',
+      },
+    });
   }
 
-  private extractErrorCode(error: unknown): string | undefined {
-    if (error instanceof HttpErrorResponse && typeof error.error?.code === 'string') {
-      return error.error.code;
-    }
-
-    return undefined;
+  private extractErrorCode(error: unknown) {
+    return getHttpErrorCode(error);
   }
 
   private _toFormValue(lodging: Lodging): Lodging {

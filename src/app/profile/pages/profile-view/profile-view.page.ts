@@ -1,5 +1,4 @@
 import { CommonModule } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
 import {
   Component,
   ElementRef,
@@ -23,6 +22,7 @@ import { firstValueFrom } from 'rxjs';
 import { AuthUser } from '@auth/models/auth-user.model';
 import { AuthService } from '@auth/services/auth.service';
 import { SessionService } from '@auth/services/session.service';
+import { resolveDomainErrorMessage } from '@core/utils/domain-error.util';
 import { NavService } from '@shared/services/nav/nav.service';
 import { ToastrService } from '@shared/services/toastr/toastr.service';
 import { ProfileImageService } from '../../services/profile-image.service';
@@ -186,18 +186,12 @@ export class ProfileViewPage implements OnInit {
   }
 
   private extractProfileImageError(error: unknown): string {
-    if (error instanceof HttpErrorResponse) {
-      const code = String(error.error?.code ?? '');
-
-      if (code === 'PROFILE_IMAGE_FORBIDDEN_FOR_SUPERADMIN') {
-        return 'SUPERADMIN no puede administrar su imagen de perfil desde este endpoint.';
-      }
-
-      if (typeof error.error?.message === 'string' && error.error.message.trim()) {
-        return error.error.message;
-      }
-    }
-
-    return 'No se pudo actualizar la imagen de perfil.';
+    return resolveDomainErrorMessage(error, {
+      fallback: 'No se pudo actualizar la imagen de perfil.',
+      overrides: {
+        PROFILE_IMAGE_FORBIDDEN_FOR_SUPERADMIN:
+          'SUPERADMIN no puede administrar su imagen de perfil desde este endpoint.',
+      },
+    });
   }
 }

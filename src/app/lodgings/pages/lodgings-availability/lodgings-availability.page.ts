@@ -1,5 +1,4 @@
 import { CommonModule } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import {
   AbstractControl,
@@ -23,6 +22,7 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
+import { resolveDomainErrorMessage } from '@core/utils/domain-error.util';
 import { AvailabilityRange, Lodging } from '@lodgings/models/lodging.model';
 import { LodgingAvailabilityAdminService } from '@lodgings/services/lodging-availability-admin.service';
 import { NavService } from '@shared/services/nav/nav.service';
@@ -234,27 +234,14 @@ export class LodgingsAvailabilityPage implements OnInit {
   }
 
   private extractAvailabilityError(error: unknown): string {
-    if (error instanceof HttpErrorResponse) {
-      const code = String(error.error?.code ?? '');
-
-      if (code === 'OCCUPIED_RANGE_CONFLICT') {
-        return 'El rango se superpone con otro ya cargado.';
-      }
-
-      if (code === 'INVALID_AVAILABILITY_RANGE') {
-        return 'El rango ingresado es inválido. Verifica fechas y formato.';
-      }
-
-      if (typeof error.error?.message === 'string' && error.error.message.trim()) {
-        return error.error.message;
-      }
-
-      if (Array.isArray(error.error?.message) && error.error.message.length > 0) {
-        return String(error.error.message[0]);
-      }
-    }
-
-    return 'No se pudo actualizar la disponibilidad. Intenta nuevamente.';
+    return resolveDomainErrorMessage(error, {
+      fallback: 'No se pudo actualizar la disponibilidad. Intenta nuevamente.',
+      overrides: {
+        OCCUPIED_RANGE_CONFLICT: 'El rango se superpone con otro ya cargado.',
+        INVALID_AVAILABILITY_RANGE:
+          'El rango ingresado es inválido. Verifica fechas y formato.',
+      },
+    });
   }
 
   private validateRangeOrder(control: AbstractControl): ValidationErrors | null {

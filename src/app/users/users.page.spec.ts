@@ -4,6 +4,7 @@ import { of, throwError } from 'rxjs';
 import { UsersPage } from './users.page';
 import { UsersCrudService } from './services/users-crud.service';
 import { ToastrService } from '@shared/services/toastr/toastr.service';
+import { ERROR_MESSAGES } from '@core/constants/error-message';
 import { ApiListResponse } from '@core/models/api-response.model';
 import { AdminUser } from './models/user-admin.model';
 
@@ -136,6 +137,26 @@ describe('UsersPage', () => {
     await fixture.whenStable();
 
     expect(component.loadError()).toBe('Error de carga');
+  });
+
+  it('debería priorizar el catalogo de error.code al cargar usuarios', async () => {
+    usersServiceMock.find.and.returnValue(
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 404,
+            error: {
+              code: 'USER_NOT_FOUND',
+              message: 'Mensaje backend',
+            },
+          }),
+      ),
+    );
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(component.loadError()).toBe(ERROR_MESSAGES.USER_NOT_FOUND);
   });
 
   it('debería resolver etiquetas de estado de usuario', () => {
