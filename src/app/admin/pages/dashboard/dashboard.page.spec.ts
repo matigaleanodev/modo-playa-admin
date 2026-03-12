@@ -51,7 +51,7 @@ describe('DashboardPage', () => {
       lodgingsByType: [{ type: 'HOUSE', total: 10 }],
     },
     recentActivity: {
-      source: 'derived',
+      source: 'timestamps',
       items: [
         {
           kind: 'user',

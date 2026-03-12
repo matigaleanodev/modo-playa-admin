@@ -80,6 +80,15 @@
   width: 100%;
 }
 
+.profile-hero__avatar-note {
+  margin: 0;
+  max-width: 180px;
+  color: var(--ion-color-medium);
+  font-size: 0.76rem;
+  line-height: 1.35;
+  text-align: center;
+}
+
 .profile-hero__text {
   min-width: 0;
 }
