@@ -53,4 +53,33 @@ describe('FormFieldRenderComponent', () => {
 
     expect(emitSpy).toHaveBeenCalledWith({ field, value: '' });
   });
+
+  it('debería actualizar un campo multiple sin usar select con scrollbar', () => {
+    fixture.componentRef.setInput(
+      'form',
+      new FormGroup({
+        amenities: new FormControl<string[]>(['wifi']),
+      }),
+    );
+    fixture.detectChanges();
+
+    const field: FormOption<unknown> = {
+      type: 'multiple',
+      key: 'amenities',
+      label: 'Comodidades',
+      options: [
+        { label: 'WiFi', value: 'wifi' },
+        { label: 'Pileta', value: 'pool' },
+      ],
+    };
+    const emitSpy = spyOn(component.fieldChange, 'emit');
+
+    component.onMultipleOptionToggle(field, { label: 'Pileta', value: 'pool' }, true);
+
+    expect(component.getControl('amenities').value).toEqual(['wifi', 'pool']);
+    expect(emitSpy).toHaveBeenCalledWith({
+      field,
+      value: ['wifi', 'pool'],
+    });
+  });
 });

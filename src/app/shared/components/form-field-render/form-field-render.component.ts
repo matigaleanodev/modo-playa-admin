@@ -105,6 +105,40 @@ export class FormFieldRenderComponent {
     return selectedValues.map((value) => labelsByValue.get(String(value)) ?? String(value));
   }
 
+  isMultipleOptionSelected(
+    field: FormOption<unknown>,
+    option: FormOptionChoice<unknown>,
+  ): boolean {
+    if (field.type !== 'multiple') return false;
+
+    const control = this.getControl(field.key);
+    const selectedValues = Array.isArray(control.value) ? control.value : [];
+
+    return selectedValues.some((value) => String(value) === String(option.value));
+  }
+
+  onMultipleOptionToggle(
+    field: FormOption<unknown>,
+    option: FormOptionChoice<unknown>,
+    checked: boolean,
+  ): void {
+    if (field.type !== 'multiple') return;
+
+    const control = this.getControl(field.key);
+    const currentValues = Array.isArray(control.value) ? control.value : [];
+    const optionValue = String(option.value);
+    const nextValues = checked
+      ? [
+          ...currentValues.filter((value) => String(value) !== optionValue),
+          option.value,
+        ]
+      : currentValues.filter((value) => String(value) !== optionValue);
+
+    control.setValue(nextValues);
+    control.markAsDirty();
+    this.fieldChange.emit({ field, value: nextValues });
+  }
+
   onInput(field: FormOption<unknown>, event: Event): void {
     const target = event.target as
       | HTMLInputElement
