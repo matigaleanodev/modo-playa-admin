@@ -4,6 +4,7 @@ import {
   fakeAsync,
   flushMicrotasks,
 } from '@angular/core/testing';
+import { HttpErrorResponse } from '@angular/common/http';
 import { signal, WritableSignal } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
@@ -125,6 +126,29 @@ describe('ForgotPasswordResetPage', () => {
     expect(component.resetError()).toContain('No pudimos actualizar la contraseña');
     expect(toastrMock.success).not.toHaveBeenCalled();
     expect(navMock.root).not.toHaveBeenCalledWith('/auth/login');
+  }));
+
+  it('debería mapear PASSWORD_ALREADY_SET desde error.code', fakeAsync(() => {
+    recoveryMock.resetPassword.and.returnValue(
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 409,
+            error: { code: 'PASSWORD_ALREADY_SET' },
+          }),
+      ),
+    );
+    component.form.setValue({
+      password: 'Abcd12',
+      confirmPassword: 'Abcd12',
+    });
+
+    component.onSubmit();
+    flushMicrotasks();
+
+    expect(component.resetError()).toBe(
+      'La contraseña ya fue configurada para esta cuenta.',
+    );
   }));
 
   it('restartFlow debería limpiar flujo y navegar al inicio', fakeAsync(() => {

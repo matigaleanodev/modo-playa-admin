@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { of, throwError } from 'rxjs';
 import { ProfileChangePasswordPage } from './profile-change-password.page';
 import { AuthService } from '@auth/services/auth.service';
 import { SessionService } from '@auth/services/session.service';
@@ -78,6 +79,28 @@ describe('ProfileChangePasswordPage', () => {
     component.cancel();
 
     expect(navMock.back).toHaveBeenCalled();
+  });
+
+  it('debería mapear INVALID_CREDENTIALS al cambiar contraseña', async () => {
+    authMock.changePassword.and.returnValue(
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 401,
+            error: { code: 'INVALID_CREDENTIALS' },
+          }),
+      ),
+    );
+    fixture.detectChanges();
+    component.form.setValue({
+      currentPassword: 'Actual1234',
+      newPassword: 'Nueva1234',
+      confirmNewPassword: 'Nueva1234',
+    });
+
+    await component.submit();
+
+    expect(component.formError()).toBe('La contraseña actual no es válida.');
   });
 });
 

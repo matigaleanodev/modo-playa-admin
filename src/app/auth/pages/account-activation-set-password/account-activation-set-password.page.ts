@@ -24,6 +24,7 @@ import {
 import { addIcons } from 'ionicons';
 import { eyeOffOutline, eyeOutline } from 'ionicons/icons';
 import { AccountActivationService } from '@auth/services/account-activation.service';
+import { resolveDomainErrorMessage } from '@core/utils/domain-error.util';
 import { NavService } from '@shared/services/nav/nav.service';
 import { ToastrService } from '@shared/services/toastr/toastr.service';
 
@@ -146,9 +147,16 @@ export class AccountActivationSetPasswordPage implements OnInit {
         'Cuenta activada correctamente. Ingreso completado.',
         'Activación completada',
       );
-    } catch {
+    } catch (error) {
       this.setupError.set(
-        'No pudimos configurar la contraseña. Reintenta el proceso de activación.',
+        resolveDomainErrorMessage(error, {
+          fallback:
+            'No pudimos configurar la contraseña. Reintenta el proceso de activación.',
+          preferThrownMessage: false,
+          overrides: {
+            PASSWORD_ALREADY_SET: 'La contraseña ya fue configurada para esta cuenta.',
+          },
+        }),
       );
     } finally {
       this.isSubmitting.set(false);

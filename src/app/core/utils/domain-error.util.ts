@@ -26,9 +26,15 @@ export function resolveDomainErrorMessage(
     fallback: string;
     overrides?: DomainErrorMessageOverrides;
     preferBackendMessage?: boolean;
+    preferThrownMessage?: boolean;
   },
 ): string {
-  const { fallback, overrides, preferBackendMessage = false } = options;
+  const {
+    fallback,
+    overrides,
+    preferBackendMessage = false,
+    preferThrownMessage = true,
+  } = options;
 
   if (error instanceof HttpErrorResponse) {
     const code = getHttpErrorCode(error);
@@ -74,7 +80,7 @@ export function resolveDomainErrorMessage(
     }
   }
 
-  if (error instanceof Error && error.message.trim()) {
+  if (preferThrownMessage && error instanceof Error && error.message.trim()) {
     return error.message;
   }
 

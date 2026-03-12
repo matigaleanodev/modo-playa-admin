@@ -21,6 +21,7 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { eyeOffOutline, eyeOutline } from 'ionicons/icons';
+import { resolveDomainErrorMessage } from '@core/utils/domain-error.util';
 import { SessionService } from '@auth/services/session.service';
 
 @Component({
@@ -98,9 +99,19 @@ export class LoginPage {
 
     try {
       await firstValueFrom(this._session.login(this.form.getRawValue()));
-    } catch {
+    } catch (error) {
       this.authError.set(
-        'No pudimos iniciar sesion. Verifica tus credenciales e intenta nuevamente.',
+        resolveDomainErrorMessage(error, {
+          fallback:
+            'No pudimos iniciar sesion. Verifica tus credenciales e intenta nuevamente.',
+          preferThrownMessage: false,
+          overrides: {
+            INVALID_CREDENTIALS:
+              'No pudimos iniciar sesion. Verifica tus credenciales e intenta nuevamente.',
+            USER_DISABLED:
+              'Tu usuario se encuentra deshabilitado. Contacta a un administrador.',
+          },
+        }),
       );
     } finally {
       this.isSubmitting.set(false);

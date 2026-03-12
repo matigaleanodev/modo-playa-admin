@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpErrorResponse } from '@angular/common/http';
 import { signal } from '@angular/core';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { ProfileEditPage } from './profile-edit.page';
 import { AuthService } from '@auth/services/auth.service';
 import { SessionService } from '@auth/services/session.service';
@@ -95,6 +96,23 @@ describe('ProfileEditPage', () => {
 
     expect(authMock.me).toHaveBeenCalled();
     expect(sessionMock.setCurrentUser).toHaveBeenCalled();
+  });
+
+  it('debería reflejar error de dominio al actualizar el perfil', async () => {
+    authMock.updateMe.and.returnValue(
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 400,
+            error: { code: 'REQUEST_VALIDATION_ERROR' },
+          }),
+      ),
+    );
+    fixture.detectChanges();
+
+    await component.submit();
+
+    expect(component.error()).toBe('La solicitud contiene datos inválidos.');
   });
 });
 
