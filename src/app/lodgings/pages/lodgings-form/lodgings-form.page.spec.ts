@@ -34,6 +34,7 @@ describe('LodgingsFormPage', () => {
       jasmine.createSpyObj<LodgingsResourceService>('LodgingsResourceService', [
         'guardar',
         'cancelar',
+        'refresh',
         'setCurrent',
         'resetCurrent',
         'normalizePayloadForSave',
@@ -59,12 +60,12 @@ describe('LodgingsFormPage', () => {
     );
 
     lodgingsCrudMock = jasmine.createSpyObj<LodgingsCrudService>('LodgingsCrudService', [
-      'createWithImages',
-      'updateWithImages',
+      'save',
+      'update',
     ]);
     lodgingImagesMock = jasmine.createSpyObj<LodgingImagesAdminService>(
       'LodgingImagesAdminService',
-      ['setDefaultImage', 'deleteImage'],
+      ['setDefaultImage', 'deleteImage', 'uploadDraftImage', 'uploadImage'],
     );
     toastrMock = jasmine.createSpyObj<ToastrService>('ToastrService', [
       'success',
@@ -72,6 +73,7 @@ describe('LodgingsFormPage', () => {
       'danger',
     ]);
     navMock = jasmine.createSpyObj<NavService>('NavService', ['forward', 'root']);
+    resourceMock.refresh.and.resolveTo();
 
     activatedRouteMock = {
       snapshot: {
@@ -133,71 +135,81 @@ describe('LodgingsFormPage', () => {
     expect(component.form.get('contactId')?.value).toBe('c-2');
   });
 
-  it('debería resolver imageId de imagen predeterminada encolada usando estado previo', () => {
-    const queuedBeforeSave = [
-      {
-        localId: 'queued-a',
-        source: 'queued',
-        isDefault: false,
-        previewUrl: 'blob:a',
-        publicUrl: '',
-      },
-      {
-        localId: 'queued-b',
-        source: 'queued',
-        isDefault: true,
-        previewUrl: 'blob:b',
-        publicUrl: '',
-      },
-    ];
-    const selectedDefaultBeforeSave = queuedBeforeSave[1];
-    const updated: Lodging = {
+  it('debería crear un lodging con pendingImageIds ordenados por la imagen predeterminada', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const created: Lodging = {
       ...createEmptyLodging(),
-      id: 'lod_1',
+      id: 'lod-1',
       mediaImages: [
         {
-          imageId: 'img-existing',
-          key: 'existing',
-          isDefault: false,
+          imageId: 'img-default',
+          key: 'img-default',
+          isDefault: true,
           createdAt: '2026-01-01T00:00:00.000Z',
-          url: 'https://img/existing.jpg',
-        },
-        {
-          imageId: 'img-new-1',
-          key: 'new-1',
-          isDefault: false,
-          createdAt: '2026-01-01T00:00:00.000Z',
-          url: 'https://img/new-1.jpg',
-        },
-        {
-          imageId: 'img-new-2',
-          key: 'new-2',
-          isDefault: false,
-          createdAt: '2026-01-01T00:00:00.000Z',
-          url: 'https://img/new-2.jpg',
+          url: 'https://img/default.webp',
         },
       ],
     };
+    lodgingsCrudMock.save.and.returnValue(of(created));
 
-    const resolvedImageId = (
-      component as unknown as {
-        resolveQueuedDefaultImageId: (
-          selected: {
-            localId: string;
-            source: string;
-          } | null,
-          lodging: Lodging,
-          existing: Set<string>,
-          queuedItems: Array<{ localId: string }>,
-        ) => string | null;
-      }
-    ).resolveQueuedDefaultImageId(
-      selectedDefaultBeforeSave,
-      updated,
-      new Set(['img-existing']),
-      queuedBeforeSave,
+    component.form.setValue({
+      title: 'Casa nueva',
+      type: 'cabin',
+      description: 'Descripcion valida',
+      location: 'Calle 1',
+      city: 'Mar Azul',
+      price: 100,
+      priceUnit: 'night',
+      maxGuests: 4,
+      bedrooms: 2,
+      bathrooms: 1,
+      minNights: 2,
+      contactId: 'c-default',
+      distanceToBeach: null,
+      amenities: [],
+      active: true,
+    });
+    component.imageItems.set([
+      {
+        localId: 'img-1',
+        source: 'draft',
+        imageId: 'img-secondary',
+        isDefault: false,
+        previewUrl: 'blob:secondary',
+        publicUrl: '',
+        uploading: false,
+        draftStatus: 'confirmed',
+        uploadSessionId: 'session-1',
+        uploadKey: 'draft-1',
+      },
+      {
+        localId: 'img-2',
+        source: 'draft',
+        imageId: 'img-default',
+        isDefault: true,
+        previewUrl: 'blob:default',
+        publicUrl: '',
+        uploading: false,
+        draftStatus: 'confirmed',
+        uploadSessionId: 'session-1',
+        uploadKey: 'draft-2',
+      },
+    ]);
+    component.draftUploadSessionId.set('session-1');
+
+    expect(component.form.invalid).toBeFalse();
+
+    await component.guardar();
+
+    expect(lodgingsCrudMock.save).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        uploadSessionId: 'session-1',
+        pendingImageIds: ['img-default', 'img-secondary'],
+      }),
     );
-
-    expect(resolvedImageId).toBe('img-new-2');
+    expect(resourceMock.setCurrent).toHaveBeenCalledWith(created);
+    expect(navMock.root).toHaveBeenCalledWith('/app/lodgings');
   });
 });
