@@ -1,6 +1,8 @@
 import { TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Observable, of } from 'rxjs';
 import { ApiListResponse } from '@core/models/api-response.model';
+import { ERROR_MESSAGES } from '@core/constants/error-message';
 import { NavService } from '@shared/services/nav/nav.service';
 import { ToastrService } from '@shared/services/toastr/toastr.service';
 import { Contact } from '../models/contact.model';
@@ -111,6 +113,33 @@ describe('ContactsResourceService', () => {
 
     service.cancelar();
     expect(navMock.root).toHaveBeenCalledWith('/app/contacts');
+  });
+
+  it('debería priorizar CONTACT_NOT_FOUND desde error.code al cargar la lista', async () => {
+    crudMock.find.and.returnValue(
+      new Observable((subscriber) => {
+        subscriber.error(
+          new HttpErrorResponse({
+            status: 404,
+            error: { code: 'CONTACT_NOT_FOUND', message: 'Contacto legacy' },
+          }),
+        );
+      }),
+    );
+
+    await expectAsync(service.loadPage()).toBeRejected();
+    expect(service.error()).toBe(ERROR_MESSAGES.CONTACT_NOT_FOUND);
+  });
+
+  it('debería usar el fallback genérico ante errores no-http al cargar la lista', async () => {
+    crudMock.find.and.returnValue(
+      new Observable((subscriber) => {
+        subscriber.error(new Error('boom'));
+      }),
+    );
+
+    await expectAsync(service.loadPage()).toBeRejected();
+    expect(service.error()).toBe('Ocurrio un error al cargar los datos.');
   });
 });
 

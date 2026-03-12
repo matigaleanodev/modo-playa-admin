@@ -2,8 +2,7 @@ import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
 import { ToastrService } from '@shared/services/toastr/toastr.service';
-import { ERROR_MESSAGES } from '@core/constants/error-message';
-import { ErrorCode } from '@core/constants/error-code';
+import { resolveDomainErrorMessage } from '@core/utils/domain-error.util';
 
 export const domainErrorInterceptor: HttpInterceptorFn = (req, next) => {
   const toastr = inject(ToastrService);
@@ -15,13 +14,11 @@ export const domainErrorInterceptor: HttpInterceptorFn = (req, next) => {
           return throwError(() => error);
         }
 
-        const code = error.error?.code as ErrorCode | undefined;
-
-        if (code && ERROR_MESSAGES[code]) {
-          toastr.danger(ERROR_MESSAGES[code]);
-        } else {
-          toastr.danger('Ocurrió un error inesperado.');
-        }
+        toastr.danger(
+          resolveDomainErrorMessage(error, {
+            fallback: 'Ocurrió un error inesperado.',
+          }),
+        );
       }
 
       return throwError(() => error);

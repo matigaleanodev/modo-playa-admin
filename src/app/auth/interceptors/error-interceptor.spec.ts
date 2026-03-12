@@ -56,7 +56,7 @@ describe('domainErrorInterceptor', () => {
     );
   });
 
-  it('debería mostrar mensaje genérico si no hay code', () => {
+  it('debería mostrar el mensaje backend si no hay code', () => {
     http.get('/test').subscribe({
       error: () => {},
     });
@@ -68,9 +68,7 @@ describe('domainErrorInterceptor', () => {
       { status: 400, statusText: 'Bad Request' },
     );
 
-    expect(toastrMock.danger).toHaveBeenCalledWith(
-      'Ocurrió un error inesperado.',
-    );
+    expect(toastrMock.danger).toHaveBeenCalledWith('algo raro');
   });
 
   it('no debería mostrar toast para 401', () => {

@@ -19,6 +19,7 @@ import {
   IonFooter,
 } from '@ionic/angular/standalone';
 import { PasswordRecoveryService } from '@auth/services/password-recovery.service';
+import { resolveDomainErrorMessage } from '@core/utils/domain-error.util';
 import { NavService } from '@shared/services/nav/nav.service';
 
 @Component({
@@ -84,9 +85,13 @@ export class ForgotPasswordPage {
         'Si el usuario existe, enviamos un código de verificación al email registrado.',
       );
       this._nav.forward('/auth/forgot-password/verify');
-    } catch {
+    } catch (error) {
       this.requestError.set(
-        'No pudimos procesar la solicitud. Intenta nuevamente en unos minutos.',
+        resolveDomainErrorMessage(error, {
+          fallback:
+            'No pudimos procesar la solicitud. Intenta nuevamente en unos minutos.',
+          preferThrownMessage: false,
+        }),
       );
     } finally {
       this.isSubmitting.set(false);

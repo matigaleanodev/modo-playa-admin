@@ -24,6 +24,7 @@ import {
 import { addIcons } from 'ionicons';
 import { eyeOffOutline, eyeOutline } from 'ionicons/icons';
 import { PasswordRecoveryService } from '@auth/services/password-recovery.service';
+import { resolveDomainErrorMessage } from '@core/utils/domain-error.util';
 import { NavService } from '@shared/services/nav/nav.service';
 import { ToastrService } from '@shared/services/toastr/toastr.service';
 
@@ -148,9 +149,16 @@ export class ForgotPasswordResetPage implements OnInit {
         'Recuperación completada',
       );
       this._nav.root('/auth/login');
-    } catch {
+    } catch (error) {
       this.resetError.set(
-        'No pudimos actualizar la contraseña. Reintenta el proceso de recuperación.',
+        resolveDomainErrorMessage(error, {
+          fallback:
+            'No pudimos actualizar la contraseña. Reintenta el proceso de recuperación.',
+          preferThrownMessage: false,
+          overrides: {
+            PASSWORD_ALREADY_SET: 'La contraseña ya fue configurada para esta cuenta.',
+          },
+        }),
       );
     } finally {
       this.isSubmitting.set(false);

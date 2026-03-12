@@ -19,6 +19,7 @@ import {
   IonFooter,
 } from '@ionic/angular/standalone';
 import { AccountActivationService } from '@auth/services/account-activation.service';
+import { resolveDomainErrorMessage } from '@core/utils/domain-error.util';
 import { NavService } from '@shared/services/nav/nav.service';
 
 @Component({
@@ -87,9 +88,13 @@ export class AccountActivationVerifyPage implements OnInit {
     try {
       await firstValueFrom(this._activation.verifyCode(this.form.getRawValue()));
       this._nav.forward('/auth/activate/set-password');
-    } catch {
+    } catch (error) {
       this.verifyError.set(
-        'No pudimos validar el código. Revisa el código recibido e intenta nuevamente.',
+        resolveDomainErrorMessage(error, {
+          fallback:
+            'No pudimos validar el código. Revisa el código recibido e intenta nuevamente.',
+          preferThrownMessage: false,
+        }),
       );
     } finally {
       this.isSubmitting.set(false);

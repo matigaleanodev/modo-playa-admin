@@ -67,4 +67,36 @@ describe('ContactsFormPage', () => {
     expect(component.form.get('name')?.value).toBe('Inmobiliaria');
     expect(component.submitLabel()).toBe('Guardar cambios');
   });
+
+  it('debería conservar el id al guardar en modo edición', async () => {
+    const resolved = {
+      ...createEmptyContact(),
+      id: 'c-77',
+      name: 'Inmobiliaria',
+      email: 'x@test.com',
+    };
+
+    activatedRouteMock.snapshot.data = { contact: resolved };
+    activatedRouteMock.snapshot.paramMap = convertToParamMap({ id: 'c-77' });
+
+    fixture = TestBed.createComponent(ContactsFormPage);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    component.form.patchValue({
+      name: 'Inmobiliaria actualizada',
+      email: 'editado@test.com',
+    });
+
+    await component.guardar();
+
+    expect(resourceMock.guardar).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        id: 'c-77',
+        name: 'Inmobiliaria actualizada',
+        email: 'editado@test.com',
+      }),
+    );
+  });
 });

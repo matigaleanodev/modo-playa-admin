@@ -25,27 +25,33 @@
             (change)="onProfileImageSelected($event)"
           />
 
-          <div class="profile-hero__avatar-actions">
-            <button
-              type="button"
-              class="profile-btn profile-btn--secondary profile-btn--small"
-              [disabled]="imageBusy()"
-              (click)="triggerProfileImageSelection()"
-            >
-              {{ imageBusy() ? 'Subiendo...' : 'Cambiar imagen' }}
-            </button>
-
-            @if (hasProfileImage()) {
+          @if (canManageProfileImage()) {
+            <div class="profile-hero__avatar-actions">
               <button
                 type="button"
-                class="profile-btn profile-btn--ghost-danger profile-btn--small"
+                class="profile-btn profile-btn--secondary profile-btn--small"
                 [disabled]="imageBusy()"
-                (click)="removeProfileImage()"
+                (click)="triggerProfileImageSelection()"
               >
-                Quitar
+                {{ imageBusy() ? 'Subiendo...' : 'Cambiar imagen' }}
               </button>
-            }
-          </div>
+
+              @if (hasProfileImage()) {
+                <button
+                  type="button"
+                  class="profile-btn profile-btn--ghost-danger profile-btn--small"
+                  [disabled]="imageBusy()"
+                  (click)="removeProfileImage()"
+                >
+                  Quitar
+                </button>
+              }
+            </div>
+          } @else {
+            <p class="profile-hero__avatar-note">
+              `SUPERADMIN` no administra profile image desde `auth/me/profile-image`.
+            </p>
+          }
         </div>
 
         <div class="profile-hero__text">

@@ -59,20 +59,33 @@
           }
           @case ('multiple') {
             <div class="field__multiple">
-              <select
-                class="field__control field__control--multiple"
-                [id]="field.key"
-                [formControlName]="field.key"
-                multiple
-                (change)="onInput(field, $event)"
+              <div
+                class="field__multiple-options"
+                [attr.aria-labelledby]="field.key"
                 (blur)="onBlur(field)"
               >
                 @for (option of getFieldOptions(field); track option.label) {
-                  <option [value]="option.value" [disabled]="option.disabled ?? false">
-                    {{ option.label }}
-                  </option>
+                  <label
+                    class="field__multiple-option"
+                    [class.is-selected]="isMultipleOptionSelected(field, option)"
+                    [class.is-disabled]="option.disabled ?? false"
+                  >
+                    <input
+                      type="checkbox"
+                      [checked]="isMultipleOptionSelected(field, option)"
+                      [disabled]="option.disabled ?? false"
+                      (change)="
+                        onMultipleOptionToggle(
+                          field,
+                          option,
+                          $any($event.target).checked
+                        )
+                      "
+                    />
+                    <span>{{ option.label }}</span>
+                  </label>
                 }
-              </select>
+              </div>
 
               @if (getMultipleSelectedLabels(field).length > 0) {
                 <div class="field__chips" aria-label="Seleccionados">

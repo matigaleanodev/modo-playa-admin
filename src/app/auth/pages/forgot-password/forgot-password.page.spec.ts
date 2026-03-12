@@ -4,6 +4,7 @@ import {
   fakeAsync,
   flushMicrotasks,
 } from '@angular/core/testing';
+import { HttpErrorResponse } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { ForgotPasswordPage } from './forgot-password.page';
@@ -79,5 +80,26 @@ describe('ForgotPasswordPage', () => {
 
     expect(component.requestError()).toContain('No pudimos procesar la solicitud');
     expect(navMock.forward).not.toHaveBeenCalled();
+  }));
+
+  it('debería priorizar REQUEST_VALIDATION_ERROR desde error.code', fakeAsync(() => {
+    recoveryMock.requestCode.and.returnValue(
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 400,
+            error: { code: 'REQUEST_VALIDATION_ERROR' },
+          }),
+      ),
+    );
+
+    component.form.setValue({ identifier: 'user' });
+
+    component.onSubmit();
+    flushMicrotasks();
+
+    expect(component.requestError()).toBe(
+      'La solicitud contiene datos inválidos.',
+    );
   }));
 });

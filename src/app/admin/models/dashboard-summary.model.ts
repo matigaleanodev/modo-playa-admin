@@ -63,7 +63,9 @@ export type DashboardSummaryResponse = {
   };
   recentActivity: {
     items: DashboardRecentActivityItem[];
-    source: 'derived' | 'none';
+    // `action` y `timestamp` son una vista heuristica derivada de timestamps,
+    // no un event log persistido.
+    source: 'timestamps' | 'none';
   };
   alerts: DashboardAlert[];
 };

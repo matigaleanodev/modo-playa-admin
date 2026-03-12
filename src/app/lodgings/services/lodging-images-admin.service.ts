@@ -10,6 +10,12 @@ interface RequestUploadUrlDto {
   originalFilename?: string;
 }
 
+interface RequestDraftUploadUrlDto {
+  uploadSessionId: string;
+  mime: string;
+  size: number;
+}
+
 interface UploadUrlResponse {
   imageId: string;
   uploadKey: string;
@@ -32,6 +38,18 @@ interface ConfirmUploadResponse {
   idempotent?: boolean;
 }
 
+interface ConfirmDraftUploadDto {
+  uploadSessionId: string;
+  imageId: string;
+}
+
+interface ConfirmDraftUploadResponse {
+  imageId: string;
+  uploadSessionId: string;
+  confirmed: boolean;
+  idempotent?: boolean;
+}
+
 interface SetDefaultResponse {
   images: LodgingMediaImage[];
 }
@@ -39,6 +57,12 @@ interface SetDefaultResponse {
 interface DeleteImageResponse {
   deleted: boolean;
   images: LodgingMediaImage[];
+}
+
+export interface DraftLodgingImageUploadResult {
+  imageId: string;
+  uploadSessionId: string;
+  uploadKey: string;
 }
 
 @Injectable({
@@ -74,6 +98,42 @@ export class LodgingImagesAdminService {
     });
 
     return confirm.image;
+  }
+
+  async uploadDraftImage(
+    uploadSessionId: string,
+    file: File,
+  ): Promise<DraftLodgingImageUploadResult> {
+    const uploadUrl = await this.requestDraftUploadUrl({
+      uploadSessionId,
+      mime: file.type || 'application/octet-stream',
+      size: file.size,
+    });
+
+    const putResponse = await fetch(uploadUrl.uploadUrl, {
+      method: uploadUrl.method ?? 'PUT',
+      headers: uploadUrl.requiredHeaders ?? {},
+      body: file,
+    });
+
+    if (!putResponse.ok) {
+      throw new Error('No se pudo subir la imagen al almacenamiento.');
+    }
+
+    const confirm = await this.confirmDraftUpload({
+      uploadSessionId,
+      imageId: uploadUrl.imageId,
+    });
+
+    if (!confirm.confirmed) {
+      throw new Error('No se pudo confirmar la imagen pendiente.');
+    }
+
+    return {
+      imageId: confirm.imageId,
+      uploadSessionId: confirm.uploadSessionId,
+      uploadKey: uploadUrl.uploadKey,
+    };
   }
 
   async setDefaultImage(
@@ -119,6 +179,28 @@ export class LodgingImagesAdminService {
     return firstValueFrom(
       this.http.post<ConfirmUploadResponse>(
         this.path(`admin/lodgings/${lodgingId}/images/confirm`),
+        dto,
+      ),
+    );
+  }
+
+  private async requestDraftUploadUrl(
+    dto: RequestDraftUploadUrlDto,
+  ): Promise<UploadUrlResponse> {
+    return firstValueFrom(
+      this.http.post<UploadUrlResponse>(
+        this.path('admin/lodging-image-uploads/upload-url'),
+        dto,
+      ),
+    );
+  }
+
+  private async confirmDraftUpload(
+    dto: ConfirmDraftUploadDto,
+  ): Promise<ConfirmDraftUploadResponse> {
+    return firstValueFrom(
+      this.http.post<ConfirmDraftUploadResponse>(
+        this.path('admin/lodging-image-uploads/confirm'),
         dto,
       ),
     );

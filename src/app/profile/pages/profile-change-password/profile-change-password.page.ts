@@ -13,6 +13,7 @@ import {
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '@auth/services/auth.service';
 import { SessionService } from '@auth/services/session.service';
+import { resolveDomainErrorMessage } from '@core/utils/domain-error.util';
 import { NavService } from '@shared/services/nav/nav.service';
 import { ToastrService } from '@shared/services/toastr/toastr.service';
 
@@ -87,8 +88,16 @@ export class ProfileChangePasswordPage {
         'Seguridad',
       );
       this.nav.root('/app/profile');
-    } catch {
-      this.formError.set('No se pudo cambiar la contraseña.');
+    } catch (error) {
+      this.formError.set(
+        resolveDomainErrorMessage(error, {
+          fallback: 'No se pudo cambiar la contraseña.',
+          preferThrownMessage: false,
+          overrides: {
+            INVALID_CREDENTIALS: 'La contraseña actual no es válida.',
+          },
+        }),
+      );
     } finally {
       this.saving.set(false);
     }

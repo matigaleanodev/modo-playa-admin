@@ -20,9 +20,9 @@ export class DialogService {
       componentProps: {
         title: options.title,
         text: options.text,
-        buttonLabel: options.confirmLabel ?? 'Confirmar',
+        confirmLabel: options.confirmLabel ?? 'Confirmar',
         color: options.color ?? 'primary',
-        showicon: options.showIcon,
+        showIcon: options.showIcon ?? false,
       },
       breakpoints: [0, 0.4],
       initialBreakpoint: 0.4,

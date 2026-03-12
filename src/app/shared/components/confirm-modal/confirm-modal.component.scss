@@ -1,5 +1,7 @@
 :host {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .modal-header ion-toolbar {
@@ -9,7 +11,10 @@
 }
 
 .modal-content {
+  flex: 1;
   text-align: center;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
 }
 
 .modal-body {
@@ -34,7 +39,9 @@
 }
 
 .modal-footer {
+  flex-shrink: 0;
   padding-bottom: 20px;
+  background: var(--ion-modal-background, var(--ion-card-background));
 }
 
 .footer-buttons {

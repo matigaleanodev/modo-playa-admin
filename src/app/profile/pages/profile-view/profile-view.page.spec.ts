@@ -6,7 +6,7 @@ import { AuthService } from '@auth/services/auth.service';
 import { SessionService } from '@auth/services/session.service';
 import { NavService } from '@shared/services/nav/nav.service';
 import { ToastrService } from '@shared/services/toastr/toastr.service';
-import { ProfileImageAdminService } from '../../services/profile-image-admin.service';
+import { ProfileImageService } from '../../services/profile-image.service';
 import { AuthUser } from '@auth/models/auth-user.model';
 
 describe('ProfileViewPage', () => {
@@ -15,7 +15,7 @@ describe('ProfileViewPage', () => {
   let authMock: jasmine.SpyObj<AuthService>;
   let navMock: jasmine.SpyObj<NavService>;
   let toastrMock: jasmine.SpyObj<ToastrService>;
-  let imageMock: jasmine.SpyObj<ProfileImageAdminService>;
+  let imageMock: jasmine.SpyObj<ProfileImageService>;
   let sessionMock: jasmine.SpyObj<SessionService> & {
     user: ReturnType<typeof signal<AuthUser | null>>;
   };
@@ -24,16 +24,16 @@ describe('ProfileViewPage', () => {
     authMock = jasmine.createSpyObj<AuthService>('AuthService', ['me']);
     navMock = jasmine.createSpyObj<NavService>('NavService', ['forward']);
     toastrMock = jasmine.createSpyObj<ToastrService>('ToastrService', ['success']);
-    imageMock = jasmine.createSpyObj<ProfileImageAdminService>('ProfileImageAdminService', [
-      'uploadProfileImage',
-      'deleteProfileImage',
+    imageMock = jasmine.createSpyObj<ProfileImageService>('ProfileImageService', [
+      'uploadOwnProfileImage',
+      'deleteOwnProfileImage',
     ]);
 
     const user = createUser();
     authMock.me.and.returnValue(of(user));
     toastrMock.success.and.resolveTo();
-    imageMock.uploadProfileImage.and.resolveTo(user.profileImage!);
-    imageMock.deleteProfileImage.and.resolveTo(true);
+    imageMock.uploadOwnProfileImage.and.resolveTo(user.profileImage!);
+    imageMock.deleteOwnProfileImage.and.resolveTo(true);
 
     sessionMock = Object.assign(
       jasmine.createSpyObj<SessionService>('SessionService', ['setCurrentUser']),
@@ -47,7 +47,7 @@ describe('ProfileViewPage', () => {
         { provide: SessionService, useValue: sessionMock },
         { provide: NavService, useValue: navMock },
         { provide: ToastrService, useValue: toastrMock },
-        { provide: ProfileImageAdminService, useValue: imageMock },
+        { provide: ProfileImageService, useValue: imageMock },
       ],
     }).compileComponents();
 
@@ -88,7 +88,7 @@ describe('ProfileViewPage', () => {
 
     await component.onProfileImageSelected({ target: input } as unknown as Event);
 
-    expect(imageMock.uploadProfileImage).toHaveBeenCalledWith('u1', file);
+    expect(imageMock.uploadOwnProfileImage).toHaveBeenCalledWith(file);
     expect(authMock.me).toHaveBeenCalled();
     expect(toastrMock.success).toHaveBeenCalled();
   });
@@ -100,7 +100,7 @@ describe('ProfileViewPage', () => {
 
     await component.removeProfileImage();
 
-    expect(imageMock.deleteProfileImage).toHaveBeenCalledWith('u1');
+    expect(imageMock.deleteOwnProfileImage).toHaveBeenCalled();
     expect(authMock.me).toHaveBeenCalled();
     expect(toastrMock.success).toHaveBeenCalled();
   });
@@ -119,6 +119,19 @@ describe('ProfileViewPage', () => {
 
     expect(component.displayName()).toBe('Ana Perez');
     expect(component.valueOrDash(component.user()?.firstName)).toBe('Ana');
+  });
+
+  it('debería ocultar la gestión de imagen para SUPERADMIN', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    sessionMock.user.set({
+      ...createUser(),
+      role: 'SUPERADMIN',
+    });
+    fixture.detectChanges();
+
+    expect(component.canManageProfileImage()).toBeFalse();
   });
 });
 

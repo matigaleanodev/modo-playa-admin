@@ -13,6 +13,7 @@ import {
   IonToolbar,
 } from '@ionic/angular/standalone';
 import { ApiListResponse } from '@core/models/api-response.model';
+import { resolveDomainErrorMessage } from '@core/utils/domain-error.util';
 import { ToastrService } from '@shared/services/toastr/toastr.service';
 import { CreateAdminUserDto, AdminUser } from './models/user-admin.model';
 import { UsersCrudService } from './services/users-crud.service';
@@ -161,23 +162,9 @@ export class UsersPage implements OnInit {
   }
 
   private extractErrorMessage(error: unknown): string {
-    if (error instanceof HttpErrorResponse) {
-      if (typeof error.error?.message === 'string' && error.error.message.trim()) {
-        return error.error.message;
-      }
-      if (Array.isArray(error.error?.message) && error.error.message.length > 0) {
-        return String(error.error.message[0]);
-      }
-      if (typeof error.message === 'string' && error.message.trim()) {
-        return error.message;
-      }
-    }
-
-    if (error instanceof Error && error.message) {
-      return error.message;
-    }
-
-    return 'Ocurrió un error al procesar la solicitud.';
+    return resolveDomainErrorMessage(error, {
+      fallback: 'Ocurrió un error al procesar la solicitud.',
+    });
   }
 
   private isHandledByInterceptor(error: unknown): boolean {

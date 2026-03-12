@@ -108,7 +108,7 @@ export class ContactsFormPage extends BaseForm<Contact> implements OnInit {
   override readonly form = this.generateFormGroup(this.fields);
 
   async ngOnInit(): Promise<void> {
-    const resolved = this._route.snapshot.data['contact'] as Contact | undefined;
+    const resolved = this._getResolvedContact();
 
     if (resolved) {
       this.form.reset({
@@ -127,11 +127,24 @@ export class ContactsFormPage extends BaseForm<Contact> implements OnInit {
       return;
     }
 
+    const resolved = this._getResolvedContact();
+    const routeId = this._route.snapshot.paramMap.get('id') ?? '';
+    const payload: Contact = {
+      ...createEmptyContact(),
+      ...resolved,
+      ...(this.form.getRawValue() as Partial<Contact>),
+      id: resolved?.id || routeId,
+    };
+
     this.isSubmitting.set(true);
     try {
-      await this.resource.guardar(this.form.getRawValue());
+      await this.resource.guardar(payload);
     } finally {
       this.isSubmitting.set(false);
     }
+  }
+
+  private _getResolvedContact(): Contact | undefined {
+    return this._route.snapshot.data['contact'] as Contact | undefined;
   }
 }
