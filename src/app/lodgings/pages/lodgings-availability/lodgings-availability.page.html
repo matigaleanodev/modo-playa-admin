@@ -35,13 +35,9 @@
 
       <div class="availability-overview">
         <div class="availability-overview__calendar">
-          <ion-datetime
-            class="availability-calendar"
-            presentation="date"
-            locale="es-AR"
-            firstDayOfWeek="1"
-            [highlightedDates]="highlightedDates()"
-          ></ion-datetime>
+          <app-lodging-availability-calendar
+            [occupiedRanges]="ranges()"
+          />
         </div>
 
         <div class="availability-overview__ranges">
@@ -98,7 +94,10 @@
     <section class="availability-panel">
       <header class="availability-panel__head">
         <h2>Agregar días de ocupación</h2>
-        <p>Elegí desde y hasta para bloquear fechas de reserva en este alojamiento.</p>
+        <p>
+          Selecciona el rango directamente en el calendario. El componente ya marca
+          fechas ocupadas y evita solapamientos.
+        </p>
       </header>
 
       @if (!isAddFormOpen()) {
@@ -107,52 +106,19 @@
         </ion-button>
       } @else {
         <form class="availability-form" [formGroup]="form" (ngSubmit)="onAddRange()">
-          <div class="availability-form__calendar-grid">
-            <div class="availability-form__calendar-field">
-              <span>Desde</span>
-              <ion-datetime-button datetime="availability-from"></ion-datetime-button>
-              <small class="availability-form__date-preview">
-                {{ form.controls.from.value ? formatDate(form.controls.from.value) : 'Sin fecha seleccionada' }}
-              </small>
-              <ion-modal [keepContentsMounted]="true">
-                <ng-template>
-                  <ion-datetime
-                    id="availability-from"
-                    presentation="date"
-                    locale="es-AR"
-                    firstDayOfWeek="1"
-                    [showDefaultButtons]="true"
-                    cancelText="Cancelar"
-                    doneText="Confirmar"
-                    [value]="form.controls.from.value || undefined"
-                    (ionChange)="onFromChange($event)"
-                  ></ion-datetime>
-                </ng-template>
-              </ion-modal>
-            </div>
+          <div class="availability-form__calendar-shell">
+            <app-lodging-availability-calendar
+              [occupiedRanges]="ranges()"
+              [selection]="draftSelection()"
+              [selectable]="true"
+              (selectionChange)="onDraftSelectionChange($event)"
+              (selectionRejected)="onDraftSelectionRejected($event)"
+            />
+          </div>
 
-            <div class="availability-form__calendar-field">
-              <span>Hasta</span>
-              <ion-datetime-button datetime="availability-to"></ion-datetime-button>
-              <small class="availability-form__date-preview">
-                {{ form.controls.to.value ? formatDate(form.controls.to.value) : 'Sin fecha seleccionada' }}
-              </small>
-              <ion-modal [keepContentsMounted]="true">
-                <ng-template>
-                  <ion-datetime
-                    id="availability-to"
-                    presentation="date"
-                    locale="es-AR"
-                    firstDayOfWeek="1"
-                    [showDefaultButtons]="true"
-                    cancelText="Cancelar"
-                    doneText="Confirmar"
-                    [value]="form.controls.to.value || undefined"
-                    (ionChange)="onToChange($event)"
-                  ></ion-datetime>
-                </ng-template>
-              </ion-modal>
-            </div>
+          <div class="availability-form__summary">
+            <span class="availability-form__summary-label">Rango seleccionado</span>
+            <strong>{{ selectionSummary() }}</strong>
           </div>
 
           @if (form.hasError('invalidRangeOrder') && (form.touched || form.dirty)) {
@@ -163,6 +129,14 @@
             (form.controls.to.invalid && (form.controls.to.touched || form.controls.to.dirty))
           ) {
             <p class="availability-form__error">Debes completar ambas fechas.</p>
+          }
+          @if (selectionError()) {
+            <app-feedback-panel
+              title="No pudimos seleccionar ese rango"
+              [description]="selectionError()"
+              tone="warning"
+              [compact]="true"
+            />
           }
           @if (formError()) {
             <app-feedback-panel
