@@ -10,7 +10,7 @@ import { LodgingsFormPage } from './lodgings-form.page';
 import { LodgingsResourceService } from '@lodgings/services/lodgings-resource.service';
 import { LodgingsCrudService } from '@lodgings/services/lodgings-crud.service';
 import { LodgingImagesAdminService } from '@lodgings/services/lodging-images-admin.service';
-import { ContactsCrudService } from '../../../contacs/services/contacts-crud.service';
+import { ContactsCrudService } from '@contacts/services/contacts-crud.service';
 import { createEmptyLodging, Lodging } from '@lodgings/models/lodging.model';
 import { ToastrService } from '@shared/services/toastr/toastr.service';
 import { NavService } from '@shared/services/nav/nav.service';
