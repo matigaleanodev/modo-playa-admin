@@ -78,6 +78,7 @@ describe('LodgingsAvailabilityPage', () => {
     expect(component.ranges().length).toBe(2);
     expect(component.form.value.from).toBe('');
     expect(component.form.value.to).toBe('');
+    expect(component.statusMessage()).toBe('Rango ocupado agregado correctamente.');
   });
 
   it('debería mostrar error de solapamiento', async () => {
@@ -102,5 +103,6 @@ describe('LodgingsAvailabilityPage', () => {
       to: '2026-01-11',
     });
     expect(component.ranges()).toEqual([]);
+    expect(component.statusMessage()).toBe('Rango ocupado eliminado correctamente.');
   });
 });

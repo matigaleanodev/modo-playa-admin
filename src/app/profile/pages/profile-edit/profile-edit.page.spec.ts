@@ -114,8 +114,10 @@ describe('ProfileEditPage', () => {
     fixture.detectChanges();
 
     await component.submit();
+    fixture.detectChanges();
 
     expect(component.error()).toBe('La solicitud contiene datos inválidos.');
+    expect(fixture.nativeElement.textContent).toContain('No pudimos actualizar el perfil');
   });
 });
 

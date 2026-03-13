@@ -16,7 +16,22 @@
       </header>
 
       @if (error()) {
-        <div class="state state--error">{{ error() }}</div>
+        <app-feedback-panel
+          title="No pudimos actualizar el perfil"
+          [description]="error()"
+          tone="danger"
+          [compact]="true"
+        />
+      }
+
+      @if (loading()) {
+        <app-feedback-panel
+          title="Cargando datos del perfil"
+          description="Estamos preparando la información actual antes de editar."
+          tone="info"
+          [loading]="true"
+          [compact]="true"
+        />
       }
 
       <form class="profile-form" [formGroup]="form" (ngSubmit)="submit()">

@@ -24,6 +24,15 @@
         <p>Visualiza días ocupados y administra los rangos existentes.</p>
       </header>
 
+      @if (statusMessage()) {
+        <app-feedback-panel
+          title="Disponibilidad actualizada"
+          [description]="statusMessage()"
+          tone="success"
+          [compact]="true"
+        />
+      }
+
       <div class="availability-overview">
         <div class="availability-overview__calendar">
           <ion-datetime
@@ -37,14 +46,27 @@
 
         <div class="availability-overview__ranges">
           @if (loadError()) {
-            <p class="availability-state availability-state--error">{{ loadError() }}</p>
+            <app-feedback-panel
+              title="No pudimos cargar la disponibilidad"
+              [description]="loadError()"
+              tone="danger"
+              [compact]="true"
+            />
           } @else if (loading()) {
-            <p class="availability-state">
-              <ion-spinner name="crescent"></ion-spinner>
-              <span>Cargando disponibilidad...</span>
-            </p>
+            <app-feedback-panel
+              title="Cargando disponibilidad"
+              description="Espera un momento mientras consultamos los rangos ocupados."
+              tone="info"
+              [loading]="true"
+              [compact]="true"
+            />
           } @else if (!hasRanges()) {
-            <p class="availability-state">Todavía no hay rangos ocupados cargados.</p>
+            <app-feedback-panel
+              title="Todavía no hay rangos ocupados"
+              description="Cuando registres días bloqueados, se mostrarán en este panel."
+              tone="neutral"
+              [compact]="true"
+            />
           } @else {
             <ul class="availability-list">
               @for (range of ranges(); track rangeKey(range)) {
@@ -143,7 +165,12 @@
             <p class="availability-form__error">Debes completar ambas fechas.</p>
           }
           @if (formError()) {
-            <p class="availability-form__error">{{ formError() }}</p>
+            <app-feedback-panel
+              title="No pudimos guardar el rango"
+              [description]="formError()"
+              tone="danger"
+              [compact]="true"
+            />
           }
 
           <div class="availability-form__actions">

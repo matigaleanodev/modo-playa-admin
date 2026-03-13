@@ -14,6 +14,7 @@ import { firstValueFrom } from 'rxjs';
 import { AuthService } from '@auth/services/auth.service';
 import { SessionService } from '@auth/services/session.service';
 import { resolveDomainErrorMessage } from '@core/utils/domain-error.util';
+import { FeedbackPanelComponent } from '@shared/components/feedback-panel/feedback-panel.component';
 import { NavService } from '@shared/services/nav/nav.service';
 import { ToastrService } from '@shared/services/toastr/toastr.service';
 
@@ -30,6 +31,7 @@ import { ToastrService } from '@shared/services/toastr/toastr.service';
     IonButtons,
     IonMenuButton,
     IonFooter,
+    FeedbackPanelComponent,
   ],
   templateUrl: './profile-edit.page.html',
   styleUrls: ['./profile-edit.page.scss'],
