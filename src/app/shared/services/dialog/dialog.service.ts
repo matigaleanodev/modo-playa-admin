@@ -27,6 +27,7 @@ export class DialogService {
         showIcon: options.showIcon ?? false,
       },
       cssClass: 'app-confirm-modal',
+      mode: 'md',
     });
 
     await modal.present();

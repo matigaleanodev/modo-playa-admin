@@ -2,7 +2,7 @@ import { Component, inject, Input } from '@angular/core';
 import {
   ModalController,
   IonHeader,
-  IonContent,
+  IonFooter,
   IonToolbar,
   IonIcon,
   IonButton,
@@ -20,7 +20,7 @@ import { alertCircleOutline, close } from 'ionicons/icons';
     IonButton,
     IonIcon,
     IonToolbar,
-    IonContent,
+    IonFooter,
     IonHeader,
   ],
   templateUrl: './confirm-modal.component.html',
