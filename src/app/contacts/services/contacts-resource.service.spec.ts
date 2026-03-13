@@ -101,6 +101,11 @@ describe('ContactsResourceService', () => {
       'c2',
       jasmine.objectContaining({ name: 'Nuevo nombre' }),
     );
+    const updatePayload = crudMock.update.calls.mostRecent().args[1] as Record<
+      string,
+      unknown
+    >;
+    expect(updatePayload['id']).toBeUndefined();
     expect(toastrMock.success).toHaveBeenCalled();
   });
 
