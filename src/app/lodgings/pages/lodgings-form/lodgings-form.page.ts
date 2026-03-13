@@ -39,6 +39,7 @@ import { LodgingsCrudService } from '@lodgings/services/lodgings-crud.service';
 import { LodgingImagesAdminService } from '@lodgings/services/lodging-images-admin.service';
 import { ContactsCrudService } from '@contacts/services/contacts-crud.service';
 import { Contact } from '@contacts/models/contact.model';
+import { FeedbackPanelComponent } from '@shared/components/feedback-panel/feedback-panel.component';
 import { ToastrService } from '@shared/services/toastr/toastr.service';
 import { NavService } from '@shared/services/nav/nav.service';
 import { DraftLodgingImageUploadResult } from '@lodgings/services/lodging-images-admin.service';
@@ -77,6 +78,7 @@ const MAX_IMAGES = 5;
     IonMenuButton,
     IonFooter,
     IonSpinner,
+    FeedbackPanelComponent,
     ...AppFormFieldRenderImports,
   ],
   templateUrl: './lodgings-form.page.html',
@@ -103,6 +105,8 @@ export class LodgingsFormPage
   readonly isSubmitting = signal(false);
   readonly isLoadingContacts = signal(false);
   readonly isDropzoneActive = signal(false);
+  readonly submitError = signal<string | null>(null);
+  readonly contactsLoadError = signal<string | null>(null);
   readonly imageError = signal<string | null>(null);
   readonly imageItems = signal<FormLodgingImageItem[]>([]);
   readonly draftUploadSessionId = signal<string | null>(null);
@@ -344,6 +348,7 @@ export class LodgingsFormPage
     }
 
     this.isSubmitting.set(true);
+    this.submitError.set(null);
     this.imageError.set(null);
 
     try {
@@ -352,6 +357,15 @@ export class LodgingsFormPage
       } else {
         await this.saveNewLodgingWithDraftImages();
       }
+    } catch (error) {
+      this.submitError.set(
+        resolveDomainErrorMessage(error, {
+          fallback: this.resource.isEditMode()
+            ? 'No se pudo actualizar el alojamiento.'
+            : 'No se pudo crear el alojamiento.',
+          preferThrownMessage: false,
+        }),
+      );
     } finally {
       this.isSubmitting.set(false);
     }
@@ -987,6 +1001,7 @@ export class LodgingsFormPage
 
   private async loadContactOptions(): Promise<void> {
     this.isLoadingContacts.set(true);
+    this.contactsLoadError.set(null);
 
     try {
       const response = await firstValueFrom(
@@ -1013,6 +1028,9 @@ export class LodgingsFormPage
         contactControl?.setValue(defaultContact.id);
       }
     } catch {
+      this.contactsLoadError.set(
+        'No pudimos cargar los contactos disponibles. Puedes continuar sin asignar uno.',
+      );
       const contactField = this.fields.find((field) => field.key === 'contactId');
       if (contactField) {
         contactField.helper = 'No se pudieron cargar contactos.';

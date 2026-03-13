@@ -14,6 +14,8 @@ import {
 } from '@ionic/angular/standalone';
 import { BaseForm } from '@core/components/form.component';
 import { FormOption } from '@core/models/form-option.model';
+import { resolveDomainErrorMessage } from '@core/utils/domain-error.util';
+import { FeedbackPanelComponent } from '@shared/components/feedback-panel/feedback-panel.component';
 import { FormFieldRenderComponent } from '@shared/components/form-field-render/form-field-render.component';
 import { Contact } from '../../models/contact.model';
 import {
@@ -36,6 +38,7 @@ import {
     IonButton,
     IonSpinner,
     FormFieldRenderComponent,
+    FeedbackPanelComponent,
   ],
   templateUrl: './contacts-form.page.html',
   styleUrls: ['./contacts-form.page.scss'],
@@ -48,6 +51,7 @@ export class ContactsFormPage extends BaseForm<Contact> implements OnInit {
 
   readonly resource = this._service;
   readonly isSubmitting = signal(false);
+  readonly submitError = signal<string | null>(null);
   readonly isEditMode = computed(() => !!this._route.snapshot.paramMap.get('id'));
   readonly pageTitle = computed(() =>
     this.isEditMode() ? 'Editar contacto' : 'Nuevo contacto',
@@ -127,6 +131,8 @@ export class ContactsFormPage extends BaseForm<Contact> implements OnInit {
       return;
     }
 
+    this.submitError.set(null);
+
     const resolved = this._getResolvedContact();
     const routeId = this._route.snapshot.paramMap.get('id') ?? '';
     const payload: Contact = {
@@ -139,6 +145,15 @@ export class ContactsFormPage extends BaseForm<Contact> implements OnInit {
     this.isSubmitting.set(true);
     try {
       await this.resource.guardar(payload);
+    } catch (error) {
+      this.submitError.set(
+        resolveDomainErrorMessage(error, {
+          fallback: this.isEditMode()
+            ? 'No se pudo actualizar el contacto.'
+            : 'No se pudo crear el contacto.',
+          preferThrownMessage: false,
+        }),
+      );
     } finally {
       this.isSubmitting.set(false);
     }

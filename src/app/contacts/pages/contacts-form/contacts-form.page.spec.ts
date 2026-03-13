@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpErrorResponse } from '@angular/common/http';
 import { convertToParamMap, provideRouter } from '@angular/router';
 import { signal } from '@angular/core';
 import { ContactsFormPage } from './contacts-form.page';
@@ -101,5 +102,23 @@ describe('ContactsFormPage', () => {
         email: 'editado@test.com',
       }),
     );
+  });
+
+  it('debería mostrar error inline si falla el guardado', async () => {
+    resourceMock.guardar.and.rejectWith(
+      new HttpErrorResponse({
+        status: 400,
+        error: { message: 'Datos inválidos.' },
+      }),
+    );
+    component.form.patchValue({
+      name: 'Contacto nuevo',
+    });
+
+    await component.guardar();
+    fixture.detectChanges();
+
+    expect(component.submitError()).toBe('Datos inválidos.');
+    expect(fixture.nativeElement.textContent).toContain('No pudimos crear el contacto');
   });
 });
