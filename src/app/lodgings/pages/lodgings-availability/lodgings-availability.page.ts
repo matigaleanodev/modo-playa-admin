@@ -25,6 +25,7 @@ import {
 import { resolveDomainErrorMessage } from '@core/utils/domain-error.util';
 import { AvailabilityRange, Lodging } from '@lodgings/models/lodging.model';
 import { LodgingAvailabilityAdminService } from '@lodgings/services/lodging-availability-admin.service';
+import { FeedbackPanelComponent } from '@shared/components/feedback-panel/feedback-panel.component';
 import { NavService } from '@shared/services/nav/nav.service';
 import { ToastrService } from '@shared/services/toastr/toastr.service';
 
@@ -46,6 +47,7 @@ import { ToastrService } from '@shared/services/toastr/toastr.service';
     IonModal,
     IonSpinner,
     IonFooter,
+    FeedbackPanelComponent,
   ],
   templateUrl: './lodgings-availability.page.html',
   styleUrls: ['./lodgings-availability.page.scss'],
@@ -65,6 +67,7 @@ export class LodgingsAvailabilityPage implements OnInit {
   readonly deletingKey = signal<string | null>(null);
   readonly loadError = signal<string | null>(null);
   readonly formError = signal<string | null>(null);
+  readonly statusMessage = signal<string | null>(null);
   readonly isAddFormOpen = signal(false);
 
   readonly hasRanges = computed(() => this.ranges().length > 0);
@@ -125,6 +128,7 @@ export class LodgingsAvailabilityPage implements OnInit {
   async onAddRange(): Promise<void> {
     this.form.markAllAsTouched();
     this.formError.set(null);
+    this.statusMessage.set(null);
 
     if (this.form.invalid || this.submitting()) {
       return;
@@ -144,6 +148,7 @@ export class LodgingsAvailabilityPage implements OnInit {
       this.ranges.set(updated);
       this.form.reset({ from: '', to: '' });
       this.isAddFormOpen.set(false);
+      this.statusMessage.set('Rango ocupado agregado correctamente.');
       await this.toastr.success('Rango ocupado agregado.', 'Disponibilidad');
     } catch (error) {
       const message = this.extractAvailabilityError(error);
@@ -163,10 +168,12 @@ export class LodgingsAvailabilityPage implements OnInit {
     const key = this.rangeKey(range);
     this.deletingKey.set(key);
     this.formError.set(null);
+    this.statusMessage.set(null);
 
     try {
       const updated = await this.availabilityService.removeOccupiedRange(lodgingId, range);
       this.ranges.set(updated);
+      this.statusMessage.set('Rango ocupado eliminado correctamente.');
       await this.toastr.success('Rango ocupado eliminado.', 'Disponibilidad');
     } catch (error) {
       const message = this.extractAvailabilityError(error);
@@ -186,6 +193,7 @@ export class LodgingsAvailabilityPage implements OnInit {
   openAddForm(): void {
     this.isAddFormOpen.set(true);
     this.formError.set(null);
+    this.statusMessage.set(null);
   }
 
   closeAddForm(): void {

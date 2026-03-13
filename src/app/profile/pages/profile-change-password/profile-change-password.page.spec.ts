@@ -102,8 +102,12 @@ describe('ProfileChangePasswordPage', () => {
     });
 
     await component.submit();
+    fixture.detectChanges();
 
     expect(component.formError()).toBe('La contraseña actual no es válida.');
+    expect(fixture.nativeElement.textContent).toContain(
+      'No pudimos actualizar la contraseña',
+    );
   });
 });
 
