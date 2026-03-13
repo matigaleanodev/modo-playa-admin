@@ -61,6 +61,14 @@
       </section>
     }
 
+    @if (successMessage()) {
+      <app-feedback-panel
+        [title]="'Acción completada'"
+        [description]="successMessage()"
+        tone="success"
+      />
+    }
+
     @if (formOpen()) {
       <section
         class="users-page__panel users-page__panel--form-enter"
@@ -159,15 +167,27 @@
       </div>
 
       @if (loadError()) {
-        <div class="users-page__state users-page__state--error">
-          {{ loadError() }}
-        </div>
+        <app-feedback-panel
+          [title]="'No pudimos cargar los usuarios'"
+          [description]="loadError()"
+          tone="danger"
+          [compact]="true"
+        />
       } @else if (loading()) {
-        <div class="users-page__state">Cargando usuarios...</div>
+        <app-feedback-panel
+          [title]="'Cargando usuarios'"
+          [description]="'Estamos actualizando el listado de administradores.'"
+          tone="info"
+          [loading]="true"
+          [compact]="true"
+        />
       } @else if (users().length === 0) {
-        <div class="users-page__state">
-          Todavía no hay usuarios administrativos cargados para este propietario.
-        </div>
+        <app-feedback-panel
+          [title]="'Todavía no hay usuarios administrativos'"
+          [description]="'Cuando des de alta el primero, aparecerá en este listado.'"
+          tone="neutral"
+          [compact]="true"
+        />
       } @else {
         <div class="users-table-wrap">
           <table class="users-table">

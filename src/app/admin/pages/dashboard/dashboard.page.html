@@ -16,7 +16,12 @@
         Vista inicial enfocada en catálogo, contactos y usuarios del Administrador.
       </p>
       @if (loadError()) {
-        <p class="dashboard-error">{{ loadError() }}</p>
+        <app-feedback-panel
+          [title]="'No pudimos cargar el dashboard'"
+          [description]="loadError()"
+          tone="danger"
+          [compact]="true"
+        />
       }
     </section>
 

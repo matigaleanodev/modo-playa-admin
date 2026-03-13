@@ -24,6 +24,7 @@ import { AuthService } from '@auth/services/auth.service';
 import { SessionService } from '@auth/services/session.service';
 import { resolveDomainErrorMessage } from '@core/utils/domain-error.util';
 import { resolveLoadErrorMessage } from '@core/utils/load-error.util';
+import { FeedbackPanelComponent } from '@shared/components/feedback-panel/feedback-panel.component';
 import { NavService } from '@shared/services/nav/nav.service';
 import { ToastrService } from '@shared/services/toastr/toastr.service';
 import { ProfileImageService } from '../../services/profile-image.service';
@@ -41,6 +42,7 @@ import { ProfileImageService } from '../../services/profile-image.service';
     IonMenuButton,
     IonFooter,
     IonAvatar,
+    FeedbackPanelComponent,
   ],
   templateUrl: './profile-view.page.html',
   styleUrls: ['./profile-view.page.scss'],
@@ -61,6 +63,7 @@ export class ProfileViewPage implements OnInit {
   readonly loading = signal(false);
   readonly imageBusy = signal(false);
   readonly error = signal<string | null>(null);
+  readonly statusMessage = signal<string | null>(null);
   readonly canManageProfileImage = computed(
     () => this.user()?.role !== 'SUPERADMIN',
   );
@@ -142,11 +145,13 @@ export class ProfileViewPage implements OnInit {
 
     this.imageBusy.set(true);
     this.error.set(null);
+    this.statusMessage.set(null);
 
     try {
       await this.profileImageService.uploadOwnProfileImage(file);
       await this.refreshProfileState();
       await this.toastr.success('Imagen de perfil actualizada.', 'Perfil');
+      this.statusMessage.set('Imagen de perfil actualizada correctamente.');
     } catch (error) {
       this.error.set(this.extractProfileImageError(error));
     } finally {
@@ -164,11 +169,13 @@ export class ProfileViewPage implements OnInit {
 
     this.imageBusy.set(true);
     this.error.set(null);
+    this.statusMessage.set(null);
 
     try {
       await this.profileImageService.deleteOwnProfileImage();
       await this.refreshProfileState();
       await this.toastr.success('Imagen de perfil eliminada.', 'Perfil');
+      this.statusMessage.set('Imagen de perfil eliminada correctamente.');
     } catch (error) {
       this.error.set(this.extractProfileImageError(error));
     } finally {
