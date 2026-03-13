@@ -41,26 +41,25 @@
   </header>
 
   @if (error()) {
-    <div class="list-shell__state list-shell__state--error">
-      {{ error() }}
-    </div>
+    <app-feedback-panel
+      [title]="errorTitle()"
+      [description]="error()"
+      tone="danger"
+      [compact]="true"
+    />
   } @else if (loading()) {
-    <div class="list-shell__grid" aria-busy="true">
-      @for (row of [0, 1, 2, 3, 4]; track row) {
-        <article class="list-shell__item list-shell__item--skeleton">
-          <div class="skeleton skeleton--title"></div>
-          <div class="skeleton skeleton--line"></div>
-          <div class="skeleton skeleton--line short"></div>
-        </article>
-      }
-    </div>
+    <app-feedback-panel
+      [title]="loadingState().title"
+      [description]="loadingState().description ?? null"
+      tone="info"
+      [loading]="true"
+    />
   } @else if (items().length === 0) {
-    <div class="list-shell__state">
-      <strong>{{ emptyState().title }}</strong>
-      @if (emptyState().description) {
-        <p>{{ emptyState().description }}</p>
-      }
-    </div>
+    <app-feedback-panel
+      [title]="emptyState().title"
+      [description]="emptyState().description ?? null"
+      tone="neutral"
+    />
   } @else {
     <div class="list-shell__grid">
       @for (item of items(); track trackByIndex($index, item)) {

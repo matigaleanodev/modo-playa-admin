@@ -13,6 +13,7 @@ import {
 } from '@ionic/angular/standalone';
 import { firstValueFrom } from 'rxjs';
 import { resolveLoadErrorMessage } from '@core/utils/load-error.util';
+import { FeedbackPanelComponent } from '@shared/components/feedback-panel/feedback-panel.component';
 import { DashboardService } from '../../services/dashboard.service';
 import { DashboardSummaryResponse } from '../../models/dashboard-summary.model';
 
@@ -52,6 +53,7 @@ type DashboardCityRow = {
     IonContent,
     IonFooter,
     IonSkeletonText,
+    FeedbackPanelComponent,
   ],
 })
 export class DashboardPage implements OnInit {

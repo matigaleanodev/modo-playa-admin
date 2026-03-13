@@ -15,6 +15,7 @@ import {
 import { ApiListResponse } from '@core/models/api-response.model';
 import { resolveDomainErrorMessage } from '@core/utils/domain-error.util';
 import { resolveLoadErrorMessage } from '@core/utils/load-error.util';
+import { FeedbackPanelComponent } from '@shared/components/feedback-panel/feedback-panel.component';
 import { ToastrService } from '@shared/services/toastr/toastr.service';
 import { CreateAdminUserDto, AdminUser } from './models/user-admin.model';
 import { UsersCrudService } from './services/users-crud.service';
@@ -34,6 +35,7 @@ import { UsersCrudService } from './services/users-crud.service';
     IonButtons,
     IonMenuButton,
     IonFooter,
+    FeedbackPanelComponent,
   ],
 })
 export class UsersPage implements OnInit {
@@ -47,6 +49,7 @@ export class UsersPage implements OnInit {
   readonly loading = signal(false);
   readonly submitting = signal(false);
   readonly loadError = signal<string | null>(null);
+  readonly successMessage = signal<string | null>(null);
   readonly total = signal(0);
   readonly page = signal(1);
   readonly limit = signal(10);
@@ -127,10 +130,14 @@ export class UsersPage implements OnInit {
         `Usuario administrador "${created.username}" creado correctamente.`,
         'Alta completada',
       );
+      this.successMessage.set(
+        `Usuario administrador "${created.username}" creado correctamente.`,
+      );
 
       this.closeForm();
       await this.loadUsers();
     } catch (error) {
+      this.successMessage.set(null);
       if (!this.isHandledByInterceptor(error)) {
         await this.toastr.danger(this.extractErrorMessage(error));
       }
