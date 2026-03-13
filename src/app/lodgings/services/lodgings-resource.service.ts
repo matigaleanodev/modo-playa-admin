@@ -23,6 +23,10 @@ export class LodgingsResourceService extends ResourceService<
   private readonly _nav = inject(NavService);
   private readonly _toastr = inject(ToastrService);
 
+  protected override getLoadErrorSubject(): string {
+    return 'los alojamientos';
+  }
+
   private readonly _current = signal<Lodging | null>(null);
   readonly current = this._current.asReadonly();
   readonly isEditMode = computed(() => !!this._current()?.id);
