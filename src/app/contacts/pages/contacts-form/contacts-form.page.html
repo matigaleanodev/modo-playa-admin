@@ -11,6 +11,15 @@
   <div class="contacts-form-page">
     <section class="contacts-form-panel">
       <form class="contacts-form" (submit)="onSubmit($event)">
+        @if (submitError()) {
+          <app-feedback-panel
+            [title]="isEditMode() ? 'No pudimos actualizar el contacto' : 'No pudimos crear el contacto'"
+            [description]="submitError()"
+            tone="danger"
+            [compact]="true"
+          />
+        }
+
         <app-form-field-render [form]="form" [fields]="fields" />
 
         <div class="contacts-form__actions">

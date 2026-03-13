@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { contactEditResolver } from './resolvers/contact-edit.resolver';
 
-export const CONTACS_ROUTES: Routes = [
+export const CONTACTS_ROUTES: Routes = [
   {
     path: '',
     children: [

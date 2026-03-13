@@ -5,15 +5,17 @@ import {
   provideRouter,
 } from '@angular/router';
 import { of } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 import { signal } from '@angular/core';
 import { LodgingsFormPage } from './lodgings-form.page';
 import { LodgingsResourceService } from '@lodgings/services/lodgings-resource.service';
 import { LodgingsCrudService } from '@lodgings/services/lodgings-crud.service';
 import { LodgingImagesAdminService } from '@lodgings/services/lodging-images-admin.service';
-import { ContactsCrudService } from '../../../contacs/services/contacts-crud.service';
+import { ContactsCrudService } from '@contacts/services/contacts-crud.service';
 import { createEmptyLodging, Lodging } from '@lodgings/models/lodging.model';
 import { ToastrService } from '@shared/services/toastr/toastr.service';
 import { NavService } from '@shared/services/nav/nav.service';
+import { stubIonMenuButton } from '@shared/testing/menu-button-test.util';
 
 describe('LodgingsFormPage', () => {
   let component: LodgingsFormPage;
@@ -30,6 +32,8 @@ describe('LodgingsFormPage', () => {
   let activatedRouteMock: ActivatedRoute;
 
   beforeEach(async () => {
+    stubIonMenuButton(LodgingsFormPage);
+
     resourceMock = Object.assign(
       jasmine.createSpyObj<LodgingsResourceService>('LodgingsResourceService', [
         'guardar',
@@ -211,5 +215,77 @@ describe('LodgingsFormPage', () => {
     );
     expect(resourceMock.setCurrent).toHaveBeenCalledWith(created);
     expect(navMock.root).toHaveBeenCalledWith('/app/lodgings');
+  });
+
+  it('debería mostrar error inline si falla el guardado', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    lodgingsCrudMock.save.and.returnValue(
+      new (await import('rxjs')).Observable((subscriber) => {
+        subscriber.error(
+          new HttpErrorResponse({
+            status: 500,
+            error: { message: 'Error al guardar alojamiento.' },
+          }),
+        );
+      }),
+    );
+
+    component.form.setValue({
+      title: 'Casa nueva',
+      type: 'cabin',
+      description: 'Descripcion valida',
+      location: 'Calle 1',
+      city: 'Mar Azul',
+      price: 100,
+      priceUnit: 'night',
+      maxGuests: 4,
+      bedrooms: 2,
+      bathrooms: 1,
+      minNights: 2,
+      contactId: 'c-default',
+      distanceToBeach: null,
+      amenities: [],
+      active: true,
+    });
+    component.imageItems.set([
+      {
+        localId: 'img-1',
+        source: 'draft',
+        imageId: 'img-default',
+        isDefault: true,
+        previewUrl: 'blob:default',
+        publicUrl: '',
+        uploading: false,
+        draftStatus: 'confirmed',
+        uploadSessionId: 'session-1',
+        uploadKey: 'draft-1',
+      },
+    ]);
+    component.draftUploadSessionId.set('session-1');
+
+    await component.guardar();
+    fixture.detectChanges();
+
+    expect(component.submitError()).toBe('Error al guardar alojamiento.');
+    expect(fixture.nativeElement.textContent).toContain('No pudimos crear el alojamiento');
+  });
+
+  it('debería mostrar advertencia inline si falla la carga de contactos', async () => {
+    contactsCrudMock.find.and.returnValue(
+      new (await import('rxjs')).Observable((subscriber) => {
+        subscriber.error(new Error('boom'));
+      }),
+    );
+
+    fixture = TestBed.createComponent(LodgingsFormPage);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(component.contactsLoadError()).toContain('No pudimos cargar los contactos');
+    expect(fixture.nativeElement.textContent).toContain('No pudimos cargar los contactos');
   });
 });

@@ -101,6 +101,11 @@ describe('ContactsResourceService', () => {
       'c2',
       jasmine.objectContaining({ name: 'Nuevo nombre' }),
     );
+    const updatePayload = crudMock.update.calls.mostRecent().args[1] as Record<
+      string,
+      unknown
+    >;
+    expect(updatePayload['id']).toBeUndefined();
     expect(toastrMock.success).toHaveBeenCalled();
   });
 
@@ -131,7 +136,7 @@ describe('ContactsResourceService', () => {
     expect(service.error()).toBe(ERROR_MESSAGES.CONTACT_NOT_FOUND);
   });
 
-  it('debería usar el fallback genérico ante errores no-http al cargar la lista', async () => {
+  it('debería usar un mensaje consistente ante errores no-http al cargar la lista', async () => {
     crudMock.find.and.returnValue(
       new Observable((subscriber) => {
         subscriber.error(new Error('boom'));
@@ -139,7 +144,9 @@ describe('ContactsResourceService', () => {
     );
 
     await expectAsync(service.loadPage()).toBeRejected();
-    expect(service.error()).toBe('Ocurrio un error al cargar los datos.');
+    expect(service.error()).toBe(
+      'No pudimos cargar los contactos. Intenta nuevamente en unos minutos.',
+    );
   });
 });
 

@@ -116,18 +116,6 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.list-shell__state {
-  border-radius: 1rem;
-  padding: 1rem;
-  border: 1px dashed rgba(var(--ion-color-medium-rgb), 0.22);
-  background: rgba(var(--ion-color-light-rgb), 0.08);
-}
-
-.list-shell__state--error {
-  color: var(--ion-color-danger, #d7263d);
-  border-style: solid;
-}
-
 .list-shell__pagination {
   display: flex;
   align-items: center;

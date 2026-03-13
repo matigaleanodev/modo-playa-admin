@@ -24,12 +24,7 @@ export const ADMIN_ROUTES: Routes = [
       {
         path: 'contacts',
         loadChildren: () =>
-          import('../contacs/contacs.routes').then((m) => m.CONTACS_ROUTES),
-      },
-      {
-        path: 'contacs',
-        redirectTo: 'contacts',
-        pathMatch: 'full',
+          import('@contacts/contacts.routes').then((m) => m.CONTACTS_ROUTES),
       },
       {
         path: 'users',

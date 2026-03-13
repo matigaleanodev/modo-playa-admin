@@ -16,6 +16,11 @@
       [page]="resource.page()"
       [limit]="resource.limit()"
       [total]="resource.total()"
+      [loadingState]="{
+        title: 'Cargando contactos',
+        description: 'Estamos actualizando la agenda del administrador.'
+      }"
+      [errorTitle]="'No pudimos cargar los contactos'"
       [createLabel]="'Nuevo'"
       [emptyState]="{
         title: 'Todavía no hay contactos',

@@ -1,8 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpErrorResponse } from '@angular/common/http';
 import { convertToParamMap, provideRouter } from '@angular/router';
 import { signal } from '@angular/core';
 import { ContactsFormPage } from './contacts-form.page';
 import { ContactsResourceService, createEmptyContact } from '../../services/contacts-resource.service';
+import { stubIonMenuButton } from '@shared/testing/menu-button-test.util';
 
 describe('ContactsFormPage', () => {
   let component: ContactsFormPage;
@@ -13,6 +15,8 @@ describe('ContactsFormPage', () => {
   let activatedRouteMock: any;
 
   beforeEach(async () => {
+    stubIonMenuButton(ContactsFormPage);
+
     resourceMock = Object.assign(
       jasmine.createSpyObj<ContactsResourceService>('ContactsResourceService', [
         'guardar',
@@ -98,5 +102,23 @@ describe('ContactsFormPage', () => {
         email: 'editado@test.com',
       }),
     );
+  });
+
+  it('debería mostrar error inline si falla el guardado', async () => {
+    resourceMock.guardar.and.rejectWith(
+      new HttpErrorResponse({
+        status: 400,
+        error: { message: 'Datos inválidos.' },
+      }),
+    );
+    component.form.patchValue({
+      name: 'Contacto nuevo',
+    });
+
+    await component.guardar();
+    fixture.detectChanges();
+
+    expect(component.submitError()).toBe('Datos inválidos.');
+    expect(fixture.nativeElement.textContent).toContain('No pudimos crear el contacto');
   });
 });

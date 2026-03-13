@@ -1,0 +1,23 @@
+<section
+  class="feedback-panel"
+  [class.is-compact]="compact()"
+  [class.is-loading]="loading()"
+  [class.tone-neutral]="tone() === 'neutral'"
+  [class.tone-info]="tone() === 'info'"
+  [class.tone-success]="tone() === 'success'"
+  [class.tone-warning]="tone() === 'warning'"
+  [class.tone-danger]="tone() === 'danger'"
+  aria-live="polite"
+>
+  @if (loading()) {
+    <span class="feedback-panel__spinner" aria-hidden="true"></span>
+  }
+
+  <div class="feedback-panel__body">
+    <strong class="feedback-panel__title">{{ title() }}</strong>
+
+    @if (description(); as description) {
+      <p class="feedback-panel__description">{{ description }}</p>
+    }
+  </div>
+</section>

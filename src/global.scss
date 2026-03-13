@@ -49,6 +49,33 @@ ion-action-sheet {
   --background: var(--ion-modal-background, var(--ion-card-background));
 }
 
+ion-modal.app-confirm-modal {
+  --width: min(420px, calc(100vw - 24px));
+  --height: auto;
+  --max-height: calc(100vh - 24px);
+  --border-radius: 20px;
+  --box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28);
+}
+
+ion-modal.app-confirm-modal::part(content) {
+  width: min(420px, calc(100vw - 24px));
+  max-width: 420px;
+  height: auto;
+  max-height: calc(100vh - 24px);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+@media (max-width: 480px) {
+  ion-modal.app-confirm-modal {
+    --width: calc(100vw - 20px);
+  }
+
+  ion-modal.app-confirm-modal::part(content) {
+    width: calc(100vw - 20px);
+  }
+}
+
 ion-action-sheet {
   --button-background: var(--ion-item-background);
   --button-background-selected: rgba(var(--ion-color-primary-rgb), 0.12);

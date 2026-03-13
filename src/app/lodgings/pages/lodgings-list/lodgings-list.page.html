@@ -16,6 +16,11 @@
       [page]="resource.page()"
       [limit]="resource.limit()"
       [total]="resource.total()"
+      [loadingState]="{
+        title: 'Cargando alojamientos',
+        description: 'Estamos actualizando el catálogo administrativo.'
+      }"
+      [errorTitle]="'No pudimos cargar los alojamientos'"
       [emptyState]="{
         title: 'Todavía no hay alojamientos',
         description: 'Crea el primer alojamiento para empezar a gestionar disponibilidad y datos.'

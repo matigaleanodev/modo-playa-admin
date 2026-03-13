@@ -22,6 +22,32 @@
       }
 
       <form class="lodgings-form" (submit)="onSubmit($event)">
+        @if (submitError()) {
+          <app-feedback-panel
+            [title]="resource.isEditMode() ? 'No pudimos actualizar el alojamiento' : 'No pudimos crear el alojamiento'"
+            [description]="submitError()"
+            tone="danger"
+            [compact]="true"
+          />
+        }
+
+        @if (isLoadingContacts()) {
+          <app-feedback-panel
+            title="Cargando contactos"
+            description="Estamos consultando los contactos disponibles para asociar al alojamiento."
+            tone="info"
+            [loading]="true"
+            [compact]="true"
+          />
+        } @else if (contactsLoadError()) {
+          <app-feedback-panel
+            title="No pudimos cargar los contactos"
+            [description]="contactsLoadError()"
+            tone="warning"
+            [compact]="true"
+          />
+        }
+
         <app-form-field-render [form]="form" [fields]="fields" />
 
         <section class="lodgings-images" aria-labelledby="lodgings-images-title">
@@ -77,7 +103,12 @@
           </button>
 
           @if (imageError()) {
-            <p class="lodgings-images__error">{{ imageError() }}</p>
+            <app-feedback-panel
+              title="No pudimos procesar las imágenes"
+              [description]="imageError()"
+              tone="danger"
+              [compact]="true"
+            />
           }
 
           @if (imageItems().length > 0) {

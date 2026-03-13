@@ -7,6 +7,7 @@ import { ToastrService } from '@shared/services/toastr/toastr.service';
 import { ERROR_MESSAGES } from '@core/constants/error-message';
 import { ApiListResponse } from '@core/models/api-response.model';
 import { AdminUser } from './models/user-admin.model';
+import { stubIonMenuButton } from '@shared/testing/menu-button-test.util';
 
 describe('UsersPage', () => {
   let component: UsersPage;
@@ -15,6 +16,8 @@ describe('UsersPage', () => {
   let toastrMock: jasmine.SpyObj<ToastrService>;
 
   beforeEach(async () => {
+    stubIonMenuButton(UsersPage);
+
     usersServiceMock = jasmine.createSpyObj<UsersCrudService>('UsersCrudService', [
       'find',
       'save',

@@ -233,7 +233,7 @@ describe('LodgingsResourceService', () => {
     expect(service.error()).toBe(ERROR_MESSAGES.LODGING_NOT_FOUND);
   });
 
-  it('debería usar fallback genérico ante errores no-http al cargar la lista', async () => {
+  it('debería usar un mensaje consistente ante errores no-http al cargar la lista', async () => {
     crudMock.find.and.returnValue(
       new Observable((subscriber) => {
         subscriber.error(new Error('boom'));
@@ -241,7 +241,9 @@ describe('LodgingsResourceService', () => {
     );
 
     await expectAsync(service.loadPage()).toBeRejected();
-    expect(service.error()).toBe('Ocurrio un error al cargar los datos.');
+    expect(service.error()).toBe(
+      'No pudimos cargar los alojamientos. Intenta nuevamente en unos minutos.',
+    );
   });
 });
 

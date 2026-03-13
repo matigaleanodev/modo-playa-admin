@@ -47,6 +47,29 @@ Ejecutar tests unitarios:
 npm run test
 ```
 
+Para una corrida estable de CI sin watch:
+
+```bash
+npm run test:ci
+```
+
+Smoke suite owner con Playwright:
+
+```bash
+npm run e2e:owner
+```
+
+Variables requeridas:
+
+- `E2E_OWNER_IDENTIFIER`
+- `E2E_OWNER_PASSWORD`
+
+Variables opcionales:
+
+- `E2E_API_URL` por defecto `http://localhost:3000/api`
+- `E2E_PORT` por defecto `4301`
+- `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` si Playwright no encuentra Chromium instalado
+
 ---
 
 ## 🧹 Lint
@@ -67,7 +90,7 @@ Generar build de producción:
 npm run build
 ```
 
-El resultado se genera en el directorio `dist/`.
+El resultado se genera en el directorio `www/`.
 
 ---
 
@@ -87,7 +110,7 @@ El proyecto sigue una estructura orientada por features con:
 
 - `admin/` para layout y pantallas administrativas principales
 - `auth/` para autenticación y sesión
-- `lodgings/`, `contacs/`, `users/` y `profile/` para módulos funcionales
+- `lodgings/`, `contacts/`, `users/` y `profile/` para módulos funcionales
 - `shared/` para componentes, servicios y utilidades reutilizables
 - `core/` para piezas base transversales
 - `environments/` para configuración por entorno
@@ -99,5 +122,6 @@ El proyecto sigue una estructura orientada por features con:
 - La app usa Angular standalone components y lazy loading por rutas
 - Capacitor está configurado para evolución a plataformas nativas
 - Para features de API, validar estructura/modelos contra `modo-playa-api`
+- El módulo de contactos ya usa `contacts` como nombre canónico en estructura, imports y rutas
 
 ---

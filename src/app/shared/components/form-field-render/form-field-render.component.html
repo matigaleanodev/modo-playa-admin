@@ -62,7 +62,7 @@
               <div
                 class="field__multiple-options"
                 [attr.aria-labelledby]="field.key"
-                (blur)="onBlur(field)"
+                (focusout)="onBlur(field)"
               >
                 @for (option of getFieldOptions(field); track option.label) {
                   <label

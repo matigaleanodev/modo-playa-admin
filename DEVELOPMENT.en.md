@@ -47,6 +47,29 @@ Run unit tests:
 npm run test
 ```
 
+For a stable CI run without watch mode:
+
+```bash
+npm run test:ci
+```
+
+Owner smoke suite with Playwright:
+
+```bash
+npm run e2e:owner
+```
+
+Required variables:
+
+- `E2E_OWNER_IDENTIFIER`
+- `E2E_OWNER_PASSWORD`
+
+Optional variables:
+
+- `E2E_API_URL` defaults to `http://localhost:3000/api`
+- `E2E_PORT` defaults to `4301`
+- `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` if Playwright cannot find an installed Chromium
+
 ---
 
 ## 🧹 Lint
@@ -67,7 +90,7 @@ Generate a production build:
 npm run build
 ```
 
-The output is generated in the `dist/` directory.
+The output is generated in the `www/` directory.
 
 ---
 
@@ -87,7 +110,7 @@ The project follows a feature-based structure with:
 
 - `admin/` for layout and main admin screens
 - `auth/` for authentication and session flows
-- `lodgings/`, `contacs/`, `users/`, and `profile/` for functional modules
+- `lodgings/`, `contacts/`, `users/`, and `profile/` for functional modules
 - `shared/` for reusable components, services, and utilities
 - `core/` for cross-cutting base pieces
 - `environments/` for environment configuration
@@ -99,5 +122,6 @@ The project follows a feature-based structure with:
 - The app uses Angular standalone components and route-based lazy loading
 - Capacitor is configured for future native platform support
 - For API-related features, validate models/endpoints against `modo-playa-api`
+- The contacts module now uses `contacts` as the canonical name in structure, imports, and routes
 
 ---

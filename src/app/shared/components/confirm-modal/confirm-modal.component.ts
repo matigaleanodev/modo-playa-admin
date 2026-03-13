@@ -1,8 +1,7 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import {
   ModalController,
   IonHeader,
-  IonContent,
   IonFooter,
   IonToolbar,
   IonIcon,
@@ -22,19 +21,18 @@ import { alertCircleOutline, close } from 'ionicons/icons';
     IonIcon,
     IonToolbar,
     IonFooter,
-    IonContent,
     IonHeader,
   ],
   templateUrl: './confirm-modal.component.html',
   styleUrls: ['./confirm-modal.component.scss'],
 })
 export class ConfirmModalComponent {
-  readonly title = input.required<string>();
-  readonly text = input.required<string>();
-  readonly confirmLabel = input<string>('Confirmar');
-  readonly cancelLabel = input<string>('Cancelar');
-  readonly color = input<'primary' | 'danger' | 'warning'>('primary');
-  readonly showIcon = input<boolean>(false);
+  @Input({ required: true }) title = '';
+  @Input({ required: true }) text = '';
+  @Input() confirmLabel = 'Confirmar';
+  @Input() cancelLabel = 'Cancelar';
+  @Input() color: 'primary' | 'danger' | 'warning' = 'primary';
+  @Input() showIcon = false;
 
   private modalControl = inject(ModalController);
 

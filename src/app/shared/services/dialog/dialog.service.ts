@@ -12,6 +12,7 @@ export class DialogService {
     title: string;
     text: string;
     confirmLabel?: string;
+    cancelLabel?: string;
     color?: 'primary' | 'danger' | 'warning';
     showIcon?: boolean;
   }): Promise<boolean> {
@@ -21,11 +22,12 @@ export class DialogService {
         title: options.title,
         text: options.text,
         confirmLabel: options.confirmLabel ?? 'Confirmar',
+        cancelLabel: options.cancelLabel ?? 'Cancelar',
         color: options.color ?? 'primary',
         showIcon: options.showIcon ?? false,
       },
-      breakpoints: [0, 0.4],
-      initialBreakpoint: 0.4,
+      cssClass: 'app-confirm-modal',
+      mode: 'md',
     });
 
     await modal.present();

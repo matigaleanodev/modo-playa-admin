@@ -1,7 +1,7 @@
 <ion-header class="modal-header">
   <ion-toolbar>
     <ion-title>
-      {{ title() }}
+      {{ title }}
     </ion-title>
     <ion-buttons slot="end">
       <ion-button fill="clear" (click)="cancel()">
@@ -11,29 +11,30 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="modal-content ion-padding">
+<div class="modal-content">
   <div class="modal-body">
-    @if (showIcon()) {
+    @if (showIcon) {
       <ion-icon name="alert-circle-outline" class="modal-icon" />
     }
     <p class="modal-text">
-      {{ text() }}
+      {{ text }}
     </p>
   </div>
-</ion-content>
-<ion-footer class="modal-footer ion-padding">
+</div>
+
+<ion-footer class="modal-footer">
   <div class="footer-buttons">
     <ion-button fill="outline" expand="block" size="large" (click)="cancel()">
-      {{ cancelLabel() }}
+      {{ cancelLabel }}
     </ion-button>
 
     <ion-button
-      [color]="color()"
+      [color]="color"
       expand="block"
       size="large"
       (click)="onConfirm()"
     >
-      {{ confirmLabel() }}
+      {{ confirmLabel }}
     </ion-button>
   </div>
 </ion-footer>

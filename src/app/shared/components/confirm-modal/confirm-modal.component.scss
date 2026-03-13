@@ -1,20 +1,16 @@
 :host {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
+  display: block;
 }
 
 .modal-header ion-toolbar {
   --background: var(--ion-color-light);
   --border-width: 0;
-  padding-top: 8px;
+  padding-top: max(8px, env(safe-area-inset-top));
 }
 
 .modal-content {
-  flex: 1;
+  padding: 16px;
   text-align: center;
-  --padding-top: 8px;
-  --padding-bottom: 8px;
 }
 
 .modal-body {
@@ -22,8 +18,8 @@
   flex-direction: column;
   align-items: center;
   gap: 16px;
-  padding-top: 8px;
-  padding-bottom: 8px;
+  justify-content: center;
+  padding-block: 12px;
 }
 
 .modal-icon {
@@ -39,17 +35,23 @@
 }
 
 .modal-footer {
-  flex-shrink: 0;
-  padding-bottom: 20px;
+  padding: 12px 16px calc(16px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--app-border-soft);
   background: var(--ion-modal-background, var(--ion-card-background));
 }
 
 .footer-buttons {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
 ion-button {
   --border-radius: 12px;
+}
+
+@media (max-width: 480px) {
+  .footer-buttons {
+    grid-template-columns: 1fr;
+  }
 }
