@@ -144,13 +144,6 @@
   color: #0f766e;
 }
 
-.lodgings-images__error {
-  margin: 0;
-  color: rgb(var(--ion-color-danger-rgb));
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
 .lodgings-images__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
