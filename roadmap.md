@@ -119,6 +119,7 @@ Dejar reglas y cobertura suficientes para mantener el admin sin depender de cono
 Tareas:
 
 - [ ] Agregar cobertura puntual sobre forms complejos, modales de confirmacion y servicios de dialogo
+- [x] Agregar una smoke suite owner sobre login, contactos, perfil y disponibilidad contra API local
 - [ ] Documentar convenciones de `core`, `shared` y features para nuevos modulos
 - [ ] Registrar decisiones de auth/session/storage y ownership con `modo-playa-api`
 - [ ] Documentar el patron canonico de media del admin y sus estados de UI esperados para `lodgings` y `profile`
@@ -396,3 +397,20 @@ Validacion cerrada:
 - tests unitarios de `confirm-modal`, `dialog`, `lodging-availability-calendar` y `lodgings-availability`
 - `npm run build`
 - prueba UI real contra `http://localhost:3000/api` con owner en mobile y desktop
+
+## Avance operativo - Smoke suite owner 2026-03-13
+
+Estado: completed
+
+Trabajo cerrado:
+
+- se agrega Playwright como base e2e del repo
+- se define una smoke suite owner serial para `dashboard`, `contacts`, `profile` y `lodgings/availability`
+- la suite usa variables de entorno para credenciales owner y URL de API
+- cada flujo deja cleanup explicito para no contaminar la API local con datos de prueba
+
+Validacion cerrada:
+
+- `npm run e2e:owner`
+- `npm run lint`
+- `npm run build`

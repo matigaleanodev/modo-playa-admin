@@ -53,6 +53,23 @@ Para una corrida estable de CI sin watch:
 npm run test:ci
 ```
 
+Smoke suite owner con Playwright:
+
+```bash
+npm run e2e:owner
+```
+
+Variables requeridas:
+
+- `E2E_OWNER_IDENTIFIER`
+- `E2E_OWNER_PASSWORD`
+
+Variables opcionales:
+
+- `E2E_API_URL` por defecto `http://localhost:3000/api`
+- `E2E_PORT` por defecto `4301`
+- `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` si Playwright no encuentra Chromium instalado
+
 ---
 
 ## 🧹 Lint
