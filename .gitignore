@@ -16,6 +16,9 @@ log.txt
 /.sourcemaps
 /.versions
 /coverage
+/playwright-report
+/test-results
+/blob-report
 
 # Ionic
 /.ionic
