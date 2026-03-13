@@ -11,32 +11,30 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="modal-content ion-padding">
-  <div class="modal-content__inner">
-    <div class="modal-body">
-      @if (showIcon) {
-        <ion-icon name="alert-circle-outline" class="modal-icon" />
-      }
-      <p class="modal-text">
-        {{ text }}
-      </p>
-    </div>
-
-    <div class="modal-footer">
-      <div class="footer-buttons">
-        <ion-button fill="outline" expand="block" size="large" (click)="cancel()">
-          {{ cancelLabel }}
-        </ion-button>
-
-        <ion-button
-          [color]="color"
-          expand="block"
-          size="large"
-          (click)="onConfirm()"
-        >
-          {{ confirmLabel }}
-        </ion-button>
-      </div>
-    </div>
+<div class="modal-content">
+  <div class="modal-body">
+    @if (showIcon) {
+      <ion-icon name="alert-circle-outline" class="modal-icon" />
+    }
+    <p class="modal-text">
+      {{ text }}
+    </p>
   </div>
-</ion-content>
+</div>
+
+<ion-footer class="modal-footer">
+  <div class="footer-buttons">
+    <ion-button fill="outline" expand="block" size="large" (click)="cancel()">
+      {{ cancelLabel }}
+    </ion-button>
+
+    <ion-button
+      [color]="color"
+      expand="block"
+      size="large"
+      (click)="onConfirm()"
+    >
+      {{ confirmLabel }}
+    </ion-button>
+  </div>
+</ion-footer>
