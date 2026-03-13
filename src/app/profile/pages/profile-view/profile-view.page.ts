@@ -23,6 +23,7 @@ import { AuthUser } from '@auth/models/auth-user.model';
 import { AuthService } from '@auth/services/auth.service';
 import { SessionService } from '@auth/services/session.service';
 import { resolveDomainErrorMessage } from '@core/utils/domain-error.util';
+import { resolveLoadErrorMessage } from '@core/utils/load-error.util';
 import { NavService } from '@shared/services/nav/nav.service';
 import { ToastrService } from '@shared/services/toastr/toastr.service';
 import { ProfileImageService } from '../../services/profile-image.service';
@@ -107,8 +108,8 @@ export class ProfileViewPage implements OnInit {
     try {
       const user = await firstValueFrom(this.authService.me());
       this.sessionService.setCurrentUser(user);
-    } catch {
-      this.error.set('No se pudieron cargar los datos del perfil.');
+    } catch (error) {
+      this.error.set(resolveLoadErrorMessage(error, 'los datos del perfil'));
     } finally {
       this.loading.set(false);
     }

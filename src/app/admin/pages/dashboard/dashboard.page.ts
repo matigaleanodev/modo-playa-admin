@@ -12,6 +12,7 @@ import {
   IonToolbar,
 } from '@ionic/angular/standalone';
 import { firstValueFrom } from 'rxjs';
+import { resolveLoadErrorMessage } from '@core/utils/load-error.util';
 import { DashboardService } from '../../services/dashboard.service';
 import { DashboardSummaryResponse } from '../../models/dashboard-summary.model';
 
@@ -175,11 +176,9 @@ export class DashboardPage implements OnInit {
     try {
       const result = await firstValueFrom(this._dashboardService.getSummary());
       this.summary.set(result);
-    } catch {
+    } catch (error) {
       this.summary.set(null);
-      this.loadError.set(
-        'No pudimos cargar el resumen del dashboard. Intenta nuevamente en unos minutos.',
-      );
+      this.loadError.set(resolveLoadErrorMessage(error, 'el resumen del dashboard'));
     } finally {
       this.isLoading.set(false);
     }

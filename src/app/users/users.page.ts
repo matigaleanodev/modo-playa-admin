@@ -14,6 +14,7 @@ import {
 } from '@ionic/angular/standalone';
 import { ApiListResponse } from '@core/models/api-response.model';
 import { resolveDomainErrorMessage } from '@core/utils/domain-error.util';
+import { resolveLoadErrorMessage } from '@core/utils/load-error.util';
 import { ToastrService } from '@shared/services/toastr/toastr.service';
 import { CreateAdminUserDto, AdminUser } from './models/user-admin.model';
 import { UsersCrudService } from './services/users-crud.service';
@@ -81,7 +82,7 @@ export class UsersPage implements OnInit {
       );
       this.applyListResponse(response);
     } catch (error) {
-      this.loadError.set(this.extractErrorMessage(error));
+      this.loadError.set(resolveLoadErrorMessage(error, 'los usuarios administradores'));
     } finally {
       this.loading.set(false);
     }
