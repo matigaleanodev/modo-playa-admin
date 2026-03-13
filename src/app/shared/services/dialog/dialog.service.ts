@@ -26,8 +26,7 @@ export class DialogService {
         color: options.color ?? 'primary',
         showIcon: options.showIcon ?? false,
       },
-      breakpoints: [0, 0.4],
-      initialBreakpoint: 0.4,
+      cssClass: 'app-confirm-modal',
     });
 
     await modal.present();
