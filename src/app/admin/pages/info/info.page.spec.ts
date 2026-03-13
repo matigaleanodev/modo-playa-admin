@@ -1,12 +1,15 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { InfoPage } from './info.page';
+import { stubIonMenuButton } from '@shared/testing/menu-button-test.util';
 
 describe('InfoPage', () => {
   let component: InfoPage;
   let fixture: ComponentFixture<InfoPage>;
 
   beforeEach(async () => {
+    stubIonMenuButton(InfoPage);
+
     await TestBed.configureTestingModule({
       imports: [InfoPage],
       providers: [provideRouter([])],

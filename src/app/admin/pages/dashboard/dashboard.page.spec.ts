@@ -9,6 +9,7 @@ import { provideRouter } from '@angular/router';
 import { DashboardPage } from './dashboard.page';
 import { DashboardService } from '../../services/dashboard.service';
 import { DashboardSummaryResponse } from '../../models/dashboard-summary.model';
+import { stubIonMenuButton } from '@shared/testing/menu-button-test.util';
 
 describe('DashboardPage', () => {
   let component: DashboardPage;
@@ -73,6 +74,8 @@ describe('DashboardPage', () => {
   };
 
   beforeEach(async () => {
+    stubIonMenuButton(DashboardPage);
+
     dashboardServiceMock = jasmine.createSpyObj('DashboardService', ['getSummary']);
     dashboardServiceMock.getSummary.and.returnValue(of(summaryMock));
 
