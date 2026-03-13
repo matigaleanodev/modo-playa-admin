@@ -1,0 +1,197 @@
+:host {
+  display: block;
+}
+
+.availability-month-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px;
+  border-radius: 18px;
+  background: rgba(var(--ion-color-primary-rgb), 0.12);
+  border: 1px solid var(--app-border-soft);
+}
+
+.availability-month-label {
+  min-width: 0;
+  text-align: center;
+  color: var(--ion-text-color);
+  font-size: 0.94rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-transform: capitalize;
+}
+
+.month-nav-button {
+  margin: 0;
+  min-height: 36px;
+  --border-radius: 12px;
+  --padding-start: 8px;
+  --padding-end: 8px;
+  --color: var(--ion-text-color);
+  --background-hover: rgba(var(--ion-color-primary-rgb), 0.14);
+}
+
+.month-nav-button ion-icon {
+  font-size: 1rem;
+}
+
+.calendar-weekdays {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.calendar-weekday {
+  text-align: center;
+  color: var(--ion-color-medium);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.calendar-grid {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  row-gap: 8px;
+}
+
+.calendar-day-shell {
+  min-width: 0;
+}
+
+.calendar-day {
+  width: 100%;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ion-text-color);
+  font-size: 0.84rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+  background: transparent;
+  padding: 0;
+  cursor: default;
+  will-change: transform;
+  transition:
+    transform 160ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.calendar-day:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.calendar-day:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+.calendar-day__label {
+  position: relative;
+  z-index: 1;
+}
+
+.calendar-day--placeholder {
+  height: 38px;
+  visibility: hidden;
+}
+
+.calendar-day--available,
+.calendar-day--past {
+  margin-inline: 3px;
+  border-radius: 12px;
+}
+
+.calendar-day--available {
+  background: rgba(93, 194, 138, 0.18);
+  border-color: rgba(93, 194, 138, 0.35);
+  color: #398557;
+}
+
+.calendar-day--available:not(:disabled) {
+  cursor: pointer;
+}
+
+.calendar-day--occupied {
+  background: rgba(214, 94, 94, 0.32);
+  color: #a24f4f;
+}
+
+.calendar-day--range-start,
+.calendar-day--selection-start {
+  border-radius: 12px 0 0 12px;
+}
+
+.calendar-day--range-middle,
+.calendar-day--selection-middle {
+  margin-inline: 0;
+  border-radius: 0;
+}
+
+.calendar-day--range-end,
+.calendar-day--selection-end {
+  border-radius: 0 12px 12px 0;
+}
+
+.calendar-day--range-start.calendar-day--range-end,
+.calendar-day--selection-start.calendar-day--selection-end {
+  border-radius: 12px;
+  margin-inline: 3px;
+}
+
+.calendar-day--selection-start,
+.calendar-day--selection-middle,
+.calendar-day--selection-end {
+  background: rgba(var(--ion-color-primary-rgb), 0.24);
+  color: var(--ion-text-color);
+}
+
+.calendar-day--past {
+  background: rgba(var(--ion-color-medium-rgb), 0.12);
+  border-color: rgba(var(--ion-color-medium-rgb), 0.16);
+  color: rgba(var(--ion-color-medium-rgb), 0.82);
+}
+
+@media (hover: hover) {
+  .month-nav-button:hover {
+    --background: rgba(var(--ion-color-primary-rgb), 0.12);
+  }
+
+  .calendar-day--available:not(:disabled):hover {
+    transform: translateY(-1px) scale(1.02);
+    border-color: rgba(93, 194, 138, 0.4);
+  }
+}
+
+:host-context(.ion-palette-dark) .availability-month-nav {
+  background: rgba(var(--ion-color-primary-rgb), 0.12);
+}
+
+:host-context(.ion-palette-dark) .calendar-day--available {
+  background: rgba(93, 194, 138, 0.2);
+  border-color: rgba(93, 194, 138, 0.22);
+  color: #a6e2bf;
+}
+
+:host-context(.ion-palette-dark) .calendar-day--occupied {
+  background: rgba(196, 86, 86, 0.34);
+  color: #ffd3d3;
+}
+
+:host-context(.ion-palette-dark) .calendar-day--selection-start,
+:host-context(.ion-palette-dark) .calendar-day--selection-middle,
+:host-context(.ion-palette-dark) .calendar-day--selection-end {
+  background: rgba(var(--ion-color-primary-rgb), 0.3);
+}
+
+:host-context(.ion-palette-dark) .calendar-day--past {
+  background: rgba(var(--ion-color-tertiary-rgb), 0.46);
+  border-color: rgba(var(--ion-color-medium-rgb), 0.14);
+  color: rgba(233, 238, 244, 0.48);
+}

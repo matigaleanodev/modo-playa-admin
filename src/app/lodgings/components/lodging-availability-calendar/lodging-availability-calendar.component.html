@@ -1,0 +1,48 @@
+<div class="availability-month-nav" aria-label="Navegacion del calendario">
+  <ion-button
+    fill="clear"
+    class="month-nav-button"
+    aria-label="Mes anterior"
+    (click)="showPreviousMonth()"
+  >
+    <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
+  </ion-button>
+
+  <span class="availability-month-label">{{ monthLabel() }}</span>
+
+  <ion-button
+    fill="clear"
+    class="month-nav-button"
+    aria-label="Mes siguiente"
+    (click)="showNextMonth()"
+  >
+    <ion-icon slot="icon-only" name="chevron-forward-outline"></ion-icon>
+  </ion-button>
+</div>
+
+<div class="calendar-weekdays" aria-hidden="true">
+  @for (label of weekdayLabels; track $index) {
+    <span class="calendar-weekday">{{ label }}</span>
+  }
+</div>
+
+<div class="calendar-grid" role="img" [attr.aria-label]="'Calendario de ' + monthLabel()">
+  @for (cell of calendarCells(); track cell.id) {
+    @if (cell.isPlaceholder) {
+      <span class="calendar-day calendar-day--placeholder" aria-hidden="true"></span>
+    } @else {
+      <div class="calendar-day-shell">
+        <button
+          type="button"
+          class="calendar-day"
+          [ngClass]="cell.classes"
+          [attr.aria-label]="cell.ariaLabel"
+          [disabled]="!cell.interactive"
+          (click)="onDaySelect(cell)"
+        >
+          <span class="calendar-day__label">{{ cell.dayNumber }}</span>
+        </button>
+      </div>
+    }
+  }
+</div>
