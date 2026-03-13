@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpErrorResponse } from '@angular/common/http';
 import { signal } from '@angular/core';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { ProfileViewPage } from './profile-view.page';
 import { AuthService } from '@auth/services/auth.service';
 import { SessionService } from '@auth/services/session.service';
@@ -135,6 +136,26 @@ describe('ProfileViewPage', () => {
     fixture.detectChanges();
 
     expect(component.canManageProfileImage()).toBeFalse();
+  });
+
+  it('debería exponer un mensaje consistente si falla la carga inicial', async () => {
+    authMock.me.and.returnValue(
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 503,
+          }),
+      ),
+    );
+
+    fixture = TestBed.createComponent(ProfileViewPage);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(component.error()).toBe(
+      'No pudimos cargar los datos del perfil. Intenta nuevamente en unos minutos.',
+    );
   });
 });
 

@@ -82,4 +82,31 @@ describe('FormFieldRenderComponent', () => {
       value: ['wifi', 'pool'],
     });
   });
+
+  it('debería emitir blur en campos multiple cuando el foco sale del grupo', () => {
+    fixture.componentRef.setInput(
+      'form',
+      new FormGroup({
+        amenities: new FormControl<string[]>(['wifi']),
+      }),
+    );
+    fixture.componentRef.setInput('fields', [
+      {
+        type: 'multiple',
+        key: 'amenities',
+        label: 'Comodidades',
+        options: [{ label: 'WiFi', value: 'wifi' }],
+      } satisfies FormOption<unknown>,
+    ]);
+    fixture.detectChanges();
+
+    const emitSpy = spyOn(component.fieldBlur, 'emit');
+    const group = fixture.nativeElement.querySelector('.field__multiple-options');
+
+    group.dispatchEvent(new FocusEvent('focusout', { bubbles: true }));
+
+    expect(emitSpy).toHaveBeenCalledWith({
+      field: jasmine.objectContaining({ key: 'amenities', type: 'multiple' }),
+    });
+  });
 });
