@@ -29,4 +29,16 @@ describe('ConfirmModalComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should render both action buttons with the configured labels', () => {
+    fixture.componentRef.setInput('confirmLabel', 'Eliminar');
+    fixture.componentRef.setInput('cancelLabel', 'Volver');
+    fixture.detectChanges();
+
+    const buttons = Array.from(
+      fixture.nativeElement.querySelectorAll('.footer-buttons ion-button'),
+    ).map((button) => (button as HTMLElement).textContent?.trim());
+
+    expect(buttons).toEqual(['Volver', 'Eliminar']);
+  });
 });

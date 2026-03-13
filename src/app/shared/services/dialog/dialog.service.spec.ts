@@ -44,6 +44,7 @@ describe('DialogService', () => {
     expect(confirmed).toBeTrue();
     expect(modalControllerMock.create).toHaveBeenCalledWith(
       jasmine.objectContaining({
+        cssClass: 'app-confirm-modal',
         componentProps: jasmine.objectContaining({
           title: 'Confirmar eliminar',
           text: 'Desea eliminar el elemento',
