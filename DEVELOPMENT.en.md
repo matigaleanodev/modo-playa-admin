@@ -53,6 +53,23 @@ For a stable CI run without watch mode:
 npm run test:ci
 ```
 
+Owner smoke suite with Playwright:
+
+```bash
+npm run e2e:owner
+```
+
+Required variables:
+
+- `E2E_OWNER_IDENTIFIER`
+- `E2E_OWNER_PASSWORD`
+
+Optional variables:
+
+- `E2E_API_URL` defaults to `http://localhost:3000/api`
+- `E2E_PORT` defaults to `4301`
+- `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` if Playwright cannot find an installed Chromium
+
 ---
 
 ## 🧹 Lint
