@@ -67,7 +67,11 @@ describe('LodgingImagesAdminService', () => {
       uploadKey: 'lodgings/drafts/owner/session-1/img-draft-1/staging-upload',
       uploadUrl: 'https://storage.test/lodging-draft-upload',
       method: 'PUT',
-      requiredHeaders: { 'content-type': 'image/png' },
+      requiredHeaders: {
+        'content-type': 'image/png',
+        'content-length': `${file.size}`,
+        host: 'storage.test',
+      },
       expiresInSeconds: 300,
     });
 
@@ -120,7 +124,10 @@ describe('LodgingImagesAdminService', () => {
       uploadKey: 'lodgings/lod-1/img-1/staging-upload',
       uploadUrl: 'https://storage.test/lodging-upload',
       method: 'PUT',
-      requiredHeaders: { 'content-type': 'image/png' },
+      requiredHeaders: {
+        'content-type': 'image/png',
+        'content-length': `${file.size}`,
+      },
       expiresInSeconds: 300,
     });
 

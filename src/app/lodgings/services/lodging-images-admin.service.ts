@@ -81,7 +81,7 @@ export class LodgingImagesAdminService {
 
     const putResponse = await fetch(uploadUrl.uploadUrl, {
       method: uploadUrl.method ?? 'PUT',
-      headers: uploadUrl.requiredHeaders ?? {},
+      headers: this.toBrowserUploadHeaders(uploadUrl.requiredHeaders),
       body: file,
     });
 
@@ -112,7 +112,7 @@ export class LodgingImagesAdminService {
 
     const putResponse = await fetch(uploadUrl.uploadUrl, {
       method: uploadUrl.method ?? 'PUT',
-      headers: uploadUrl.requiredHeaders ?? {},
+      headers: this.toBrowserUploadHeaders(uploadUrl.requiredHeaders),
       body: file,
     });
 
@@ -208,5 +208,26 @@ export class LodgingImagesAdminService {
 
   private path(path: string): string {
     return `${this.api}/${path}`;
+  }
+
+  private toBrowserUploadHeaders(
+    requiredHeaders?: Record<string, string>,
+  ): Record<string, string> | undefined {
+    if (!requiredHeaders) {
+      return undefined;
+    }
+
+    const headers = Object.fromEntries(
+      Object.entries(requiredHeaders).filter(
+        ([name]) => !this.isForbiddenBrowserUploadHeader(name),
+      ),
+    );
+
+    return Object.keys(headers).length ? headers : undefined;
+  }
+
+  private isForbiddenBrowserUploadHeader(name: string): boolean {
+    const normalized = name.trim().toLowerCase();
+    return normalized === 'content-length' || normalized === 'host';
   }
 }
