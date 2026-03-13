@@ -26,7 +26,9 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:ci": "ng test --watch=false --browsers=ChromeHeadless --configuration=ci",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "e2e:owner": "playwright test e2e/owner-smoke.spec.ts",
+    "e2e:owner:headed": "playwright test e2e/owner-smoke.spec.ts --headed"
   },
   "private": true,
   "dependencies": {
@@ -62,6 +64,7 @@
     "@angular/language-service": "^21.1.4",
     "@capacitor/cli": "8.1.0",
     "@ionic/angular-toolkit": "^12.0.0",
+    "@playwright/test": "^1.58.2",
     "@types/jasmine": "~5.1.0",
     "@typescript-eslint/eslint-plugin": "^8.18.0",
     "@typescript-eslint/parser": "^8.18.0",
@@ -76,6 +79,7 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
+    "playwright": "^1.58.2",
     "typescript": "~5.9.0"
   }
 }
