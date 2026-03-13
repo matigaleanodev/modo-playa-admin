@@ -22,11 +22,6 @@ export const routes: Routes = [
     pathMatch: 'full',
   },
   {
-    path: 'contacs',
-    redirectTo: 'app/contacts',
-    pathMatch: 'full',
-  },
-  {
     path: 'users',
     redirectTo: 'app/users',
     pathMatch: 'full',

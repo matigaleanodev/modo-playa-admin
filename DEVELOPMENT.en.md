@@ -93,8 +93,7 @@ The project follows a feature-based structure with:
 
 - `admin/` for layout and main admin screens
 - `auth/` for authentication and session flows
-- `lodgings/`, `contacs/` (legacy path being migrated to `contacts`), `users/`, and `profile/` for functional modules
-- `contacts/` as the canonical import and lazy-loading entrypoint during the internal migration
+- `lodgings/`, `contacts/`, `users/`, and `profile/` for functional modules
 - `shared/` for reusable components, services, and utilities
 - `core/` for cross-cutting base pieces
 - `environments/` for environment configuration
@@ -106,6 +105,6 @@ The project follows a feature-based structure with:
 - The app uses Angular standalone components and route-based lazy loading
 - Capacitor is configured for future native platform support
 - For API-related features, validate models/endpoints against `modo-playa-api`
-- Canonical contact routes are already `contacts`; `contacs` remains only as a compatibility alias during the internal rename
+- The contacts module now uses `contacts` as the canonical name in structure, imports, and routes
 
 ---
