@@ -27,11 +27,6 @@ export const ADMIN_ROUTES: Routes = [
           import('@contacts/contacts.routes').then((m) => m.CONTACTS_ROUTES),
       },
       {
-        path: 'contacs',
-        redirectTo: 'contacts',
-        pathMatch: 'full',
-      },
-      {
         path: 'users',
         loadComponent: () =>
           import('../users/users.page').then((m) => m.UsersPage),

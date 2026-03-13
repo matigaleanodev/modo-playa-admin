@@ -93,8 +93,7 @@ El proyecto sigue una estructura orientada por features con:
 
 - `admin/` para layout y pantallas administrativas principales
 - `auth/` para autenticación y sesión
-- `lodgings/`, `contacs/` (legacy en transición hacia `contacts`), `users/` y `profile/` para módulos funcionales
-- `contacts/` como punto de entrada canónico para imports y lazy loading durante la migración interna
+- `lodgings/`, `contacts/`, `users/` y `profile/` para módulos funcionales
 - `shared/` para componentes, servicios y utilidades reutilizables
 - `core/` para piezas base transversales
 - `environments/` para configuración por entorno
@@ -106,6 +105,6 @@ El proyecto sigue una estructura orientada por features con:
 - La app usa Angular standalone components y lazy loading por rutas
 - Capacitor está configurado para evolución a plataformas nativas
 - Para features de API, validar estructura/modelos contra `modo-playa-api`
-- Las rutas canónicas de contactos ya son `contacts`; `contacs` queda solo como alias de compatibilidad mientras avanza el renombre interno
+- El módulo de contactos ya usa `contacts` como nombre canónico en estructura, imports y rutas
 
 ---
