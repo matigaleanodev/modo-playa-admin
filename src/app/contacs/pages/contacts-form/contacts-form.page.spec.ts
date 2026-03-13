@@ -3,6 +3,7 @@ import { convertToParamMap, provideRouter } from '@angular/router';
 import { signal } from '@angular/core';
 import { ContactsFormPage } from './contacts-form.page';
 import { ContactsResourceService, createEmptyContact } from '../../services/contacts-resource.service';
+import { stubIonMenuButton } from '@shared/testing/menu-button-test.util';
 
 describe('ContactsFormPage', () => {
   let component: ContactsFormPage;
@@ -13,6 +14,8 @@ describe('ContactsFormPage', () => {
   let activatedRouteMock: any;
 
   beforeEach(async () => {
+    stubIonMenuButton(ContactsFormPage);
+
     resourceMock = Object.assign(
       jasmine.createSpyObj<ContactsResourceService>('ContactsResourceService', [
         'guardar',

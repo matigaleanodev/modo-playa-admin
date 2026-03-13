@@ -14,6 +14,7 @@ import { ContactsCrudService } from '../../../contacs/services/contacts-crud.ser
 import { createEmptyLodging, Lodging } from '@lodgings/models/lodging.model';
 import { ToastrService } from '@shared/services/toastr/toastr.service';
 import { NavService } from '@shared/services/nav/nav.service';
+import { stubIonMenuButton } from '@shared/testing/menu-button-test.util';
 
 describe('LodgingsFormPage', () => {
   let component: LodgingsFormPage;
@@ -30,6 +31,8 @@ describe('LodgingsFormPage', () => {
   let activatedRouteMock: ActivatedRoute;
 
   beforeEach(async () => {
+    stubIonMenuButton(LodgingsFormPage);
+
     resourceMock = Object.assign(
       jasmine.createSpyObj<LodgingsResourceService>('LodgingsResourceService', [
         'guardar',

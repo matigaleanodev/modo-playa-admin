@@ -3,6 +3,7 @@ import { signal } from '@angular/core';
 import { ContactsListPage } from './contacts-list.page';
 import { ContactsResourceService } from '../../services/contacts-resource.service';
 import { DialogService } from '@shared/services/dialog/dialog.service';
+import { stubIonMenuButton } from '@shared/testing/menu-button-test.util';
 
 describe('ContactsListPage', () => {
   let component: ContactsListPage;
@@ -10,6 +11,8 @@ describe('ContactsListPage', () => {
   let resourceMock: ReturnType<typeof createResourceMock>;
 
   beforeEach(async () => {
+    stubIonMenuButton(ContactsListPage);
+
     resourceMock = createResourceMock();
 
     await TestBed.configureTestingModule({

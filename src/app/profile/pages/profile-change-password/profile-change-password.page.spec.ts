@@ -7,6 +7,7 @@ import { SessionService } from '@auth/services/session.service';
 import { NavService } from '@shared/services/nav/nav.service';
 import { ToastrService } from '@shared/services/toastr/toastr.service';
 import { AuthResponse } from '@auth/models/auth-response.model';
+import { stubIonMenuButton } from '@shared/testing/menu-button-test.util';
 
 describe('ProfileChangePasswordPage', () => {
   let component: ProfileChangePasswordPage;
@@ -17,6 +18,8 @@ describe('ProfileChangePasswordPage', () => {
   let toastrMock: jasmine.SpyObj<ToastrService>;
 
   beforeEach(async () => {
+    stubIonMenuButton(ProfileChangePasswordPage);
+
     authMock = jasmine.createSpyObj<AuthService>('AuthService', ['changePassword']);
     sessionMock = jasmine.createSpyObj<SessionService>('SessionService', [
       'applyAuthResponse',

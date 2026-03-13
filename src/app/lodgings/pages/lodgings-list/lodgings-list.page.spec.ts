@@ -3,6 +3,7 @@ import { signal } from '@angular/core';
 import { LodgingsListPage } from './lodgings-list.page';
 import { LodgingsResourceService } from '@lodgings/services/lodgings-resource.service';
 import { DialogService } from '@shared/services/dialog/dialog.service';
+import { stubIonMenuButton } from '@shared/testing/menu-button-test.util';
 
 describe('LodgingsListPage', () => {
   let component: LodgingsListPage;
@@ -10,6 +11,8 @@ describe('LodgingsListPage', () => {
   let resourceMock: ReturnType<typeof createResourceMock>;
 
   beforeEach(async () => {
+    stubIonMenuButton(LodgingsListPage);
+
     resourceMock = createResourceMock();
 
     await TestBed.configureTestingModule({

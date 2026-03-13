@@ -8,6 +8,7 @@ import { NavService } from '@shared/services/nav/nav.service';
 import { ToastrService } from '@shared/services/toastr/toastr.service';
 import { ProfileImageService } from '../../services/profile-image.service';
 import { AuthUser } from '@auth/models/auth-user.model';
+import { stubIonMenuButton } from '@shared/testing/menu-button-test.util';
 
 describe('ProfileViewPage', () => {
   let component: ProfileViewPage;
@@ -21,6 +22,8 @@ describe('ProfileViewPage', () => {
   };
 
   beforeEach(async () => {
+    stubIonMenuButton(ProfileViewPage);
+
     authMock = jasmine.createSpyObj<AuthService>('AuthService', ['me']);
     navMock = jasmine.createSpyObj<NavService>('NavService', ['forward']);
     toastrMock = jasmine.createSpyObj<ToastrService>('ToastrService', ['success']);
