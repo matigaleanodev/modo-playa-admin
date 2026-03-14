@@ -186,7 +186,6 @@ describe('LodgingsFormPage', () => {
         uploading: false,
         draftStatus: 'confirmed',
         uploadSessionId: 'session-1',
-        uploadKey: 'draft-1',
       },
       {
         localId: 'img-2',
@@ -198,7 +197,6 @@ describe('LodgingsFormPage', () => {
         uploading: false,
         draftStatus: 'confirmed',
         uploadSessionId: 'session-1',
-        uploadKey: 'draft-2',
       },
     ]);
     component.draftUploadSessionId.set('session-1');
@@ -260,7 +258,6 @@ describe('LodgingsFormPage', () => {
         uploading: false,
         draftStatus: 'confirmed',
         uploadSessionId: 'session-1',
-        uploadKey: 'draft-1',
       },
     ]);
     component.draftUploadSessionId.set('session-1');
