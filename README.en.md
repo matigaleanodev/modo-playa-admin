@@ -37,6 +37,7 @@ designed for web usage and ready to evolve to mobile with Capacitor.
 - Contacts management
 - Users management
 - User profile (view, edit, change password)
+- Image management delegated to the API backend without direct bucket interaction
 - App information screen
 - Legal pages (Terms and Privacy Policy)
 - Theme selector (light, dark, system)
