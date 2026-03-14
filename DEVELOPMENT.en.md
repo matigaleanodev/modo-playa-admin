@@ -123,5 +123,6 @@ The project follows a feature-based structure with:
 - Capacitor is configured for future native platform support
 - For API-related features, validate models/endpoints against `modo-playa-api`
 - The contacts module now uses `contacts` as the canonical name in structure, imports, and routes
+- The active media flow is backend-only: the admin sends `multipart/form-data` to the API and never uploads directly to the bucket
 
 ---

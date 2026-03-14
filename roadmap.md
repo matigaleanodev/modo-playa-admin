@@ -192,22 +192,22 @@ Estado: accepted
 Direccion acordada con `modo-playa-api`:
 
 - El admin debe tratar las imagenes como subrecursos tecnicos, no como blobs embebidos en los endpoints generales de creacion o update
-- La experiencia de usuario puede seguir siendo de un solo formulario o una sola pantalla, pero por debajo el flujo queda separado en upload pendiente y confirmacion final
-- La API canonica para media pasa a ser `signed upload + confirmacion backend`
-- El admin no debe depender de upload directo al backend como camino principal
+- La experiencia de usuario puede seguir siendo de un solo formulario o una sola pantalla, pero sin transacciones de storage en frontend
+- La API canonica para media pasa a ser `multipart backend-only`
+- El admin no debe hablar con el bucket ni coordinar signed URLs o confirmaciones de media
 - La normalizacion, validacion final y publicacion definitiva de imagenes siguen siendo responsabilidad del backend
 
 Regla operativa para `lodgings`:
 
 - El formulario de alta puede permitir seleccionar imagenes antes de guardar
-- Cuando el usuario selecciona imagenes, el admin debe iniciar uploads en background contra el flujo canonico de media y mantener esos archivos en estado pendiente
+- Cuando el usuario selecciona imagenes, el admin debe iniciar uploads multipart contra la API y mantener esos archivos en estado pendiente solo a nivel funcional del formulario
 - Al confirmar la creacion del lodging, el admin debe enviar junto con los datos del formulario las referencias de imagenes pendientes que la API necesite para asociarlas al lodging creado
 - El usuario no debe ser obligado a entrar a una segunda pantalla solo para cargar las imagenes iniciales
-- Una vez creado el lodging, toda gestion posterior debe seguir el mismo patron de subrecurso admin de imagenes: agregar, confirmar, marcar default y eliminar
+- Una vez creado el lodging, toda gestion posterior debe seguir el mismo patron de subrecurso admin de imagenes: agregar por multipart, marcar default y eliminar
 
 Regla operativa para `profile`:
 
-- La imagen de perfil debe usar el mismo patron tecnico de upload pendiente + confirmacion
+- La imagen de perfil debe usar el mismo patron tecnico backend-only que `lodgings`
 - Un usuario owner solo puede modificar su propia imagen de perfil
 - Usuarios del mismo owner no pueden editar la imagen de perfil de otros usuarios aunque compartan tenant
 - Si existen pantallas admin de gestion de usuarios, la imagen de perfil no debe tratarse como un campo editable transversal salvo que la API exponga una excepcion explicita para soporte
@@ -224,11 +224,11 @@ Estado: action required
 
 Hallazgos confirmados contra `modo-playa-api`:
 
-- El servicio de profile sigue consumiendo rutas legacy `admin/users/:id/profile-image/upload` y `admin/users/:id/profile-image`, pero el backend canonico ahora usa `auth/me/profile-image/upload-url`, `auth/me/profile-image/confirm` y `DELETE auth/me/profile-image`
+- El servicio de profile sigue consumiendo rutas legacy `admin/users/:id/profile-image/upload` y `admin/users/:id/profile-image`, pero el backend canonico ahora usa `POST auth/me/profile-image` y `DELETE auth/me/profile-image`
 - El flujo de profile ya no acepta upload directo al backend y, ademas, `SUPERADMIN` no puede operar profile image por ese endpoint
 - El formulario de lodgings todavia depende de `createWithImages` y `updateWithImages`, pero esos caminos quedaron retirados del backend
 - El alta de lodging debe migrar a draft uploads + `uploadSessionId` + `pendingImageIds`, manteniendo una sola experiencia de formulario
-- La gestion posterior de imagenes de lodging ya tiene subrecurso canonico y puede mantenerse sobre `upload-url`, `confirm`, `default` y `delete`
+- La gestion posterior de imagenes de lodging ya tiene subrecurso canonico y debe pasar a `POST /images`, `default` y `delete`
 - El dashboard del admin todavia tipa `recentActivity.source` como `derived`, pero el backend lo cerro como `timestamps`
 
 Inconsistencias legacy que deben tratarse como deuda bloqueante:
@@ -242,16 +242,13 @@ Inconsistencias legacy que deben tratarse como deuda bloqueante:
 Contratos canonicos que el admin debe adoptar desde ahora:
 
 - Profile image propia:
-  - `POST /api/auth/me/profile-image/upload-url`
-  - `POST /api/auth/me/profile-image/confirm`
+  - `POST /api/auth/me/profile-image`
   - `DELETE /api/auth/me/profile-image`
 - Draft uploads de alta de lodging:
-  - `POST /api/admin/lodging-image-uploads/upload-url`
-  - `POST /api/admin/lodging-image-uploads/confirm`
+  - `POST /api/admin/lodging-image-uploads`
   - `POST /api/admin/lodgings` con `uploadSessionId` + `pendingImageIds`
 - Imagenes de lodging existente:
-  - `POST /api/admin/lodgings/:lodgingId/images/upload-url`
-  - `POST /api/admin/lodgings/:lodgingId/images/confirm`
+  - `POST /api/admin/lodgings/:lodgingId/images`
   - `PATCH /api/admin/lodgings/:lodgingId/images/:imageId/default`
   - `DELETE /api/admin/lodgings/:lodgingId/images/:imageId`
 - Dashboard:
@@ -307,14 +304,14 @@ Contrato legacy retirado en esta sesion:
 Contrato canonico adoptado en esta sesion:
 
 - `dashboard.recentActivity.source = 'timestamps' | 'none'`
-- profile image propia sobre `auth/me/profile-image/upload-url`, `auth/me/profile-image/confirm` y `DELETE auth/me/profile-image`
+- profile image propia sobre `POST auth/me/profile-image` y `DELETE auth/me/profile-image`
 - alta de lodging con draft uploads confirmados y submit final con `uploadSessionId` + `pendingImageIds`
-- edicion posterior de imagenes de lodging solo sobre el subrecurso admin vigente
+- edicion posterior de imagenes de lodging solo sobre `POST /images`, `default` y `delete`
 
 Impacto local cerrado:
 
 - modelos: `dashboard-summary.model.ts` alineado al backend
-- servicios: profile image migrado a signed upload; `LodgingsCrudService` sin `createWithImages` ni `updateWithImages`; `LodgingImagesAdminService` extendido con draft uploads
+- servicios: profile image migrado a multipart backend-only; `LodgingsCrudService` sin `createWithImages` ni `updateWithImages`; `LodgingImagesAdminService` alineado a uploads backend-only
 - paginas: `profile-view` oculta gestion de imagen para `SUPERADMIN`; `lodgings-form` separa uploads draft previos del submit final y usa el subrecurso canonico en edicion
 - tests: actualizados `dashboard.page.spec.ts`, `profile-view.page.spec.ts` y `lodgings-form.page.spec.ts`
 
@@ -393,6 +390,22 @@ Trabajo cerrado:
 - la UI bloquea intentos de superposicion contra rangos existentes antes de llamar al backend
 
 Validacion cerrada:
+
+## Corte implementado - Media backend-only 2026-03-14
+
+Estado: partial delivery
+
+Implementado en este corte:
+
+- `profile` deja de orquestar signed uploads y pasa a `POST /api/auth/me/profile-image` por multipart hacia la API
+- `lodgings-form` conserva la UX de draft images, pero cada archivo ahora viaja por multipart a `POST /api/admin/lodging-image-uploads`
+- la gestion posterior de imagenes de lodging pasa a `POST /api/admin/lodgings/:lodgingId/images` sin `upload-url` ni `confirm` en frontend
+- el admin deja de interactuar con el bucket o con signed URLs; toda la media vuelve a quedar detras de `modo-playa-api`
+
+Pendiente inmediato despues de este corte:
+
+- validar smoke real owner contra la API ya actualizada para profile image y draft images de lodging
+- retirar o deprecatear referencias documentales residuales al flujo signed upload si aparece alguna fuera de los frentes ya barridos
 
 - tests unitarios de `confirm-modal`, `dialog`, `lodging-availability-calendar` y `lodgings-availability`
 - `npm run build`

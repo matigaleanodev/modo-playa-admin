@@ -123,5 +123,6 @@ El proyecto sigue una estructura orientada por features con:
 - Capacitor está configurado para evolución a plataformas nativas
 - Para features de API, validar estructura/modelos contra `modo-playa-api`
 - El módulo de contactos ya usa `contacts` como nombre canónico en estructura, imports y rutas
+- La gestion de media vigente es backend-only: el admin envia `multipart/form-data` a la API y no hace uploads directos al bucket
 
 ---
