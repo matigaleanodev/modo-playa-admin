@@ -58,7 +58,6 @@ interface FormLodgingImageItem {
   uploading: boolean;
   draftStatus?: DraftImageStatus;
   uploadSessionId?: string;
-  uploadKey?: string;
   errorCode?: string;
 }
 
@@ -780,7 +779,6 @@ export class LodgingsFormPage
               draftStatus: 'confirmed',
               imageId: result.imageId,
               uploadSessionId: result.uploadSessionId,
-              uploadKey: result.uploadKey,
               errorCode: undefined,
             }
           : image,
