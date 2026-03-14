@@ -37,6 +37,7 @@ pensado para uso web y preparado para evolución mobile con Capacitor.
 - Gestión de contactos
 - Gestión de usuarios
 - Perfil de usuario (ver, editar, cambio de contraseña)
+- Gestión de imágenes delegada al backend de la API sin interacción directa con el bucket
 - Pantalla de información de la app
 - Páginas legales (Términos y Política de Privacidad)
 - Selector de tema (claro, oscuro, sistema)
