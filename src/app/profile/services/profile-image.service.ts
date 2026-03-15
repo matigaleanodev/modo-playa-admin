@@ -4,7 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import { environment } from '@env/environment';
 import { AuthUserProfileImage } from '@auth/models/auth-user.model';
 
-interface DirectUploadResponse {
+interface UploadProfileImageResponse {
   image: AuthUserProfileImage;
   idempotent?: boolean;
 }
@@ -16,33 +16,32 @@ interface DeleteProfileImageResponse {
 @Injectable({
   providedIn: 'root',
 })
-export class ProfileImageAdminService {
+export class ProfileImageService {
   private readonly http = inject(HttpClient);
   private readonly api = environment.API_URL;
 
-  async uploadProfileImage(userId: string, file: File): Promise<AuthUserProfileImage> {
-    const formData = new FormData();
-    formData.append('file', file, file.name);
+  async uploadOwnProfileImage(file: File): Promise<AuthUserProfileImage> {
+    const body = new FormData();
+    body.append('file', file, file.name);
 
-    const confirm = await firstValueFrom(
-      this.http.post<DirectUploadResponse>(
-        this.path(`admin/users/${userId}/profile-image/upload`),
-        formData,
+    const response = await firstValueFrom(
+      this.http.post<UploadProfileImageResponse>(
+        this.path('auth/me/profile-image'),
+        body,
       ),
     );
 
-    return confirm.image;
+    return response.image;
   }
 
-  async deleteProfileImage(userId: string): Promise<boolean> {
+  async deleteOwnProfileImage(): Promise<boolean> {
     const response = await firstValueFrom(
-      this.http.delete<DeleteProfileImageResponse>(
-        this.path(`admin/users/${userId}/profile-image`),
-      ),
+      this.http.delete<DeleteProfileImageResponse>(this.path('auth/me/profile-image')),
     );
 
     return !!response.deleted;
   }
+
   private path(path: string): string {
     return `${this.api}/${path}`;
   }

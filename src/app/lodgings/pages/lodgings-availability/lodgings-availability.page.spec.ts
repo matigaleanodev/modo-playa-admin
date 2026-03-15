@@ -66,7 +66,8 @@ describe('LodgingsAvailabilityPage', () => {
   });
 
   it('debería agregar rango con éxito', async () => {
-    component.form.setValue({ from: '2026-01-20', to: '2026-01-22' });
+    component.openAddForm();
+    component.onDraftSelectionChange({ from: '2026-01-20', to: '2026-01-22' });
 
     await component.onAddRange();
     fixture.detectChanges();
@@ -78,20 +79,18 @@ describe('LodgingsAvailabilityPage', () => {
     expect(component.ranges().length).toBe(2);
     expect(component.form.value.from).toBe('');
     expect(component.form.value.to).toBe('');
+    expect(component.isAddFormOpen()).toBeFalse();
+    expect(component.statusMessage()).toBe('Rango ocupado agregado correctamente.');
   });
 
-  it('debería mostrar error de solapamiento', async () => {
-    availabilityMock.addOccupiedRange.and.rejectWith(
-      new HttpErrorResponse({
-        status: 400,
-        error: { code: 'OCCUPIED_RANGE_CONFLICT' },
-      }),
-    );
-    component.form.setValue({ from: '2026-01-11', to: '2026-01-13' });
+  it('debería mostrar error de solapamiento antes de llamar al servicio', async () => {
+    component.openAddForm();
+    component.onDraftSelectionChange({ from: '2026-01-11', to: '2026-01-13' });
 
     await component.onAddRange();
 
-    expect(component.formError()).toBe('El rango se superpone con otro ya cargado.');
+    expect(availabilityMock.addOccupiedRange).not.toHaveBeenCalled();
+    expect(component.selectionError()).toBe('El rango se superpone con fechas ya ocupadas.');
   });
 
   it('debería eliminar rango con éxito', async () => {
@@ -102,5 +101,21 @@ describe('LodgingsAvailabilityPage', () => {
       to: '2026-01-11',
     });
     expect(component.ranges()).toEqual([]);
+    expect(component.statusMessage()).toBe('Rango ocupado eliminado correctamente.');
+  });
+
+  it('debería mapear errores del backend al guardar', async () => {
+    availabilityMock.addOccupiedRange.and.rejectWith(
+      new HttpErrorResponse({
+        status: 400,
+        error: { code: 'OCCUPIED_RANGE_CONFLICT' },
+      }),
+    );
+    component.openAddForm();
+    component.onDraftSelectionChange({ from: '2026-01-20', to: '2026-01-22' });
+
+    await component.onAddRange();
+
+    expect(component.formError()).toBe('El rango se superpone con otro ya cargado.');
   });
 });

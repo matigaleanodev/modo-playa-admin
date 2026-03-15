@@ -19,6 +19,7 @@ import {
   IonFooter,
 } from '@ionic/angular/standalone';
 import { AccountActivationService } from '@auth/services/account-activation.service';
+import { resolveDomainErrorMessage } from '@core/utils/domain-error.util';
 import { NavService } from '@shared/services/nav/nav.service';
 
 @Component({
@@ -85,9 +86,13 @@ export class AccountActivationPage {
         'Si el usuario existe, enviamos un código de activación al email registrado.',
       );
       this._nav.forward('/auth/activate/verify');
-    } catch {
+    } catch (error) {
       this.requestError.set(
-        'No pudimos procesar la solicitud. Intenta nuevamente en unos minutos.',
+        resolveDomainErrorMessage(error, {
+          fallback:
+            'No pudimos procesar la solicitud. Intenta nuevamente en unos minutos.',
+          preferThrownMessage: false,
+        }),
       );
     } finally {
       this.isSubmitting.set(false);

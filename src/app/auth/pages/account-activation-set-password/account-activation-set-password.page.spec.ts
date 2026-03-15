@@ -4,6 +4,7 @@ import {
   fakeAsync,
   flushMicrotasks,
 } from '@angular/core/testing';
+import { HttpErrorResponse } from '@angular/common/http';
 import { signal, WritableSignal } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
@@ -113,5 +114,28 @@ describe('AccountActivationSetPasswordPage', () => {
 
     expect(component.setupError()).toContain('No pudimos configurar la contraseña');
     expect(toastrMock.success).not.toHaveBeenCalled();
+  }));
+
+  it('debería mapear PASSWORD_ALREADY_SET desde error.code', fakeAsync(() => {
+    activationMock.setPassword.and.returnValue(
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 409,
+            error: { code: 'PASSWORD_ALREADY_SET' },
+          }),
+      ),
+    );
+    component.form.setValue({
+      password: 'Abcd12',
+      confirmPassword: 'Abcd12',
+    });
+
+    component.onSubmit();
+    flushMicrotasks();
+
+    expect(component.setupError()).toBe(
+      'La contraseña ya fue configurada para esta cuenta.',
+    );
   }));
 });

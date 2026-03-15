@@ -3,6 +3,8 @@ import { firstValueFrom } from 'rxjs';
 import { CrudService } from '../crud/crud.service';
 import { ApiListQuery } from '../models/api-response.model';
 import { BaseEntity } from '../models/entity.model';
+import { resolveDomainErrorMessage } from '../utils/domain-error.util';
+import { resolveLoadErrorMessage } from '../utils/load-error.util';
 
 export interface ResourcePaginationState {
   page: number;
@@ -169,6 +171,10 @@ export abstract class ResourceService<
 
   abstract editElement(dat: T): void;
 
+  protected getLoadErrorSubject(): string | null {
+    return null;
+  }
+
   private _mergeFilters(
     query: ApiListQuery,
   ): Record<string, string | number | boolean | null | undefined> {
@@ -200,7 +206,15 @@ export abstract class ResourceService<
   }
 
   private _mapErrorMessage(error: unknown): string {
-    if (error instanceof Error && error.message) return error.message;
-    return 'Ocurrio un error al cargar los datos.';
+    const subject = this.getLoadErrorSubject();
+
+    if (subject) {
+      return resolveLoadErrorMessage(error, subject);
+    }
+
+    return resolveDomainErrorMessage(error, {
+      fallback: 'Ocurrio un error al cargar los datos.',
+      preferThrownMessage: false,
+    });
   }
 }

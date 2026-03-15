@@ -16,6 +16,9 @@ log.txt
 /.sourcemaps
 /.versions
 /coverage
+/playwright-report
+/test-results
+/blob-report
 
 # Ionic
 /.ionic
@@ -69,3 +72,5 @@ testem.log
 .DS_Store
 Thumbs.db
 agents.md
+roadmap.md
+.firebase/

@@ -13,6 +13,8 @@ import {
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '@auth/services/auth.service';
 import { SessionService } from '@auth/services/session.service';
+import { resolveDomainErrorMessage } from '@core/utils/domain-error.util';
+import { FeedbackPanelComponent } from '@shared/components/feedback-panel/feedback-panel.component';
 import { NavService } from '@shared/services/nav/nav.service';
 import { ToastrService } from '@shared/services/toastr/toastr.service';
 
@@ -29,6 +31,7 @@ import { ToastrService } from '@shared/services/toastr/toastr.service';
     IonButtons,
     IonMenuButton,
     IonFooter,
+    FeedbackPanelComponent,
   ],
   templateUrl: './profile-edit.page.html',
   styleUrls: ['./profile-edit.page.scss'],
@@ -81,8 +84,13 @@ export class ProfileEditPage implements OnInit {
         displayName: user.displayName ?? '',
         phone: user.phone ?? '',
       });
-    } catch {
-      this.error.set('No se pudieron cargar los datos actuales del perfil.');
+    } catch (error) {
+      this.error.set(
+        resolveDomainErrorMessage(error, {
+          fallback: 'No se pudieron cargar los datos actuales del perfil.',
+          preferThrownMessage: false,
+        }),
+      );
     } finally {
       this.loading.set(false);
     }
@@ -107,8 +115,13 @@ export class ProfileEditPage implements OnInit {
       this.sessionService.setCurrentUser(updated);
       await this.toastr.success('Perfil actualizado correctamente.', 'Perfil');
       this.nav.root('/app/profile');
-    } catch {
-      this.error.set('No se pudo actualizar el perfil.');
+    } catch (error) {
+      this.error.set(
+        resolveDomainErrorMessage(error, {
+          fallback: 'No se pudo actualizar el perfil.',
+          preferThrownMessage: false,
+        }),
+      );
     } finally {
       this.saving.set(false);
     }

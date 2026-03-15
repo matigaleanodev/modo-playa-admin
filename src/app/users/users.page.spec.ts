@@ -1,19 +1,26 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
+import { signal } from '@angular/core';
 import { of, throwError } from 'rxjs';
+import { SessionService } from '@auth/services/session.service';
 import { UsersPage } from './users.page';
 import { UsersCrudService } from './services/users-crud.service';
 import { ToastrService } from '@shared/services/toastr/toastr.service';
+import { ERROR_MESSAGES } from '@core/constants/error-message';
 import { ApiListResponse } from '@core/models/api-response.model';
 import { AdminUser } from './models/user-admin.model';
+import { stubIonMenuButton } from '@shared/testing/menu-button-test.util';
 
 describe('UsersPage', () => {
   let component: UsersPage;
   let fixture: ComponentFixture<UsersPage>;
   let usersServiceMock: jasmine.SpyObj<UsersCrudService>;
   let toastrMock: jasmine.SpyObj<ToastrService>;
+  let sessionMock: { user: ReturnType<typeof signal<any>> };
 
   beforeEach(async () => {
+    stubIonMenuButton(UsersPage);
+
     usersServiceMock = jasmine.createSpyObj<UsersCrudService>('UsersCrudService', [
       'find',
       'save',
@@ -27,12 +34,21 @@ describe('UsersPage', () => {
     usersServiceMock.save.and.returnValue(of(createAdminUser()));
     toastrMock.success.and.resolveTo();
     toastrMock.danger.and.resolveTo();
+    sessionMock = {
+      user: signal({
+        id: 'owner-1',
+        email: 'owner@test.com',
+        username: 'owner',
+        role: 'OWNER',
+      }),
+    };
 
     await TestBed.configureTestingModule({
       imports: [UsersPage],
       providers: [
         { provide: UsersCrudService, useValue: usersServiceMock },
         { provide: ToastrService, useValue: toastrMock },
+        { provide: SessionService, useValue: sessionMock },
       ],
     }).compileComponents();
 
@@ -92,6 +108,7 @@ describe('UsersPage', () => {
     component.createForm.setValue({
       username: 'Nuevo',
       email: 'Nuevo@Test.com',
+      targetOwnerId: '',
     });
 
     await component.submit();
@@ -114,6 +131,7 @@ describe('UsersPage', () => {
     component.createForm.setValue({
       username: 'ab',
       email: 'invalido',
+      targetOwnerId: '',
     });
 
     await component.submit();
@@ -138,6 +156,26 @@ describe('UsersPage', () => {
     expect(component.loadError()).toBe('Error de carga');
   });
 
+  it('debería priorizar el catalogo de error.code al cargar usuarios', async () => {
+    usersServiceMock.find.and.returnValue(
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 404,
+            error: {
+              code: 'USER_NOT_FOUND',
+              message: 'Mensaje backend',
+            },
+          }),
+      ),
+    );
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(component.loadError()).toBe(ERROR_MESSAGES.USER_NOT_FOUND);
+  });
+
   it('debería resolver etiquetas de estado de usuario', () => {
     expect(
       component.userStatusLabel(createAdminUser({ isActive: false, isPasswordSet: true })),
@@ -158,6 +196,74 @@ describe('UsersPage', () => {
     expect(
       component.userStatusTone(createAdminUser({ isActive: true, isPasswordSet: true })),
     ).toBe('active');
+  });
+
+  it('debería exigir targetOwnerId para SUPERADMIN al crear', async () => {
+    sessionMock.user.set({
+      id: 'support-1',
+      email: 'support@test.com',
+      username: 'support',
+      role: 'SUPERADMIN',
+    });
+
+    fixture = TestBed.createComponent(UsersPage);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    component.toggleForm();
+    component.createForm.setValue({
+      username: 'Soporte',
+      email: 'soporte@test.com',
+      targetOwnerId: '',
+    });
+
+    await component.submit();
+
+    expect(usersServiceMock.save).not.toHaveBeenCalled();
+
+    component.createForm.setValue({
+      username: 'Soporte',
+      email: 'soporte@test.com',
+      targetOwnerId: '65d8d3b4a91f4c2e8b7a1f3c',
+    });
+
+    await component.submit();
+
+    expect(usersServiceMock.save).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        username: 'soporte',
+        email: 'soporte@test.com',
+        targetOwnerId: '65d8d3b4a91f4c2e8b7a1f3c',
+      }),
+    );
+  });
+
+  it('SUPERADMIN no debería quedar bloqueado por el límite visual', async () => {
+    sessionMock.user.set({
+      id: 'support-1',
+      email: 'support@test.com',
+      username: 'support',
+      role: 'SUPERADMIN',
+    });
+    usersServiceMock.find.and.returnValue(
+      of(
+        createUsersListResponse({
+          total: 5,
+          data: Array.from({ length: 5 }, (_, index) =>
+            createAdminUser({ id: `u-${index}` }),
+          ),
+        }),
+      ),
+    );
+
+    fixture = TestBed.createComponent(UsersPage);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(component.limitReached()).toBeFalse();
+    expect(component.canCreateMore()).toBeTrue();
   });
 });
 

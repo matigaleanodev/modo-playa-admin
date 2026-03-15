@@ -4,31 +4,15 @@ import { firstValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { LodgingMediaImage } from '@lodgings/models/lodging.model';
 
-interface RequestUploadUrlDto {
-  mime: string;
-  size: number;
-  originalFilename?: string;
-}
-
-interface UploadUrlResponse {
-  imageId: string;
-  uploadKey: string;
-  uploadUrl: string;
-  method: 'PUT';
-  requiredHeaders: Record<string, string>;
-  expiresInSeconds: number;
-}
-
-interface ConfirmUploadDto {
-  imageId: string;
-  key: string;
-  etag?: string;
-  width?: number;
-  height?: number;
-}
-
-interface ConfirmUploadResponse {
+interface UploadImageResponse {
   image: LodgingMediaImage;
+  idempotent?: boolean;
+}
+
+interface UploadDraftImageResponse {
+  imageId: string;
+  uploadSessionId: string;
+  confirmed: boolean;
   idempotent?: boolean;
 }
 
@@ -41,6 +25,11 @@ interface DeleteImageResponse {
   images: LodgingMediaImage[];
 }
 
+export interface DraftLodgingImageUploadResult {
+  imageId: string;
+  uploadSessionId: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -49,31 +38,42 @@ export class LodgingImagesAdminService {
   private readonly api = environment.API_URL;
 
   async uploadImage(lodgingId: string, file: File): Promise<LodgingMediaImage> {
-    const uploadUrl = await this.requestUploadUrl(lodgingId, {
-      mime: file.type || 'application/octet-stream',
-      size: file.size,
-      originalFilename: file.name,
-    });
+    const body = new FormData();
+    body.append('file', file, file.name);
 
-    const putResponse = await fetch(uploadUrl.uploadUrl, {
-      method: uploadUrl.method ?? 'PUT',
-      headers: uploadUrl.requiredHeaders ?? {},
-      body: file,
-    });
+    const response = await firstValueFrom(
+      this.http.post<UploadImageResponse>(
+        this.path(`admin/lodgings/${lodgingId}/images`),
+        body,
+      ),
+    );
 
-    if (!putResponse.ok) {
-      throw new Error('No se pudo subir la imagen al almacenamiento.');
+    return response.image;
+  }
+
+  async uploadDraftImage(
+    uploadSessionId: string,
+    file: File,
+  ): Promise<DraftLodgingImageUploadResult> {
+    const body = new FormData();
+    body.append('file', file, file.name);
+    body.append('uploadSessionId', uploadSessionId);
+
+    const response = await firstValueFrom(
+      this.http.post<UploadDraftImageResponse>(
+        this.path('admin/lodging-image-uploads'),
+        body,
+      ),
+    );
+
+    if (!response.confirmed) {
+      throw new Error('No se pudo confirmar la imagen pendiente.');
     }
 
-    const etag = putResponse.headers.get('etag') ?? undefined;
-
-    const confirm = await this.confirmUpload(lodgingId, {
-      imageId: uploadUrl.imageId,
-      key: uploadUrl.uploadKey,
-      etag,
-    });
-
-    return confirm.image;
+    return {
+      imageId: response.imageId,
+      uploadSessionId: response.uploadSessionId,
+    };
   }
 
   async setDefaultImage(
@@ -98,30 +98,6 @@ export class LodgingImagesAdminService {
     );
 
     return response.images ?? [];
-  }
-
-  private async requestUploadUrl(
-    lodgingId: string,
-    dto: RequestUploadUrlDto,
-  ): Promise<UploadUrlResponse> {
-    return firstValueFrom(
-      this.http.post<UploadUrlResponse>(
-        this.path(`admin/lodgings/${lodgingId}/images/upload-url`),
-        dto,
-      ),
-    );
-  }
-
-  private async confirmUpload(
-    lodgingId: string,
-    dto: ConfirmUploadDto,
-  ): Promise<ConfirmUploadResponse> {
-    return firstValueFrom(
-      this.http.post<ConfirmUploadResponse>(
-        this.path(`admin/lodgings/${lodgingId}/images/confirm`),
-        dto,
-      ),
-    );
   }
 
   private path(path: string): string {

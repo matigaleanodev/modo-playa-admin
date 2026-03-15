@@ -25,27 +25,33 @@
             (change)="onProfileImageSelected($event)"
           />
 
-          <div class="profile-hero__avatar-actions">
-            <button
-              type="button"
-              class="profile-btn profile-btn--secondary profile-btn--small"
-              [disabled]="imageBusy()"
-              (click)="triggerProfileImageSelection()"
-            >
-              {{ imageBusy() ? 'Subiendo...' : 'Cambiar imagen' }}
-            </button>
-
-            @if (hasProfileImage()) {
+          @if (canManageProfileImage()) {
+            <div class="profile-hero__avatar-actions">
               <button
                 type="button"
-                class="profile-btn profile-btn--ghost-danger profile-btn--small"
+                class="profile-btn profile-btn--secondary profile-btn--small"
                 [disabled]="imageBusy()"
-                (click)="removeProfileImage()"
+                (click)="triggerProfileImageSelection()"
               >
-                Quitar
+                {{ imageBusy() ? 'Subiendo...' : 'Cambiar imagen' }}
               </button>
-            }
-          </div>
+
+              @if (hasProfileImage()) {
+                <button
+                  type="button"
+                  class="profile-btn profile-btn--ghost-danger profile-btn--small"
+                  [disabled]="imageBusy()"
+                  (click)="removeProfileImage()"
+                >
+                  Quitar
+                </button>
+              }
+            </div>
+          } @else {
+            <p class="profile-hero__avatar-note">
+              `SUPERADMIN` no administra profile image desde `auth/me/profile-image`.
+            </p>
+          }
         </div>
 
         <div class="profile-hero__text">
@@ -79,7 +85,19 @@
     </section>
 
     @if (error()) {
-      <section class="profile-state profile-state--error">{{ error() }}</section>
+      <app-feedback-panel
+        [title]="'No pudimos cargar el perfil'"
+        [description]="error()"
+        tone="danger"
+      />
+    }
+
+    @if (statusMessage()) {
+      <app-feedback-panel
+        [title]="'Acción completada'"
+        [description]="statusMessage()"
+        tone="success"
+      />
     }
 
     <section class="profile-card">
@@ -89,7 +107,13 @@
       </header>
 
       @if (loading() && !user()) {
-        <div class="profile-state">Cargando perfil...</div>
+        <app-feedback-panel
+          [title]="'Cargando perfil'"
+          [description]="'Estamos recuperando la información de tu cuenta.'"
+          tone="info"
+          [loading]="true"
+          [compact]="true"
+        />
       } @else if (user(); as currentUser) {
         <div class="profile-grid">
           <div class="profile-field">
@@ -126,7 +150,12 @@
           </div>
         </div>
       } @else {
-        <div class="profile-state">No hay datos de perfil disponibles.</div>
+        <app-feedback-panel
+          [title]="'No hay datos de perfil disponibles'"
+          [description]="'Cuando el backend responda con tu cuenta autenticada, verás la información aquí.'"
+          tone="neutral"
+          [compact]="true"
+        />
       }
     </section>
   </div>

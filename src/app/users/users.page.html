@@ -12,10 +12,15 @@
     <section class="users-page__hero">
       <div>
         <p class="users-page__eyebrow">Administradores</p>
-        <h1>Usuarios del propietario</h1>
+        <h1>{{ isSuperadmin() ? 'Usuarios administrativos por owner' : 'Usuarios del propietario' }}</h1>
         <p class="users-page__subtitle">
-          Todos los usuarios tienen permisos de administrador y acceso completo a los datos del
-          propietario.
+          @if (isSuperadmin()) {
+            Soporte puede crear usuarios administrativos en nombre de otro owner enviando
+            `targetOwnerId` de forma explícita.
+          } @else {
+            Todos los usuarios tienen permisos de administrador y acceso completo a los datos del
+            propietario.
+          }
         </p>
       </div>
 
@@ -47,11 +52,11 @@
       </div>
       <div class="users-page__summary-item">
         <span class="label">Límite por propietario</span>
-        <strong>{{ ownerUsersLimit }}</strong>
+        <strong>{{ isSuperadmin() ? 'Sin límite' : ownerUsersLimit }}</strong>
       </div>
       <div class="users-page__summary-item">
         <span class="label">Cupos disponibles</span>
-        <strong>{{ remainingSlots() }}</strong>
+        <strong>{{ isSuperadmin() ? 'No aplica' : remainingSlots() }}</strong>
       </div>
     </section>
 
@@ -59,6 +64,14 @@
       <section class="users-page__notice users-page__notice--warning" role="status">
         Se alcanzó el límite de usuarios por propietario. No se pueden dar de alta más usuarios.
       </section>
+    }
+
+    @if (successMessage()) {
+      <app-feedback-panel
+        [title]="'Acción completada'"
+        [description]="successMessage()"
+        tone="success"
+      />
     }
 
     @if (formOpen()) {
@@ -129,6 +142,39 @@
                 </small>
               }
             </label>
+
+            @if (isSuperadmin()) {
+              <label class="users-form__field users-form__field--full">
+                <span>Owner destino</span>
+                <input
+                  type="text"
+                  formControlName="targetOwnerId"
+                  placeholder="665c1234abc123456789abce"
+                  autocomplete="off"
+                  [class.is-invalid]="
+                    createForm.controls.targetOwnerId.invalid &&
+                    (createForm.controls.targetOwnerId.touched ||
+                      createForm.controls.targetOwnerId.dirty)
+                  "
+                />
+                <small class="users-form__helper">
+                  ObjectId del owner en cuyo nombre se creará el usuario.
+                </small>
+                @if (
+                  createForm.controls.targetOwnerId.invalid &&
+                  (createForm.controls.targetOwnerId.touched ||
+                    createForm.controls.targetOwnerId.dirty)
+                ) {
+                  <small class="users-form__error">
+                    @if (createForm.controls.targetOwnerId.hasError('required')) {
+                      El owner destino es obligatorio.
+                    } @else if (createForm.controls.targetOwnerId.hasError('pattern')) {
+                      Ingresá un ObjectId válido de 24 caracteres hexadecimales.
+                    }
+                  </small>
+                }
+              </label>
+            }
           </div>
 
           <div class="users-form__actions">
@@ -159,15 +205,27 @@
       </div>
 
       @if (loadError()) {
-        <div class="users-page__state users-page__state--error">
-          {{ loadError() }}
-        </div>
+        <app-feedback-panel
+          [title]="'No pudimos cargar los usuarios'"
+          [description]="loadError()"
+          tone="danger"
+          [compact]="true"
+        />
       } @else if (loading()) {
-        <div class="users-page__state">Cargando usuarios...</div>
+        <app-feedback-panel
+          [title]="'Cargando usuarios'"
+          [description]="'Estamos actualizando el listado de administradores.'"
+          tone="info"
+          [loading]="true"
+          [compact]="true"
+        />
       } @else if (users().length === 0) {
-        <div class="users-page__state">
-          Todavía no hay usuarios administrativos cargados para este propietario.
-        </div>
+        <app-feedback-panel
+          [title]="'Todavía no hay usuarios administrativos'"
+          [description]="'Cuando des de alta el primero, aparecerá en este listado.'"
+          tone="neutral"
+          [compact]="true"
+        />
       } @else {
         <div class="users-table-wrap">
           <table class="users-table">

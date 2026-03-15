@@ -4,6 +4,7 @@ import {
   fakeAsync,
   flushMicrotasks,
 } from '@angular/core/testing';
+import { HttpErrorResponse } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
 import { provideRouter } from '@angular/router';
 import { LoginPage } from './login.page';
@@ -75,6 +76,30 @@ describe('LoginPage', () => {
 
     expect(sessionMock.login).toHaveBeenCalled();
     expect(component.authError()).toContain('No pudimos iniciar sesion');
+  }));
+
+  it('debería mapear USER_DISABLED desde error.code', fakeAsync(() => {
+    sessionMock.login.and.returnValue(
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 403,
+            error: { code: 'USER_DISABLED' },
+          }),
+      ),
+    );
+
+    component.form.setValue({
+      identifier: 'test@test.com',
+      password: '1234',
+    });
+
+    component.onSubmit();
+    flushMicrotasks();
+
+    expect(component.authError()).toBe(
+      'Tu usuario se encuentra deshabilitado. Contacta a un administrador.',
+    );
   }));
 
   it('debería alternar visibilidad de contraseña', () => {

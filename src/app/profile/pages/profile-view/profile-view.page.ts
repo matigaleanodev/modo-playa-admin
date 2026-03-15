@@ -22,9 +22,12 @@ import { firstValueFrom } from 'rxjs';
 import { AuthUser } from '@auth/models/auth-user.model';
 import { AuthService } from '@auth/services/auth.service';
 import { SessionService } from '@auth/services/session.service';
+import { resolveDomainErrorMessage } from '@core/utils/domain-error.util';
+import { resolveLoadErrorMessage } from '@core/utils/load-error.util';
+import { FeedbackPanelComponent } from '@shared/components/feedback-panel/feedback-panel.component';
 import { NavService } from '@shared/services/nav/nav.service';
 import { ToastrService } from '@shared/services/toastr/toastr.service';
-import { ProfileImageAdminService } from '../../services/profile-image-admin.service';
+import { ProfileImageService } from '../../services/profile-image.service';
 
 @Component({
   selector: 'app-profile-view-page',
@@ -39,6 +42,7 @@ import { ProfileImageAdminService } from '../../services/profile-image-admin.ser
     IonMenuButton,
     IonFooter,
     IonAvatar,
+    FeedbackPanelComponent,
   ],
   templateUrl: './profile-view.page.html',
   styleUrls: ['./profile-view.page.scss'],
@@ -51,7 +55,7 @@ export class ProfileViewPage implements OnInit {
   private readonly sessionService = inject(SessionService);
   private readonly nav = inject(NavService);
   private readonly toastr = inject(ToastrService);
-  private readonly profileImageService = inject(ProfileImageAdminService);
+  private readonly profileImageService = inject(ProfileImageService);
 
   readonly fallbackAvatar = 'assets/images/profile_image.png';
 
@@ -59,6 +63,10 @@ export class ProfileViewPage implements OnInit {
   readonly loading = signal(false);
   readonly imageBusy = signal(false);
   readonly error = signal<string | null>(null);
+  readonly statusMessage = signal<string | null>(null);
+  readonly canManageProfileImage = computed(
+    () => this.user()?.role !== 'SUPERADMIN',
+  );
 
   readonly displayName = computed(() => {
     const user = this.user();
@@ -103,8 +111,8 @@ export class ProfileViewPage implements OnInit {
     try {
       const user = await firstValueFrom(this.authService.me());
       this.sessionService.setCurrentUser(user);
-    } catch {
-      this.error.set('No se pudieron cargar los datos del perfil.');
+    } catch (error) {
+      this.error.set(resolveLoadErrorMessage(error, 'los datos del perfil'));
     } finally {
       this.loading.set(false);
     }
@@ -119,7 +127,7 @@ export class ProfileViewPage implements OnInit {
   }
 
   triggerProfileImageSelection(): void {
-    if (this.imageBusy()) return;
+    if (this.imageBusy() || !this.canManageProfileImage()) return;
     this.profileImageInputRef?.nativeElement.click();
   }
 
@@ -130,39 +138,46 @@ export class ProfileViewPage implements OnInit {
 
     if (!file) return;
 
-    const userId = this.user()?.id || this.sessionService.user()?.id;
-    if (!userId) {
-      this.error.set('No se pudo identificar el usuario para actualizar la imagen.');
+    if (!this.canManageProfileImage()) {
+      this.error.set('SUPERADMIN no puede administrar su imagen de perfil desde este endpoint.');
       return;
     }
 
     this.imageBusy.set(true);
     this.error.set(null);
+    this.statusMessage.set(null);
 
     try {
-      await this.profileImageService.uploadProfileImage(userId, file);
+      await this.profileImageService.uploadOwnProfileImage(file);
       await this.refreshProfileState();
       await this.toastr.success('Imagen de perfil actualizada.', 'Perfil');
-    } catch {
-      this.error.set('No se pudo actualizar la imagen de perfil.');
+      this.statusMessage.set('Imagen de perfil actualizada correctamente.');
+    } catch (error) {
+      this.error.set(this.extractProfileImageError(error));
     } finally {
       this.imageBusy.set(false);
     }
   }
 
   async removeProfileImage(): Promise<void> {
-    const userId = this.user()?.id || this.sessionService.user()?.id;
-    if (!userId || this.imageBusy()) return;
+    if (this.imageBusy()) return;
+
+    if (!this.canManageProfileImage()) {
+      this.error.set('SUPERADMIN no puede administrar su imagen de perfil desde este endpoint.');
+      return;
+    }
 
     this.imageBusy.set(true);
     this.error.set(null);
+    this.statusMessage.set(null);
 
     try {
-      await this.profileImageService.deleteProfileImage(userId);
+      await this.profileImageService.deleteOwnProfileImage();
       await this.refreshProfileState();
       await this.toastr.success('Imagen de perfil eliminada.', 'Perfil');
-    } catch {
-      this.error.set('No se pudo eliminar la imagen de perfil.');
+      this.statusMessage.set('Imagen de perfil eliminada correctamente.');
+    } catch (error) {
+      this.error.set(this.extractProfileImageError(error));
     } finally {
       this.imageBusy.set(false);
     }
@@ -176,5 +191,15 @@ export class ProfileViewPage implements OnInit {
   private async refreshProfileState(): Promise<void> {
     const user = await firstValueFrom(this.authService.me());
     this.sessionService.setCurrentUser(user);
+  }
+
+  private extractProfileImageError(error: unknown): string {
+    return resolveDomainErrorMessage(error, {
+      fallback: 'No se pudo actualizar la imagen de perfil.',
+      overrides: {
+        PROFILE_IMAGE_FORBIDDEN_FOR_SUPERADMIN:
+          'SUPERADMIN no puede administrar su imagen de perfil desde este endpoint.',
+      },
+    });
   }
 }

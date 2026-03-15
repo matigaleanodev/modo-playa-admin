@@ -12,7 +12,12 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
+import { SessionService } from '@auth/services/session.service';
+import { MONGO_ID_PATTERN } from '@core/constants/mongo-id-pattern';
 import { ApiListResponse } from '@core/models/api-response.model';
+import { resolveDomainErrorMessage } from '@core/utils/domain-error.util';
+import { resolveLoadErrorMessage } from '@core/utils/load-error.util';
+import { FeedbackPanelComponent } from '@shared/components/feedback-panel/feedback-panel.component';
 import { ToastrService } from '@shared/services/toastr/toastr.service';
 import { CreateAdminUserDto, AdminUser } from './models/user-admin.model';
 import { UsersCrudService } from './services/users-crud.service';
@@ -32,12 +37,14 @@ import { UsersCrudService } from './services/users-crud.service';
     IonButtons,
     IonMenuButton,
     IonFooter,
+    FeedbackPanelComponent,
   ],
 })
 export class UsersPage implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly usersService = inject(UsersCrudService);
   private readonly toastr = inject(ToastrService);
+  private readonly sessionService = inject(SessionService);
 
   readonly ownerUsersLimit = 3;
 
@@ -45,15 +52,24 @@ export class UsersPage implements OnInit {
   readonly loading = signal(false);
   readonly submitting = signal(false);
   readonly loadError = signal<string | null>(null);
+  readonly successMessage = signal<string | null>(null);
   readonly total = signal(0);
   readonly page = signal(1);
   readonly limit = signal(10);
   readonly formOpen = signal(false);
+  readonly isSuperadmin = computed(
+    () => this.sessionService.user()?.role === 'SUPERADMIN',
+  );
 
   readonly canCreateMore = computed(
-    () => this.total() < this.ownerUsersLimit && !this.loading() && !this.submitting(),
+    () =>
+      (!this.limitReached() || this.isSuperadmin()) &&
+      !this.loading() &&
+      !this.submitting(),
   );
-  readonly limitReached = computed(() => this.total() >= this.ownerUsersLimit);
+  readonly limitReached = computed(
+    () => !this.isSuperadmin() && this.total() >= this.ownerUsersLimit,
+  );
   readonly remainingSlots = computed(() =>
     Math.max(this.ownerUsersLimit - this.total(), 0),
   );
@@ -61,9 +77,11 @@ export class UsersPage implements OnInit {
   readonly createForm = this.fb.nonNullable.group({
     username: ['', [Validators.required, Validators.minLength(3)]],
     email: ['', [Validators.required, Validators.email]],
+    targetOwnerId: ['', [Validators.pattern(MONGO_ID_PATTERN)]],
   });
 
   ngOnInit(): void {
+    this.syncTargetOwnerValidators();
     void this.loadUsers();
   }
 
@@ -80,7 +98,7 @@ export class UsersPage implements OnInit {
       );
       this.applyListResponse(response);
     } catch (error) {
-      this.loadError.set(this.extractErrorMessage(error));
+      this.loadError.set(resolveLoadErrorMessage(error, 'los usuarios administradores'));
     } finally {
       this.loading.set(false);
     }
@@ -101,6 +119,7 @@ export class UsersPage implements OnInit {
     this.createForm.reset({
       username: '',
       email: '',
+      targetOwnerId: '',
     });
     this.createForm.markAsPristine();
     this.createForm.markAsUntouched();
@@ -115,6 +134,9 @@ export class UsersPage implements OnInit {
     const payload: CreateAdminUserDto = {
       username: this.createForm.controls.username.value.trim().toLowerCase(),
       email: this.createForm.controls.email.value.trim().toLowerCase(),
+      ...(this.getTargetOwnerId()
+        ? { targetOwnerId: this.getTargetOwnerId() ?? undefined }
+        : {}),
     };
 
     this.submitting.set(true);
@@ -125,10 +147,14 @@ export class UsersPage implements OnInit {
         `Usuario administrador "${created.username}" creado correctamente.`,
         'Alta completada',
       );
+      this.successMessage.set(
+        `Usuario administrador "${created.username}" creado correctamente.`,
+      );
 
       this.closeForm();
       await this.loadUsers();
     } catch (error) {
+      this.successMessage.set(null);
       if (!this.isHandledByInterceptor(error)) {
         await this.toastr.danger(this.extractErrorMessage(error));
       }
@@ -153,6 +179,24 @@ export class UsersPage implements OnInit {
     return user.id;
   }
 
+  private syncTargetOwnerValidators(): void {
+    const control = this.createForm.controls.targetOwnerId;
+    control.setValidators(
+      this.isSuperadmin()
+        ? [Validators.required, Validators.pattern(MONGO_ID_PATTERN)]
+        : [Validators.pattern(MONGO_ID_PATTERN)],
+    );
+    if (!this.isSuperadmin()) {
+      control.setValue('', { emitEvent: false });
+    }
+    control.updateValueAndValidity({ emitEvent: false });
+  }
+
+  private getTargetOwnerId(): string | null {
+    const value = this.createForm.controls.targetOwnerId.value.trim();
+    return value || null;
+  }
+
   private applyListResponse(response: ApiListResponse<AdminUser>): void {
     this.users.set(response.data);
     this.total.set(response.total);
@@ -161,23 +205,9 @@ export class UsersPage implements OnInit {
   }
 
   private extractErrorMessage(error: unknown): string {
-    if (error instanceof HttpErrorResponse) {
-      if (typeof error.error?.message === 'string' && error.error.message.trim()) {
-        return error.error.message;
-      }
-      if (Array.isArray(error.error?.message) && error.error.message.length > 0) {
-        return String(error.error.message[0]);
-      }
-      if (typeof error.message === 'string' && error.message.trim()) {
-        return error.message;
-      }
-    }
-
-    if (error instanceof Error && error.message) {
-      return error.message;
-    }
-
-    return 'Ocurrió un error al procesar la solicitud.';
+    return resolveDomainErrorMessage(error, {
+      fallback: 'Ocurrió un error al procesar la solicitud.',
+    });
   }
 
   private isHandledByInterceptor(error: unknown): boolean {

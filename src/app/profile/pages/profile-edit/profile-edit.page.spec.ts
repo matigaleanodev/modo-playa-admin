@@ -1,12 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpErrorResponse } from '@angular/common/http';
 import { signal } from '@angular/core';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { ProfileEditPage } from './profile-edit.page';
 import { AuthService } from '@auth/services/auth.service';
 import { SessionService } from '@auth/services/session.service';
 import { NavService } from '@shared/services/nav/nav.service';
 import { ToastrService } from '@shared/services/toastr/toastr.service';
 import { AuthUser } from '@auth/models/auth-user.model';
+import { stubIonMenuButton } from '@shared/testing/menu-button-test.util';
 
 describe('ProfileEditPage', () => {
   let component: ProfileEditPage;
@@ -19,6 +21,8 @@ describe('ProfileEditPage', () => {
   };
 
   beforeEach(async () => {
+    stubIonMenuButton(ProfileEditPage);
+
     authMock = jasmine.createSpyObj<AuthService>('AuthService', ['me', 'updateMe']);
     navMock = jasmine.createSpyObj<NavService>('NavService', ['root', 'back']);
     toastrMock = jasmine.createSpyObj<ToastrService>('ToastrService', ['success']);
@@ -95,6 +99,25 @@ describe('ProfileEditPage', () => {
 
     expect(authMock.me).toHaveBeenCalled();
     expect(sessionMock.setCurrentUser).toHaveBeenCalled();
+  });
+
+  it('debería reflejar error de dominio al actualizar el perfil', async () => {
+    authMock.updateMe.and.returnValue(
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 400,
+            error: { code: 'REQUEST_VALIDATION_ERROR' },
+          }),
+      ),
+    );
+    fixture.detectChanges();
+
+    await component.submit();
+    fixture.detectChanges();
+
+    expect(component.error()).toBe('La solicitud contiene datos inválidos.');
+    expect(fixture.nativeElement.textContent).toContain('No pudimos actualizar el perfil');
   });
 });
 

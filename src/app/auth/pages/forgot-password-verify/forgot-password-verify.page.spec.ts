@@ -4,6 +4,7 @@ import {
   fakeAsync,
   flushMicrotasks,
 } from '@angular/core/testing';
+import { HttpErrorResponse } from '@angular/common/http';
 import { signal, WritableSignal } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
@@ -93,6 +94,24 @@ describe('ForgotPasswordVerifyPage', () => {
 
     expect(component.verifyError()).toContain('No pudimos validar el código');
     expect(navMock.forward).not.toHaveBeenCalled();
+  }));
+
+  it('debería usar INVALID_CREDENTIALS desde error.code', fakeAsync(() => {
+    recoveryMock.verifyCode.and.returnValue(
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 400,
+            error: { code: 'INVALID_CREDENTIALS' },
+          }),
+      ),
+    );
+    component.form.setValue({ code: '123456' });
+
+    component.onSubmit();
+    flushMicrotasks();
+
+    expect(component.verifyError()).toBe('Credenciales inválidas.');
   }));
 
   it('restartFlow debería limpiar estado y volver al inicio', fakeAsync(() => {

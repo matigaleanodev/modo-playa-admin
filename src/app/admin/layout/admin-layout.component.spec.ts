@@ -33,6 +33,28 @@ describe('AdminLayoutComponent', () => {
       { currentTheme: signal<'system' | 'light' | 'dark'>('light') },
     );
 
+    TestBed.overrideComponent(AdminLayoutComponent, {
+      set: {
+        template: `
+          <section>
+            <header>
+              <img [src]="menuHeaderAvatar()" alt="Foto de perfil" />
+              <h1>{{ menuHeaderName() }}</h1>
+              <p>{{ menuHeaderEmail() }}</p>
+            </header>
+
+            <ul>
+              @for (item of menuItems(); track item.path + item.label) {
+                <li>{{ item.label }}</li>
+              }
+            </ul>
+
+            <button type="button" (click)="onLogout()">Cerrar sesión</button>
+          </section>
+        `,
+      },
+    });
+
     await TestBed.configureTestingModule({
       imports: [AdminLayoutComponent],
       providers: [

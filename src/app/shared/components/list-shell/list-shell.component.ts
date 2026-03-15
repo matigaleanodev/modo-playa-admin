@@ -1,7 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, TemplateRef, computed, input, output } from '@angular/core';
+import { FeedbackPanelComponent } from '@shared/components/feedback-panel/feedback-panel.component';
 
 export interface ListShellEmptyState {
+  title: string;
+  description?: string;
+}
+
+export interface ListShellLoadingState {
   title: string;
   description?: string;
 }
@@ -27,7 +33,7 @@ export interface ListShellItemTemplateContext<T> {
 @Component({
   selector: 'app-list-shell',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FeedbackPanelComponent],
   templateUrl: './list-shell.component.html',
   styleUrls: ['./list-shell.component.scss'],
 })
@@ -48,6 +54,11 @@ export class ListShellComponent<T = unknown> {
     title: 'Sin resultados',
     description: 'No hay elementos para mostrar.',
   });
+  readonly loadingState = input<ListShellLoadingState>({
+    title: 'Cargando resultados',
+    description: 'Espera un momento mientras actualizamos la lista.',
+  });
+  readonly errorTitle = input<string>('No pudimos cargar los datos');
   readonly itemTemplate = input<TemplateRef<
     ListShellItemTemplateContext<T>
   > | null>(null);

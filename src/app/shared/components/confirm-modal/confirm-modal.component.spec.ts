@@ -22,11 +22,31 @@ describe('ConfirmModalComponent', () => {
     fixture = TestBed.createComponent(ConfirmModalComponent);
     component = fixture.componentInstance;
     fixture.componentRef.setInput('title', 'Confirmar');
-    fixture.componentRef.setInput('text', 'Contenido');
     fixture.detectChanges();
   }));
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should render both action buttons with the configured labels', () => {
+    fixture.componentRef.setInput('confirmLabel', 'Eliminar');
+    fixture.componentRef.setInput('cancelLabel', 'Volver');
+    fixture.detectChanges();
+
+    const buttons = Array.from(
+      fixture.nativeElement.querySelectorAll('.footer-buttons .confirm-modal__button'),
+    ).map((button) => (button as HTMLElement).textContent?.trim());
+
+    expect(buttons).toEqual(['Volver', 'Eliminar']);
+  });
+
+  it('should derive the delete message from the configured item label', () => {
+    fixture.componentRef.setInput('itemLabel', 'Casa Azul');
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain(
+      'Desea eliminar el elemento Casa Azul.',
+    );
   });
 });

@@ -144,13 +144,6 @@
   color: #0f766e;
 }
 
-.lodgings-images__error {
-  margin: 0;
-  color: rgb(var(--ion-color-danger-rgb));
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
 .lodgings-images__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -220,6 +213,11 @@
   gap: 0.5rem;
 }
 
+.lodgings-image-card__meta {
+  display: grid;
+  gap: 0.28rem;
+}
+
 .lodgings-image-card__default {
   display: inline-flex;
   align-items: center;
@@ -227,6 +225,16 @@
   font-size: 0.82rem;
   color: #334155;
   cursor: pointer;
+}
+
+.lodgings-image-card__status {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #0f766e;
+}
+
+.lodgings-image-card__status.is-error {
+  color: rgb(var(--ion-color-danger-rgb));
 }
 
 .lodgings-image-card__default input {
