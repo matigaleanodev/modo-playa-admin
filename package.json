@@ -28,7 +28,9 @@
     "test:ci": "ng test --watch=false --browsers=ChromeHeadless --configuration=ci",
     "lint": "ng lint",
     "e2e:owner": "playwright test e2e/owner-smoke.spec.ts e2e/owner-management.spec.ts",
-    "e2e:owner:headed": "playwright test e2e/owner-smoke.spec.ts e2e/owner-management.spec.ts --headed"
+    "e2e:owner:headed": "playwright test e2e/owner-smoke.spec.ts e2e/owner-management.spec.ts --headed",
+    "e2e:superadmin": "playwright test e2e/superadmin-target-owner.spec.ts",
+    "e2e:superadmin:headed": "playwright test e2e/superadmin-target-owner.spec.ts --headed"
   },
   "private": true,
   "dependencies": {

@@ -101,7 +101,7 @@ test.describe('Owner smoke @owner-smoke', () => {
       });
       await expect(article).toBeVisible();
       await article.getByRole('button', { name: 'Eliminar elemento' }).click();
-      await page.locator('app-confirm-modal').getByRole('button', { name: 'Confirmar' }).click();
+      await page.locator('app-confirm-modal').getByRole('button', { name: 'Eliminar' }).click();
 
       await expect(article).toHaveCount(0);
       await expect.poll(async () => getContactByName(api, contactName)).toBeNull();
