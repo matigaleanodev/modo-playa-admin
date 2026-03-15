@@ -90,11 +90,11 @@ Tareas:
 
 - [x] Homogeneizar loading, error y success states entre dashboard, users, contacts y lodgings
 - [x] Implementar en `lodgings` un flujo de alta con imagenes iniciales en una sola experiencia de formulario, pero con uploads tecnicamente desacoplados
-- [x] Implementar en `lodgings` gestion posterior de imagenes sobre el subrecurso admin de media: upload pendiente, confirmacion, default y delete
-- [x] Implementar en `profile` la gestion de imagen propia del usuario autenticado usando el mismo patron tecnico de upload pendiente + confirmacion
+- [x] Implementar en `lodgings` gestion posterior de imagenes sobre el subrecurso admin de media: upload multipart backend-only, default y delete
+- [x] Implementar en `profile` la gestion de imagen propia del usuario autenticado usando el patron backend-only de `auth/me/profile-image`
 - [x] Eliminar del admin cualquier flujo de media que dependa de upload directo al backend si deja de existir como contrato canonico en la API
 - [x] Asegurar que el admin no permita a un usuario owner modificar la imagen de perfil de otros usuarios del mismo owner
-- [~] Resolver estados de UI para uploads pendientes, confirmaciones exitosas, expiracion TTL, limpieza y reintentos sin cambiar de pantalla
+- [~] Resolver estados de UI para uploads pendientes, expiracion TTL, limpieza y reintentos sin cambiar de pantalla
 - [x] Cerrar diferencias entre rutas legacy y rutas canonicas
 - [x] Validar flujos owner reales de punta a punta contra la API antes de sumar nuevas pantallas
 - [x] Reemplazar la seleccion de disponibilidad basada en `ion-datetime` por un calendario propio reutilizable con validacion visual de solapamientos
@@ -118,12 +118,12 @@ Dejar reglas y cobertura suficientes para mantener el admin sin depender de cono
 
 Tareas:
 
-- [ ] Agregar cobertura puntual sobre forms complejos, modales de confirmacion y servicios de dialogo
+- [~] Agregar cobertura puntual sobre forms complejos, modales de confirmacion y servicios de dialogo
 - [x] Agregar una smoke suite owner sobre login, contactos, perfil y disponibilidad contra API local
 - [ ] Documentar convenciones de `core`, `shared` y features para nuevos modulos
 - [ ] Registrar decisiones de auth/session/storage y ownership con `modo-playa-api`
 - [ ] Documentar el patron canonico de media del admin y sus estados de UI esperados para `lodgings` y `profile`
-- [ ] Agregar cobertura sobre uploads pendientes, confirmacion final, expiracion y reintento en `lodgings` y `profile`
+- [ ] Agregar cobertura sobre uploads pendientes, expiracion y reintento en `lodgings` y `profile`
 
 Done when:
 
@@ -220,7 +220,7 @@ Regla operativa para `SUPERADMIN`:
 
 ## Validacion cruzada con backend - 2026-03-12
 
-Estado: action required
+Estado: superseded by backend-only contract
 
 Hallazgos confirmados contra `modo-playa-api`:
 
@@ -254,17 +254,17 @@ Contratos canonicos que el admin debe adoptar desde ahora:
 - Dashboard:
   - `recentActivity.source` debe tiparse como `'timestamps' | 'none'`
 
-Modelos y contratos locales que deben ajustarse:
+Modelos y contratos locales que debian ajustarse:
 
 - `dashboard-summary.model.ts`
   - cambiar `recentActivity.source` de `'derived' | 'none'` a `'timestamps' | 'none'`
   - documentar internamente que `action` y `timestamp` son derivados y no una auditoria persistida
 - `profile`
-  - reemplazar cualquier contrato local de upload directo por `upload-url response`, `confirm response` y `delete response`
+  - reemplazar cualquier contrato local legacy por multipart backend-only y `delete response`
   - no modelar profile image como operacion sobre otro `userId`; el flujo es siempre "mi perfil"
 - `lodgings`
   - separar payload de alta/edicion del flujo de archivos
-  - incorporar un estado local de draft image con `imageId`, `uploadSessionId`, `uploadKey`, `status`, `previewUrl`
+  - incorporar un estado local de draft image con `imageId`, `uploadSessionId`, `status`, `previewUrl`
   - tratar `pendingImageIds` y `uploadSessionId` como parte del contrato de alta, no como detalle interno opcional
 
 Modificaciones concretas necesarias para seguir el roadmap del admin de forma independiente:
@@ -272,11 +272,11 @@ Modificaciones concretas necesarias para seguir el roadmap del admin de forma in
 - [x] Reemplazar `ProfileImageAdminService` por un servicio alineado a `auth/me/profile-image`
 - [x] Eliminar del admin toda dependencia de `admin/users/:id/profile-image/upload`
 - [x] Eliminar del admin toda dependencia de `admin/users/:id/profile-image`
-- [x] Rediseñar `lodgings-form` para que al seleccionar archivos se pidan signed URLs de draft, se haga upload en background y se confirme cada draft antes del submit final
+- [x] Rediseñar `lodgings-form` para que al seleccionar archivos se haga upload multipart backend-only en background y el submit final envie `pendingImageIds` + `uploadSessionId`
 - [x] Hacer que el submit de alta de lodging envie `uploadSessionId` + `pendingImageIds` junto con el payload normalizado
 - [x] Retirar `createWithImages` de `LodgingsCrudService`
 - [x] Retirar `updateWithImages` de `LodgingsCrudService`
-- [x] Mantener la edicion posterior de imagenes solo sobre el subrecurso admin vigente (`upload-url`, `confirm`, `default`, `delete`)
+- [x] Mantener la edicion posterior de imagenes solo sobre el subrecurso admin vigente (`POST /images`, `default`, `delete`)
 - [x] Ajustar tests de `lodgings-form`, `dashboard` y `profile` para dejar de mockear contratos legacy
 - [x] Ocultar o deshabilitar controles de profile image cuando el usuario autenticado sea `SUPERADMIN`
 - [ ] Validar owner flow y support flow por separado para no mezclar reglas de ownership con soporte
@@ -284,12 +284,34 @@ Modificaciones concretas necesarias para seguir el roadmap del admin de forma in
 
 Trabajo que debe continuar en este repo:
 
-- [x] Reemplazar el flujo de profile por `auth/me/profile-image` con signed upload + confirmacion, restringido al owner autenticado
+- [x] Reemplazar el flujo de profile por `auth/me/profile-image` con multipart backend-only, restringido al owner autenticado
 - [x] Retirar por completo cualquier dependencia de upload directo al backend para profile image
 - [x] Rehacer el alta de lodging para usar draft uploads previos y enviar `pendingImageIds` + `uploadSessionId` en `POST /admin/lodgings`
 - [x] Retirar `createWithImages` y `updateWithImages` del flujo canonico del admin
 - [x] Actualizar tipos de dashboard para aceptar `recentActivity.source = 'timestamps'`
 - [x] Revisar UX de soporte para que `SUPERADMIN` no exponga controles de profile image
+
+## Decision tecnica vigente - Media admin backend-only 2026-03-15
+
+Estado: accepted
+
+Direccion consolidada:
+
+- el admin no coordina signed URLs, `upload-url`, `confirm`, `etag` ni `uploadKey`
+- el admin solo envia `multipart/form-data` a `modo-playa-api`
+- `profile` consume exclusivamente `POST /api/auth/me/profile-image` y `DELETE /api/auth/me/profile-image`
+- el alta de lodging conserva UX de una sola pantalla, pero sus archivos viajan por `POST /api/admin/lodging-image-uploads` y el submit final envia `uploadSessionId` + `pendingImageIds`
+- la gestion posterior de imagenes de lodging consume exclusivamente `POST /api/admin/lodgings/:lodgingId/images`, `PATCH .../default` y `DELETE .../:imageId`
+- expiracion, normalizacion, publicacion y limpieza de media siguen siendo responsabilidad del backend
+
+Impacto documental requerido:
+
+- cualquier referencia a signed uploads en este repo debe tratarse como legacy y removerse o marcarse como historial
+- los estados de UI pendientes deben hablar de expiracion y reintento, no de confirmaciones de storage en frontend
+
+Pendiente real que sigue abierto:
+
+- validar owner y `SUPERADMIN` por separado contra API real, incluyendo `targetOwnerId` en creaciones administrativas
 
 ## Avance operativo - 2026-03-12
 

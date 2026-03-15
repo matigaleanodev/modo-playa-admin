@@ -59,6 +59,12 @@ Owner smoke suite with Playwright:
 npm run e2e:owner
 ```
 
+`SUPERADMIN` support smoke suite with Playwright:
+
+```bash
+npx playwright test e2e/superadmin-target-owner.spec.ts
+```
+
 Required variables:
 
 - `E2E_OWNER_IDENTIFIER`
@@ -124,5 +130,7 @@ The project follows a feature-based structure with:
 - For API-related features, validate models/endpoints against `modo-playa-api`
 - The contacts module now uses `contacts` as the canonical name in structure, imports, and routes
 - The active media flow is backend-only: the admin sends `multipart/form-data` to the API and never uploads directly to the bucket
+- The admin no longer uses signed URLs or frontend-side media confirmations
+- Support-side flows must send explicit `targetOwnerId` when the backend requires creation on behalf of another owner
 
 ---

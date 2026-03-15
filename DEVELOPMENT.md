@@ -59,6 +59,12 @@ Smoke suite owner con Playwright:
 npm run e2e:owner
 ```
 
+Smoke suite soporte `SUPERADMIN` con Playwright:
+
+```bash
+npx playwright test e2e/superadmin-target-owner.spec.ts
+```
+
 Variables requeridas:
 
 - `E2E_OWNER_IDENTIFIER`
@@ -124,5 +130,7 @@ El proyecto sigue una estructura orientada por features con:
 - Para features de API, validar estructura/modelos contra `modo-playa-api`
 - El módulo de contactos ya usa `contacts` como nombre canónico en estructura, imports y rutas
 - La gestion de media vigente es backend-only: el admin envia `multipart/form-data` a la API y no hace uploads directos al bucket
+- El admin no usa signed URLs ni confirmaciones de media en frontend
+- Los flujos de soporte deben enviar `targetOwnerId` explícito cuando el backend lo requiere para crear en nombre de otro owner
 
 ---

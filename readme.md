@@ -44,6 +44,24 @@ pensado para uso web y preparado para evolución mobile con Capacitor.
 
 ---
 
+## 🖼️ Contrato de media vigente
+
+El contrato canónico de media del admin es `backend-only`.
+
+- El frontend envía `multipart/form-data` a `modo-playa-api`.
+- El frontend no pide signed URLs, no sube archivos directo al bucket y no confirma uploads contra storage.
+- `profile` usa `POST/DELETE auth/me/profile-image`.
+- `lodgings` usa draft uploads por `POST admin/lodging-image-uploads` durante el alta y el subrecurso `POST/PATCH/DELETE admin/lodgings/:id/images` para la gestión posterior.
+- La normalización, validación final, publicación y cleanup de media pertenecen al backend.
+
+## 👤 Ownership y soporte
+
+- Los flujos normales del admin operan con el `ownerId` del usuario autenticado.
+- `SUPERADMIN` puede crear recursos en nombre de otro tenant sólo cuando envía `targetOwnerId` de forma explícita y el backend expone esa capacidad.
+- `SUPERADMIN` no administra profile image mediante `auth/me/profile-image`.
+
+---
+
 ## 🧑‍💻 Desarrollo
 
 Para instrucciones de instalación y ejecución en entorno local:
