@@ -13,8 +13,12 @@ export abstract class BaseList<T extends BaseEntity> {
 
   async onDelete(el: T) {
     const confirmed = await this._dialog.confirm({
-      title: 'Confirmar Eliminar',
-      text: 'Desea eliminar el elemento',
+      title: 'Eliminar elemento',
+      itemLabel: this.getDeleteItemLabel(el),
+      confirmLabel: 'Eliminar',
+      cancelLabel: 'Cancelar',
+      color: 'danger',
+      showIcon: true,
     });
 
     if (!confirmed) return;
@@ -31,5 +35,30 @@ export abstract class BaseList<T extends BaseEntity> {
 
   newElement(): void {
     this._service.newElement();
+  }
+
+  private getDeleteItemLabel(el: T): string {
+    const candidate = [
+      this.getStringValue(el, 'title'),
+      this.getStringValue(el, 'name'),
+      this.getStringValue(el, 'displayName'),
+      this.getStringValue(el, 'username'),
+      this.getStringValue(el, 'email'),
+    ].find((value) => !!value);
+
+    return candidate ?? el.id;
+  }
+
+  private getStringValue<K extends string>(
+    entity: T,
+    key: K,
+  ): string | null {
+    const value = (entity as T & Record<K, unknown>)[key];
+    if (typeof value !== 'string') {
+      return null;
+    }
+
+    const normalized = value.trim();
+    return normalized || null;
   }
 }

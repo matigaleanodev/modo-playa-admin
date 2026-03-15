@@ -9,11 +9,14 @@ describe('LodgingsListPage', () => {
   let component: LodgingsListPage;
   let fixture: ComponentFixture<LodgingsListPage>;
   let resourceMock: ReturnType<typeof createResourceMock>;
+  let dialogMock: jasmine.SpyObj<DialogService>;
 
   beforeEach(async () => {
     stubIonMenuButton(LodgingsListPage);
 
     resourceMock = createResourceMock();
+    dialogMock = jasmine.createSpyObj<DialogService>('DialogService', ['confirm']);
+    dialogMock.confirm.and.resolveTo(true);
 
     await TestBed.configureTestingModule({
       imports: [LodgingsListPage],
@@ -21,7 +24,7 @@ describe('LodgingsListPage', () => {
         { provide: LodgingsResourceService, useValue: resourceMock },
         {
           provide: DialogService,
-          useValue: jasmine.createSpyObj<DialogService>('DialogService', ['confirm']),
+          useValue: dialogMock,
         },
       ],
     }).compileComponents();
@@ -57,6 +60,21 @@ describe('LodgingsListPage', () => {
   it('debería abrir disponibilidad del alojamiento', () => {
     component.openAvailability({ id: 'lod-1' } as any);
     expect(resourceMock.openAvailability).toHaveBeenCalledWith({ id: 'lod-1' } as any);
+  });
+
+  it('debería pedir confirmación con el título del alojamiento antes de eliminar', async () => {
+    await component.onDelete({ id: 'lod-1', title: 'Casa del Bosque' } as any);
+
+    expect(dialogMock.confirm).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        title: 'Eliminar elemento',
+        itemLabel: 'Casa del Bosque',
+        confirmLabel: 'Eliminar',
+        color: 'danger',
+        showIcon: true,
+      }),
+    );
+    expect(resourceMock.delete).toHaveBeenCalled();
   });
 });
 

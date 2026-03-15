@@ -10,7 +10,8 @@ export class DialogService {
 
   async confirm(options: {
     title: string;
-    text: string;
+    text?: string;
+    itemLabel?: string;
     confirmLabel?: string;
     cancelLabel?: string;
     color?: 'primary' | 'danger' | 'warning';
@@ -20,7 +21,8 @@ export class DialogService {
       component: ConfirmModalComponent,
       componentProps: {
         title: options.title,
-        text: options.text,
+        text: options.text ?? '',
+        itemLabel: options.itemLabel ?? '',
         confirmLabel: options.confirmLabel ?? 'Confirmar',
         cancelLabel: options.cancelLabel ?? 'Cancelar',
         color: options.color ?? 'primary',
