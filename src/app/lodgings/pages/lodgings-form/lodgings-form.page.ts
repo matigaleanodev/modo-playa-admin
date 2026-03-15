@@ -11,6 +11,7 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Validators } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import {
   IonButton,
@@ -24,6 +25,8 @@ import {
   IonToolbar,
 } from '@ionic/angular/standalone';
 import { BaseForm } from '@core/components/form.component';
+import { SessionService } from '@auth/services/session.service';
+import { MONGO_ID_PATTERN } from '@core/constants/mongo-id-pattern';
 import { FormOption } from '@core/models/form-option.model';
 import { getHttpErrorCode, resolveDomainErrorMessage } from '@core/utils/domain-error.util';
 import { AppFormFieldRenderImports } from './lodgings-form.shared';
@@ -59,6 +62,10 @@ interface FormLodgingImageItem {
   draftStatus?: DraftImageStatus;
   uploadSessionId?: string;
   errorCode?: string;
+}
+
+interface LodgingFormValue extends LodgingSaveDto {
+  targetOwnerId?: string | null;
 }
 
 const MAX_IMAGES = 5;
@@ -99,6 +106,7 @@ export class LodgingsFormPage
   private readonly _lodgingImages = inject(LodgingImagesAdminService);
   private readonly _toastr = inject(ToastrService);
   private readonly _nav = inject(NavService);
+  private readonly _session = inject(SessionService);
 
   readonly resource = this._service;
   readonly isSubmitting = signal(false);
@@ -109,6 +117,7 @@ export class LodgingsFormPage
   readonly imageError = signal<string | null>(null);
   readonly imageItems = signal<FormLodgingImageItem[]>([]);
   readonly draftUploadSessionId = signal<string | null>(null);
+  readonly isSuperadmin = computed(() => this._session.user()?.role === 'SUPERADMIN');
 
   readonly pageTitle = computed(() =>
     this.resource.isEditMode() ? 'Editar alojamiento' : 'Nuevo alojamiento',
@@ -306,24 +315,45 @@ export class LodgingsFormPage
       helper: 'Visible en el sistema',
       columns: 4,
     },
+    {
+      type: 'text',
+      key: 'targetOwnerId',
+      label: 'Owner destino',
+      placeholder: '665c1234abc123456789abce',
+      helper: 'Obligatorio para `SUPERADMIN` al crear alojamientos en nombre de otro owner.',
+      hidden: true,
+      columns: 8,
+      validaciones: [{ tipo: 'pattern', valor: MONGO_ID_PATTERN }],
+      errores: {
+        required: 'Indica el owner destino.',
+        pattern: 'Ingresa un ObjectId válido de 24 caracteres hexadecimales.',
+      },
+    },
   ];
 
   override readonly form = this.generateFormGroup(this.fields);
 
   async ngOnInit(): Promise<void> {
+    this.syncTargetOwnerField();
     await this.loadContactOptions();
 
     const resolved = this._route.snapshot.data['lodging'] as Lodging | undefined;
 
     if (resolved) {
       this.resource.setCurrent(resolved);
-      this.form.reset(this._toFormValue(resolved));
+      this.form.reset({
+        ...this._toFormValue(resolved),
+        targetOwnerId: null,
+      });
       this.setImageItemsFromLodging(resolved);
       return;
     }
 
     this.resource.resetCurrent();
-    this.form.reset(this._toFormValue(createEmptyLodging()));
+    this.form.reset({
+      ...this._toFormValue(createEmptyLodging()),
+      targetOwnerId: null,
+    });
     this.imageItems.set([]);
     this.draftUploadSessionId.set(null);
   }
@@ -539,10 +569,13 @@ export class LodgingsFormPage
       throw new Error('No hay una sesión de upload activa para el alta del alojamiento.');
     }
 
+    const targetOwnerId = this.getTargetOwnerId();
+
     return {
       ...this.buildBasePayload(),
       uploadSessionId,
       pendingImageIds: this.getOrderedPendingImageIds(),
+      ...(targetOwnerId ? { targetOwnerId } : {}),
     };
   }
 
@@ -552,11 +585,16 @@ export class LodgingsFormPage
 
   private buildBasePayload(): Record<string, unknown> {
     const normalized = this.resource.normalizePayloadForSave({
-      ...(this.form.getRawValue() as LodgingSaveDto),
+      ...(this.form.getRawValue() as LodgingFormValue),
       mainImage: '',
       images: [],
     });
-    const { mainImage, images, ...payload } = normalized;
+    const {
+      mainImage,
+      images,
+      targetOwnerId: _targetOwnerId,
+      ...payload
+    } = normalized as LodgingFormValue;
 
     if (!payload.contactId) {
       delete payload.contactId;
@@ -987,6 +1025,36 @@ export class LodgingsFormPage
 
   private extractErrorCode(error: unknown) {
     return getHttpErrorCode(error);
+  }
+
+  private syncTargetOwnerField(): void {
+    const isRequired = this.isSuperadmin() && !this.resource.isEditMode();
+    const targetOwnerField = this.fields.find((field) => field.key === 'targetOwnerId');
+    const control = this.form.get('targetOwnerId');
+
+    if (targetOwnerField) {
+      targetOwnerField.hidden = !isRequired;
+      targetOwnerField.required = isRequired;
+    }
+
+    if (!control) {
+      return;
+    }
+
+    control.setValidators(
+      isRequired
+        ? [Validators.required, Validators.pattern(MONGO_ID_PATTERN)]
+        : [Validators.pattern(MONGO_ID_PATTERN)],
+    );
+    if (!isRequired) {
+      control.setValue(null, { emitEvent: false });
+    }
+    control.updateValueAndValidity({ emitEvent: false });
+  }
+
+  private getTargetOwnerId(): string | null {
+    const value = String(this.form.get('targetOwnerId')?.value ?? '').trim();
+    return value || null;
   }
 
   private _toFormValue(lodging: Lodging): Lodging {

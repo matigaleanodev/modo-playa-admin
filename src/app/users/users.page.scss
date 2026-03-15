@@ -205,6 +205,10 @@
   gap: 0.4rem;
 }
 
+.users-form__field--full {
+  grid-column: 1 / -1;
+}
+
 .users-form__field > span {
   font-weight: 600;
   font-size: 0.9rem;
@@ -230,8 +234,15 @@
 }
 
 .users-form__field small {
-  color: var(--ion-color-danger);
   line-height: 1.25;
+}
+
+.users-form__helper {
+  color: var(--ion-color-medium);
+}
+
+.users-form__error {
+  color: var(--ion-color-danger);
 }
 
 .users-form__actions {

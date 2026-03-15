@@ -12,6 +12,8 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
+import { SessionService } from '@auth/services/session.service';
+import { MONGO_ID_PATTERN } from '@core/constants/mongo-id-pattern';
 import { ApiListResponse } from '@core/models/api-response.model';
 import { resolveDomainErrorMessage } from '@core/utils/domain-error.util';
 import { resolveLoadErrorMessage } from '@core/utils/load-error.util';
@@ -42,6 +44,7 @@ export class UsersPage implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly usersService = inject(UsersCrudService);
   private readonly toastr = inject(ToastrService);
+  private readonly sessionService = inject(SessionService);
 
   readonly ownerUsersLimit = 3;
 
@@ -54,11 +57,19 @@ export class UsersPage implements OnInit {
   readonly page = signal(1);
   readonly limit = signal(10);
   readonly formOpen = signal(false);
+  readonly isSuperadmin = computed(
+    () => this.sessionService.user()?.role === 'SUPERADMIN',
+  );
 
   readonly canCreateMore = computed(
-    () => this.total() < this.ownerUsersLimit && !this.loading() && !this.submitting(),
+    () =>
+      (!this.limitReached() || this.isSuperadmin()) &&
+      !this.loading() &&
+      !this.submitting(),
   );
-  readonly limitReached = computed(() => this.total() >= this.ownerUsersLimit);
+  readonly limitReached = computed(
+    () => !this.isSuperadmin() && this.total() >= this.ownerUsersLimit,
+  );
   readonly remainingSlots = computed(() =>
     Math.max(this.ownerUsersLimit - this.total(), 0),
   );
@@ -66,9 +77,11 @@ export class UsersPage implements OnInit {
   readonly createForm = this.fb.nonNullable.group({
     username: ['', [Validators.required, Validators.minLength(3)]],
     email: ['', [Validators.required, Validators.email]],
+    targetOwnerId: ['', [Validators.pattern(MONGO_ID_PATTERN)]],
   });
 
   ngOnInit(): void {
+    this.syncTargetOwnerValidators();
     void this.loadUsers();
   }
 
@@ -106,6 +119,7 @@ export class UsersPage implements OnInit {
     this.createForm.reset({
       username: '',
       email: '',
+      targetOwnerId: '',
     });
     this.createForm.markAsPristine();
     this.createForm.markAsUntouched();
@@ -120,6 +134,9 @@ export class UsersPage implements OnInit {
     const payload: CreateAdminUserDto = {
       username: this.createForm.controls.username.value.trim().toLowerCase(),
       email: this.createForm.controls.email.value.trim().toLowerCase(),
+      ...(this.getTargetOwnerId()
+        ? { targetOwnerId: this.getTargetOwnerId() ?? undefined }
+        : {}),
     };
 
     this.submitting.set(true);
@@ -160,6 +177,24 @@ export class UsersPage implements OnInit {
 
   trackByUserId(_index: number, user: AdminUser): string {
     return user.id;
+  }
+
+  private syncTargetOwnerValidators(): void {
+    const control = this.createForm.controls.targetOwnerId;
+    control.setValidators(
+      this.isSuperadmin()
+        ? [Validators.required, Validators.pattern(MONGO_ID_PATTERN)]
+        : [Validators.pattern(MONGO_ID_PATTERN)],
+    );
+    if (!this.isSuperadmin()) {
+      control.setValue('', { emitEvent: false });
+    }
+    control.updateValueAndValidity({ emitEvent: false });
+  }
+
+  private getTargetOwnerId(): string | null {
+    const value = this.createForm.controls.targetOwnerId.value.trim();
+    return value || null;
   }
 
   private applyListResponse(response: ApiListResponse<AdminUser>): void {

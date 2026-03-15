@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
 import { convertToParamMap, provideRouter } from '@angular/router';
 import { signal } from '@angular/core';
+import { SessionService } from '@auth/services/session.service';
 import { ContactsFormPage } from './contacts-form.page';
 import { ContactsResourceService, createEmptyContact } from '../../services/contacts-resource.service';
 import { stubIonMenuButton } from '@shared/testing/menu-button-test.util';
@@ -12,6 +13,7 @@ describe('ContactsFormPage', () => {
   let resourceMock: jasmine.SpyObj<ContactsResourceService> & {
     isEditMode: ReturnType<typeof signal<boolean>>;
   };
+  let sessionMock: { user: ReturnType<typeof signal<any>> };
   let activatedRouteMock: any;
 
   beforeEach(async () => {
@@ -25,6 +27,14 @@ describe('ContactsFormPage', () => {
       { isEditMode: signal(false) },
     );
     resourceMock.guardar.and.resolveTo();
+    sessionMock = {
+      user: signal({
+        id: 'owner-1',
+        email: 'owner@test.com',
+        username: 'owner',
+        role: 'OWNER',
+      }),
+    };
 
     activatedRouteMock = {
       snapshot: {
@@ -38,6 +48,7 @@ describe('ContactsFormPage', () => {
       providers: [
         provideRouter([]),
         { provide: ContactsResourceService, useValue: resourceMock },
+        { provide: SessionService, useValue: sessionMock },
         { provide: (await import('@angular/router')).ActivatedRoute, useValue: activatedRouteMock },
       ],
     }).compileComponents();
@@ -120,5 +131,33 @@ describe('ContactsFormPage', () => {
 
     expect(component.submitError()).toBe('Datos inválidos.');
     expect(fixture.nativeElement.textContent).toContain('No pudimos crear el contacto');
+  });
+
+  it('debería enviar targetOwnerId al crear cuando opera SUPERADMIN', async () => {
+    sessionMock.user.set({
+      id: 'support-1',
+      email: 'support@test.com',
+      username: 'support',
+      role: 'SUPERADMIN',
+    });
+
+    fixture = TestBed.createComponent(ContactsFormPage);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    component.form.patchValue({
+      name: 'Contacto soporte',
+      targetOwnerId: '65d8d3b4a91f4c2e8b7a1f3c',
+    });
+
+    await component.guardar();
+
+    expect(resourceMock.guardar).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        name: 'Contacto soporte',
+        targetOwnerId: '65d8d3b4a91f4c2e8b7a1f3c',
+      }),
+    );
   });
 });
