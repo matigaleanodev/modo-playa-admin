@@ -16,4 +16,5 @@ export interface AdminUser extends BaseEntity {
 export interface CreateAdminUserDto {
   username: string;
   email: string;
+  targetOwnerId?: string;
 }

@@ -5,8 +5,13 @@ import { ToastrService } from '@shared/services/toastr/toastr.service';
 import { Contact } from '../models/contact.model';
 import { ContactsCrudService } from './contacts-crud.service';
 
-export type ContactSaveDto = Contact;
-export type ContactCreateDto = Omit<Contact, 'id'>;
+export interface ContactCreateDto extends Omit<Contact, 'id'> {
+  targetOwnerId?: string;
+}
+
+export type ContactSaveDto = Contact & {
+  targetOwnerId?: string | null;
+};
 
 export function createEmptyContact(): Contact {
   return {
@@ -77,16 +82,29 @@ export class ContactsResourceService extends ResourceService<
       whatsapp: data.whatsapp?.trim() || '',
       isDefault: !!data.isDefault,
       notes: data.notes?.trim() || '',
+      targetOwnerId: data.targetOwnerId?.trim() || undefined,
     };
   }
 
   private _toCreatePayload(payload: ContactSaveDto): ContactCreateDto {
-    const { id: _id, ...createPayload } = payload;
-    return createPayload;
+    const {
+      id: _id,
+      targetOwnerId,
+      ...createPayload
+    } = payload;
+
+    return {
+      ...createPayload,
+      ...(targetOwnerId ? { targetOwnerId } : {}),
+    };
   }
 
   private _toUpdatePayload(payload: ContactSaveDto): Partial<Contact> {
-    const { id: _id, ...updatePayload } = payload;
+    const {
+      id: _id,
+      targetOwnerId: _targetOwnerId,
+      ...updatePayload
+    } = payload;
     return updatePayload;
   }
 }

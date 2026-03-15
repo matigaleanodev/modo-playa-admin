@@ -7,6 +7,7 @@ import {
 import { of } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { signal } from '@angular/core';
+import { SessionService } from '@auth/services/session.service';
 import { LodgingsFormPage } from './lodgings-form.page';
 import { LodgingsResourceService } from '@lodgings/services/lodgings-resource.service';
 import { LodgingsCrudService } from '@lodgings/services/lodgings-crud.service';
@@ -29,6 +30,7 @@ describe('LodgingsFormPage', () => {
   let lodgingImagesMock: jasmine.SpyObj<LodgingImagesAdminService>;
   let toastrMock: jasmine.SpyObj<ToastrService>;
   let navMock: jasmine.SpyObj<NavService>;
+  let sessionMock: { user: ReturnType<typeof signal<any>> };
   let activatedRouteMock: ActivatedRoute;
 
   beforeEach(async () => {
@@ -77,6 +79,14 @@ describe('LodgingsFormPage', () => {
       'danger',
     ]);
     navMock = jasmine.createSpyObj<NavService>('NavService', ['forward', 'root']);
+    sessionMock = {
+      user: signal({
+        id: 'owner-1',
+        email: 'owner@test.com',
+        username: 'owner',
+        role: 'OWNER',
+      }),
+    };
     resourceMock.refresh.and.resolveTo();
 
     activatedRouteMock = {
@@ -96,6 +106,7 @@ describe('LodgingsFormPage', () => {
         { provide: LodgingImagesAdminService, useValue: lodgingImagesMock },
         { provide: ToastrService, useValue: toastrMock },
         { provide: NavService, useValue: navMock },
+        { provide: SessionService, useValue: sessionMock },
         { provide: ActivatedRoute, useValue: activatedRouteMock },
       ],
     }).compileComponents();
@@ -174,6 +185,7 @@ describe('LodgingsFormPage', () => {
       distanceToBeach: null,
       amenities: [],
       active: true,
+      targetOwnerId: null,
     });
     component.imageItems.set([
       {
@@ -246,6 +258,7 @@ describe('LodgingsFormPage', () => {
       distanceToBeach: null,
       amenities: [],
       active: true,
+      targetOwnerId: null,
     });
     component.imageItems.set([
       {
@@ -284,5 +297,68 @@ describe('LodgingsFormPage', () => {
 
     expect(component.contactsLoadError()).toContain('No pudimos cargar los contactos');
     expect(fixture.nativeElement.textContent).toContain('No pudimos cargar los contactos');
+  });
+
+  it('debería enviar targetOwnerId en alta cuando opera SUPERADMIN', async () => {
+    sessionMock.user.set({
+      id: 'support-1',
+      email: 'support@test.com',
+      username: 'support',
+      role: 'SUPERADMIN',
+    });
+
+    fixture = TestBed.createComponent(LodgingsFormPage);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const created: Lodging = {
+      ...createEmptyLodging(),
+      id: 'lod-9',
+    };
+    lodgingsCrudMock.save.and.returnValue(of(created));
+
+    component.form.setValue({
+      title: 'Casa soporte',
+      type: 'cabin',
+      description: 'Descripcion valida',
+      location: 'Calle 1',
+      city: 'Mar Azul',
+      price: 100,
+      priceUnit: 'night',
+      maxGuests: 4,
+      bedrooms: 2,
+      bathrooms: 1,
+      minNights: 2,
+      contactId: 'c-default',
+      distanceToBeach: null,
+      amenities: [],
+      active: true,
+      targetOwnerId: '65d8d3b4a91f4c2e8b7a1f3c',
+    });
+    component.imageItems.set([
+      {
+        localId: 'img-1',
+        source: 'draft',
+        imageId: 'img-default',
+        isDefault: true,
+        previewUrl: 'blob:default',
+        publicUrl: '',
+        uploading: false,
+        draftStatus: 'confirmed',
+        uploadSessionId: 'session-1',
+      },
+    ]);
+    component.draftUploadSessionId.set('session-1');
+
+    await component.guardar();
+
+    expect(lodgingsCrudMock.save).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        targetOwnerId: '65d8d3b4a91f4c2e8b7a1f3c',
+        uploadSessionId: 'session-1',
+        pendingImageIds: ['img-default'],
+      }),
+    );
   });
 });
