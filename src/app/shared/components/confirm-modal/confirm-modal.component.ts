@@ -2,7 +2,6 @@ import { Component, inject, Input } from '@angular/core';
 import {
   ModalController,
   IonHeader,
-  IonFooter,
   IonToolbar,
   IonIcon,
   IonButton,
@@ -20,7 +19,6 @@ import { alertCircleOutline, close } from 'ionicons/icons';
     IonButton,
     IonIcon,
     IonToolbar,
-    IonFooter,
     IonHeader,
   ],
   templateUrl: './confirm-modal.component.html',
@@ -28,7 +26,8 @@ import { alertCircleOutline, close } from 'ionicons/icons';
 })
 export class ConfirmModalComponent {
   @Input({ required: true }) title = '';
-  @Input({ required: true }) text = '';
+  @Input() text = '';
+  @Input() itemLabel = '';
   @Input() confirmLabel = 'Confirmar';
   @Input() cancelLabel = 'Cancelar';
   @Input() color: 'primary' | 'danger' | 'warning' = 'primary';
@@ -38,6 +37,20 @@ export class ConfirmModalComponent {
 
   constructor() {
     addIcons({ close, alertCircleOutline });
+  }
+
+  get bodyText(): string {
+    const text = this.text.trim();
+    if (text) {
+      return text;
+    }
+
+    const itemLabel = this.itemLabel.trim();
+    if (itemLabel) {
+      return `Desea eliminar el elemento ${itemLabel}.`;
+    }
+
+    return 'Desea eliminar el elemento seleccionado.';
   }
 
   onConfirm() {

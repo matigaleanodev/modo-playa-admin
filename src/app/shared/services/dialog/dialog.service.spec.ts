@@ -33,8 +33,8 @@ describe('DialogService', () => {
     modalControllerMock.create.and.resolveTo(modalMock);
 
     const confirmed = await service.confirm({
-      title: 'Confirmar eliminar',
-      text: 'Desea eliminar el elemento',
+      title: 'Eliminar elemento',
+      itemLabel: 'Casa Azul',
       confirmLabel: 'Eliminar',
       cancelLabel: 'Volver',
       color: 'danger',
@@ -46,8 +46,9 @@ describe('DialogService', () => {
       jasmine.objectContaining({
         cssClass: 'app-confirm-modal',
         componentProps: jasmine.objectContaining({
-          title: 'Confirmar eliminar',
-          text: 'Desea eliminar el elemento',
+          title: 'Eliminar elemento',
+          text: '',
+          itemLabel: 'Casa Azul',
           confirmLabel: 'Eliminar',
           cancelLabel: 'Volver',
           color: 'danger',
@@ -67,13 +68,14 @@ describe('DialogService', () => {
 
     const confirmed = await service.confirm({
       title: 'Salir',
-      text: 'Hay cambios sin guardar',
     });
 
     expect(confirmed).toBeFalse();
     expect(modalControllerMock.create).toHaveBeenCalledWith(
       jasmine.objectContaining({
         componentProps: jasmine.objectContaining({
+          text: '',
+          itemLabel: '',
           confirmLabel: 'Confirmar',
           cancelLabel: 'Cancelar',
           color: 'primary',

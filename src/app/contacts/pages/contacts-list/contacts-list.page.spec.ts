@@ -9,11 +9,14 @@ describe('ContactsListPage', () => {
   let component: ContactsListPage;
   let fixture: ComponentFixture<ContactsListPage>;
   let resourceMock: ReturnType<typeof createResourceMock>;
+  let dialogMock: jasmine.SpyObj<DialogService>;
 
   beforeEach(async () => {
     stubIonMenuButton(ContactsListPage);
 
     resourceMock = createResourceMock();
+    dialogMock = jasmine.createSpyObj<DialogService>('DialogService', ['confirm']);
+    dialogMock.confirm.and.resolveTo(true);
 
     await TestBed.configureTestingModule({
       imports: [ContactsListPage],
@@ -21,7 +24,7 @@ describe('ContactsListPage', () => {
         { provide: ContactsResourceService, useValue: resourceMock },
         {
           provide: DialogService,
-          useValue: jasmine.createSpyObj<DialogService>('DialogService', ['confirm']),
+          useValue: dialogMock,
         },
       ],
     }).compileComponents();
@@ -52,6 +55,21 @@ describe('ContactsListPage', () => {
     expect(resourceMock.refresh).toHaveBeenCalled();
     expect(resourceMock.setPage).toHaveBeenCalledWith(3);
     expect(resourceMock.setLimit).toHaveBeenCalledWith(50);
+  });
+
+  it('debería pedir confirmación con el nombre del contacto antes de eliminar', async () => {
+    await component.onDelete({ id: 'c1', name: 'Inmobiliaria Norte' } as any);
+
+    expect(dialogMock.confirm).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        title: 'Eliminar elemento',
+        itemLabel: 'Inmobiliaria Norte',
+        confirmLabel: 'Eliminar',
+        color: 'danger',
+        showIcon: true,
+      }),
+    );
+    expect(resourceMock.delete).toHaveBeenCalled();
   });
 });
 
