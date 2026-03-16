@@ -1,6 +1,6 @@
 # Roadmap
 
-Estado general: in progress
+Estado general: completed
 
 Este archivo es local y operativo. Se usa para ordenar la evolucion real del admin sin mezclar deuda estructural con nuevas pantallas.
 
@@ -108,7 +108,7 @@ Done when:
 
 ## Fase 3 - DX, testing, observabilidad y documentacion
 
-Estado: in progress
+Estado: completed
 Impact: small
 Repositorio: modo-playa-admin
 Dependencias: Fase 2
@@ -120,9 +120,9 @@ Tareas:
 
 - [x] Agregar cobertura puntual sobre forms complejos, modales de confirmacion y servicios de dialogo
 - [x] Agregar una smoke suite owner sobre login, contactos, perfil y disponibilidad contra API local
-- [ ] Documentar convenciones de `core`, `shared` y features para nuevos modulos
-- [ ] Registrar decisiones de auth/session/storage y ownership con `modo-playa-api`
-- [ ] Documentar el patron canonico de media del admin y sus estados de UI esperados para `lodgings` y `profile`
+- [x] Documentar convenciones de `core`, `shared` y features para nuevos modulos
+- [x] Registrar decisiones de auth/session/storage y ownership con `modo-playa-api`
+- [x] Documentar el patron canonico de media del admin y sus estados de UI esperados para `lodgings` y `profile`
 - [x] Agregar cobertura sobre uploads pendientes, expiracion y reintento en `lodgings` y `profile`
 
 Done when:
@@ -480,3 +480,14 @@ Validacion cerrada:
 
 - `npx ng test --watch=false --browsers=ChromeHeadless --configuration=ci --include="src/app/lodgings/pages/lodgings-form/lodgings-form.page.spec.ts" --include="src/app/profile/pages/profile-view/profile-view.page.spec.ts"`
 - `npm run lint`
+
+## Avance operativo - Documentacion de arquitectura y ownership 2026-03-16
+
+Estado: completed
+
+Trabajo cerrado:
+
+- se agrega una guia tecnica bilingue del repo para `core`, `shared` y features
+- quedan documentadas las reglas vigentes de `auth`, `session`, `storage` y ownership en linea con `modo-playa-api`
+- queda documentado el patron canonico de media y los estados de UI esperados para `lodgings` y `profile`
+- `README` y `DEVELOPMENT` enlazan la guia nueva para que no quede aislada del flujo operativo

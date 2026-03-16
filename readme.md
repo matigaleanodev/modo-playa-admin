@@ -67,3 +67,7 @@ El contrato canónico de media del admin es `backend-only`.
 Para instrucciones de instalación y ejecución en entorno local:
 
 👉 [DEVELOPMENT.md](./DEVELOPMENT.md)
+
+Para convenciones técnicas de módulos, ownership, sesión y media:
+
+👉 [ARCHITECTURE.es.md](./ARCHITECTURE.es.md)
