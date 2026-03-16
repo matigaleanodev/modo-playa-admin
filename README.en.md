@@ -67,3 +67,7 @@ The canonical admin media contract is `backend-only`.
 For local setup and development instructions:
 
 👉 [DEVELOPMENT.en.md](./DEVELOPMENT.en.md)
+
+For stable technical conventions around modules, session, ownership, and media:
+
+👉 [ARCHITECTURE.md](./ARCHITECTURE.md)

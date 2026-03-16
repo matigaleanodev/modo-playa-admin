@@ -46,10 +46,36 @@
                   Quitar
                 </button>
               }
+
+              @if (hasPendingProfileRetry()) {
+                <button
+                  type="button"
+                  class="profile-btn profile-btn--warning profile-btn--small"
+                  [disabled]="imageBusy()"
+                  (click)="retryPendingProfileImage()"
+                >
+                  Reintentar upload
+                </button>
+
+                <button
+                  type="button"
+                  class="profile-btn profile-btn--ghost-danger profile-btn--small"
+                  [disabled]="imageBusy()"
+                  (click)="discardPendingProfileImage()"
+                >
+                  Descartar pendiente
+                </button>
+              }
             </div>
           } @else {
             <p class="profile-hero__avatar-note">
               `SUPERADMIN` no administra profile image desde `auth/me/profile-image`.
+            </p>
+          }
+
+          @if (hasPendingProfileRetry()) {
+            <p class="profile-hero__avatar-note">
+              La última imagen quedó pendiente por error. Puedes reintentarla sin volver a seleccionarla.
             </p>
           }
         </div>

@@ -74,6 +74,7 @@ Optional variables:
 
 - `E2E_API_URL` defaults to `http://localhost:3000/api`
 - `E2E_PORT` defaults to `4301`
+- `E2E_SUPERADMIN_IDENTIFIER`, `E2E_SUPERADMIN_PASSWORD`, and `E2E_TARGET_OWNER_ID` for the support smoke suite
 - `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` if Playwright cannot find an installed Chromium
 
 ---
@@ -132,5 +133,6 @@ The project follows a feature-based structure with:
 - The active media flow is backend-only: the admin sends `multipart/form-data` to the API and never uploads directly to the bucket
 - The admin no longer uses signed URLs or frontend-side media confirmations
 - Support-side flows must send explicit `targetOwnerId` when the backend requires creation on behalf of another owner
+- Stable module, session, ownership, and media conventions live in `ARCHITECTURE.md`
 
 ---

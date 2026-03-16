@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import {
   Component,
   ElementRef,
+  OnDestroy,
   OnInit,
   ViewChild,
   computed,
@@ -47,7 +48,7 @@ import { ProfileImageService } from '../../services/profile-image.service';
   templateUrl: './profile-view.page.html',
   styleUrls: ['./profile-view.page.scss'],
 })
-export class ProfileViewPage implements OnInit {
+export class ProfileViewPage implements OnInit, OnDestroy {
   @ViewChild('profileImageInput')
   private profileImageInputRef?: ElementRef<HTMLInputElement>;
 
@@ -64,6 +65,9 @@ export class ProfileViewPage implements OnInit {
   readonly imageBusy = signal(false);
   readonly error = signal<string | null>(null);
   readonly statusMessage = signal<string | null>(null);
+  readonly pendingProfileImageFile = signal<File | null>(null);
+  readonly pendingProfileImagePreviewUrl = signal<string | null>(null);
+  readonly pendingProfileImageStatus = signal<'idle' | 'failed'>('idle');
   readonly canManageProfileImage = computed(
     () => this.user()?.role !== 'SUPERADMIN',
   );
@@ -77,11 +81,22 @@ export class ProfileViewPage implements OnInit {
   });
 
   readonly profileImageUrl = computed(() => {
+    const pendingPreview = this.pendingProfileImagePreviewUrl();
+    if (pendingPreview) {
+      return pendingPreview;
+    }
+
     const user = this.user();
     return user?.profileImage?.url || user?.avatarUrl || this.fallbackAvatar;
   });
 
   readonly hasProfileImage = computed(() => !!this.user()?.profileImage?.url);
+  readonly hasPendingProfileRetry = computed(
+    () =>
+      !!this.pendingProfileImageFile() &&
+      this.pendingProfileImageStatus() === 'failed' &&
+      this.canManageProfileImage(),
+  );
 
   readonly initials = computed(() => {
     const user = this.user();
@@ -102,6 +117,10 @@ export class ProfileViewPage implements OnInit {
 
   ngOnInit(): void {
     void this.loadProfile();
+  }
+
+  ngOnDestroy(): void {
+    this.clearPendingProfileImageState();
   }
 
   async loadProfile(): Promise<void> {
@@ -143,20 +162,8 @@ export class ProfileViewPage implements OnInit {
       return;
     }
 
-    this.imageBusy.set(true);
-    this.error.set(null);
-    this.statusMessage.set(null);
-
-    try {
-      await this.profileImageService.uploadOwnProfileImage(file);
-      await this.refreshProfileState();
-      await this.toastr.success('Imagen de perfil actualizada.', 'Perfil');
-      this.statusMessage.set('Imagen de perfil actualizada correctamente.');
-    } catch (error) {
-      this.error.set(this.extractProfileImageError(error));
-    } finally {
-      this.imageBusy.set(false);
-    }
+    this.setPendingProfileImageFile(file);
+    await this.uploadPendingProfileImage(file);
   }
 
   async removeProfileImage(): Promise<void> {
@@ -173,6 +180,7 @@ export class ProfileViewPage implements OnInit {
 
     try {
       await this.profileImageService.deleteOwnProfileImage();
+      this.clearPendingProfileImageState();
       await this.refreshProfileState();
       await this.toastr.success('Imagen de perfil eliminada.', 'Perfil');
       this.statusMessage.set('Imagen de perfil eliminada correctamente.');
@@ -193,6 +201,21 @@ export class ProfileViewPage implements OnInit {
     this.sessionService.setCurrentUser(user);
   }
 
+  async retryPendingProfileImage(): Promise<void> {
+    const file = this.pendingProfileImageFile();
+    if (!file || this.imageBusy() || !this.canManageProfileImage()) {
+      return;
+    }
+
+    await this.uploadPendingProfileImage(file);
+  }
+
+  discardPendingProfileImage(): void {
+    this.clearPendingProfileImageState();
+    this.error.set(null);
+    this.statusMessage.set('La imagen pendiente se descartó antes de reintentar.');
+  }
+
   private extractProfileImageError(error: unknown): string {
     return resolveDomainErrorMessage(error, {
       fallback: 'No se pudo actualizar la imagen de perfil.',
@@ -201,5 +224,45 @@ export class ProfileViewPage implements OnInit {
           'SUPERADMIN no puede administrar su imagen de perfil desde este endpoint.',
       },
     });
+  }
+
+  private async uploadPendingProfileImage(file: File): Promise<void> {
+    this.imageBusy.set(true);
+    this.error.set(null);
+    this.statusMessage.set(null);
+
+    try {
+      await this.profileImageService.uploadOwnProfileImage(file);
+      await this.refreshProfileState();
+      this.clearPendingProfileImageState();
+      await this.toastr.success('Imagen de perfil actualizada.', 'Perfil');
+      this.statusMessage.set('Imagen de perfil actualizada correctamente.');
+    } catch (error) {
+      this.pendingProfileImageStatus.set('failed');
+      this.error.set(this.extractProfileImageError(error));
+    } finally {
+      this.imageBusy.set(false);
+    }
+  }
+
+  private setPendingProfileImageFile(file: File): void {
+    this.revokePendingProfileImagePreview();
+    this.pendingProfileImageFile.set(file);
+    this.pendingProfileImagePreviewUrl.set(URL.createObjectURL(file));
+    this.pendingProfileImageStatus.set('idle');
+  }
+
+  private clearPendingProfileImageState(): void {
+    this.revokePendingProfileImagePreview();
+    this.pendingProfileImageFile.set(null);
+    this.pendingProfileImageStatus.set('idle');
+  }
+
+  private revokePendingProfileImagePreview(): void {
+    const previewUrl = this.pendingProfileImagePreviewUrl();
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      this.pendingProfileImagePreviewUrl.set(null);
+    }
   }
 }

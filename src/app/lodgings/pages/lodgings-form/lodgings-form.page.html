@@ -59,9 +59,31 @@
                 predeterminada.
               </p>
             </div>
-            <span class="lodgings-images__counter">
-              {{ imagesCount() }}/5
-            </span>
+            <div class="lodgings-images__header-actions">
+              <span class="lodgings-images__counter">
+                {{ imagesCount() }}/5
+              </span>
+              @if (failedDraftImagesCount() > 0) {
+                <div class="lodgings-images__recovery-actions">
+                  <button
+                    type="button"
+                    class="lodgings-images__secondary-action"
+                    [disabled]="isUploadingImages()"
+                    (click)="retryFailedImages()"
+                  >
+                    Reintentar fallidas
+                  </button>
+                  <button
+                    type="button"
+                    class="lodgings-images__secondary-action is-danger"
+                    [disabled]="isUploadingImages()"
+                    (click)="clearFailedImages()"
+                  >
+                    Limpiar fallidas
+                  </button>
+                </div>
+              }
+            </div>
           </div>
 
           <input
@@ -111,6 +133,15 @@
             />
           }
 
+          @if (expiredDraftImagesCount() > 0) {
+            <app-feedback-panel
+              title="Hay imágenes pendientes vencidas"
+              description="La sesión pendiente expiró o quedó inválida. Reintenta las imágenes fallidas o límpialas desde este formulario."
+              tone="warning"
+              [compact]="true"
+            />
+          }
+
           @if (imageItems().length > 0) {
             <div class="lodgings-images__grid">
               @for (image of imageItems(); track trackImage($index, image)) {
@@ -144,27 +175,40 @@
                       @if (image.source === 'draft') {
                         <span
                           class="lodgings-image-card__status"
-                          [class.is-error]="image.draftStatus === 'failed'"
+                          [class.is-error]="image.draftStatus === 'failed' || image.draftStatus === 'expired'"
+                          [class.is-warning]="image.draftStatus === 'expired'"
                         >
-                          {{
-                            image.draftStatus === 'confirmed'
-                              ? 'Lista para asociar'
-                              : image.draftStatus === 'failed'
-                                ? 'Error de upload'
-                                : 'Subiendo'
-                          }}
+                          {{ getImageStatusLabel(image) }}
                         </span>
+                        @if (getImageStatusHint(image); as statusHint) {
+                          <span class="lodgings-image-card__hint">
+                            {{ statusHint }}
+                          </span>
+                        }
                       }
                     </div>
 
-                    <button
-                      type="button"
-                      class="lodgings-image-card__remove"
-                      [disabled]="image.uploading || isUploadingImages()"
-                      (click)="onRemoveImage(image)"
-                    >
-                      Quitar
-                    </button>
+                    <div class="lodgings-image-card__actions">
+                      @if (canRetryImage(image)) {
+                        <button
+                          type="button"
+                          class="lodgings-image-card__retry"
+                          [disabled]="isUploadingImages()"
+                          (click)="onRetryImage(image)"
+                        >
+                          Reintentar
+                        </button>
+                      }
+
+                      <button
+                        type="button"
+                        class="lodgings-image-card__remove"
+                        [disabled]="image.uploading || isUploadingImages()"
+                        (click)="onRemoveImage(image)"
+                      >
+                        Quitar
+                      </button>
+                    </div>
                   </div>
                 </article>
               }
