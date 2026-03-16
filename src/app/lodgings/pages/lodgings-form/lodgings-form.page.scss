@@ -64,6 +64,12 @@
   gap: 0.75rem;
 }
 
+.lodgings-images__header-actions {
+  display: grid;
+  gap: 0.5rem;
+  justify-items: end;
+}
+
 .lodgings-images__header h3 {
   margin: 0;
   font-size: 1rem;
@@ -91,6 +97,35 @@
   color: rgb(var(--ion-color-primary-rgb));
   font-weight: 700;
   font-size: 0.82rem;
+}
+
+.lodgings-images__recovery-actions {
+  display: flex;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.lodgings-images__secondary-action {
+  border: 1px solid rgba(var(--ion-color-primary-rgb), 0.14);
+  background: rgba(var(--ion-color-primary-rgb), 0.08);
+  color: rgb(var(--ion-color-primary-rgb));
+  border-radius: 999px;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.lodgings-images__secondary-action.is-danger {
+  border-color: rgba(var(--ion-color-danger-rgb), 0.14);
+  background: rgba(var(--ion-color-danger-rgb), 0.08);
+  color: rgb(var(--ion-color-danger-rgb));
+}
+
+.lodgings-images__secondary-action:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .lodgings-images__input {
@@ -237,6 +272,17 @@
   color: rgb(var(--ion-color-danger-rgb));
 }
 
+.lodgings-image-card__status.is-warning {
+  color: #b45309;
+}
+
+.lodgings-image-card__hint {
+  font-size: 0.72rem;
+  color: #64748b;
+  line-height: 1.35;
+  max-width: 16rem;
+}
+
 .lodgings-image-card__default input {
   margin: 0;
 }
@@ -250,6 +296,30 @@
   padding: 0.2rem 0.35rem;
   border-radius: 8px;
   cursor: pointer;
+}
+
+.lodgings-image-card__actions {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.lodgings-image-card__retry {
+  border: 0;
+  background: rgba(var(--ion-color-primary-rgb), 0.1);
+  color: rgb(var(--ion-color-primary-rgb));
+  font-weight: 700;
+  font-size: 0.78rem;
+  padding: 0.28rem 0.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.lodgings-image-card__retry:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .lodgings-image-card__remove:disabled {
@@ -281,6 +351,16 @@
     border-color: rgba(var(--ion-color-primary-rgb), 0.28);
     background: rgba(var(--ion-color-primary-rgb), 0.16);
     color: rgb(var(--ion-color-primary-rgb));
+  }
+
+  .lodgings-images__secondary-action {
+    border-color: rgba(var(--ion-color-primary-rgb), 0.24);
+    background: rgba(var(--ion-color-primary-rgb), 0.14);
+  }
+
+  .lodgings-images__secondary-action.is-danger {
+    border-color: rgba(var(--ion-color-danger-rgb), 0.24);
+    background: rgba(var(--ion-color-danger-rgb), 0.14);
   }
 
   .lodgings-images__dropzone {
@@ -317,6 +397,10 @@
 
   .lodgings-image-card__default {
     color: var(--ion-text-color, #e2e8f0);
+  }
+
+  .lodgings-image-card__hint {
+    color: rgba(226, 232, 240, 0.72);
   }
 
   .lodgings-image-card__pill {
@@ -364,6 +448,14 @@
 
   .lodgings-images__counter {
     align-self: flex-start;
+  }
+
+  .lodgings-images__header-actions {
+    justify-items: stretch;
+  }
+
+  .lodgings-images__recovery-actions {
+    justify-content: flex-start;
   }
 
   .lodgings-form__actions {

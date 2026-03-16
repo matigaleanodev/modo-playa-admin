@@ -361,4 +361,77 @@ describe('LodgingsFormPage', () => {
       }),
     );
   });
+
+  it('debería exponer acciones inline para imágenes draft fallidas o expiradas', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const file = new File(['img'], 'casa.png', { type: 'image/png' });
+    const expiredImage = {
+      localId: 'img-expired',
+      source: 'draft' as const,
+      isDefault: true,
+      previewUrl: 'blob:expired',
+      publicUrl: '',
+      file,
+      uploading: false,
+      draftStatus: 'expired' as const,
+      errorCode: 'LODGING_IMAGE_PENDING_EXPIRED',
+    };
+
+    expect(component.canRetryImage(expiredImage)).toBeTrue();
+    expect(component.getImageStatusLabel(expiredImage)).toBe('Pendiente expirada');
+    expect(component.getImageStatusHint(expiredImage)).toContain('Reintenta');
+
+    const failedImage = {
+      ...expiredImage,
+      localId: 'img-failed',
+      draftStatus: 'failed' as const,
+      errorCode: 'LODGING_IMAGE_INVALID_STATE',
+    };
+
+    expect(component.canRetryImage(failedImage)).toBeTrue();
+    expect(component.getImageStatusLabel(failedImage)).toBe('Error de upload');
+    expect(component.getImageStatusHint(failedImage)).toContain('quitarla');
+  });
+
+  it('debería limpiar imágenes fallidas sin salir del formulario', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const firstPreview = 'blob:first';
+    const secondPreview = 'blob:second';
+
+    component.imageItems.set([
+      {
+        localId: 'img-ok',
+        source: 'draft',
+        imageId: 'img-ok',
+        isDefault: true,
+        previewUrl: firstPreview,
+        publicUrl: '',
+        file: new File(['a'], 'ok.png', { type: 'image/png' }),
+        uploading: false,
+        draftStatus: 'confirmed',
+        uploadSessionId: 'session-1',
+      },
+      {
+        localId: 'img-failed',
+        source: 'draft',
+        isDefault: false,
+        previewUrl: secondPreview,
+        publicUrl: '',
+        file: new File(['b'], 'failed.png', { type: 'image/png' }),
+        uploading: false,
+        draftStatus: 'failed',
+        errorCode: 'LODGING_IMAGE_INVALID_STATE',
+      },
+    ]);
+    spyOn(URL, 'revokeObjectURL');
+
+    component.clearFailedImages();
+
+    expect(component.imageItems().map((image) => image.localId)).toEqual(['img-ok']);
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith(secondPreview);
+  });
 });

@@ -52,7 +52,7 @@ Done when:
 
 ## Fase 1 - Base solida y deuda tecnica
 
-Estado: in progress
+Estado: completed
 Impact: medium
 Repositorio: modo-playa-admin
 Dependencias: Fase 0
@@ -78,7 +78,7 @@ Done when:
 
 ## Fase 2 - Evolucion funcional
 
-Estado: in progress
+Estado: completed
 Impact: medium
 Repositorio: modo-playa-admin
 Dependencias: Fase 1
@@ -94,11 +94,11 @@ Tareas:
 - [x] Implementar en `profile` la gestion de imagen propia del usuario autenticado usando el patron backend-only de `auth/me/profile-image`
 - [x] Eliminar del admin cualquier flujo de media que dependa de upload directo al backend si deja de existir como contrato canonico en la API
 - [x] Asegurar que el admin no permita a un usuario owner modificar la imagen de perfil de otros usuarios del mismo owner
-- [~] Resolver estados de UI para uploads pendientes, expiracion TTL, limpieza y reintentos sin cambiar de pantalla
+- [x] Resolver estados de UI para uploads pendientes, expiracion TTL, limpieza y reintentos sin cambiar de pantalla
 - [x] Cerrar diferencias entre rutas legacy y rutas canonicas
 - [x] Validar flujos owner reales de punta a punta contra la API antes de sumar nuevas pantallas
 - [x] Reemplazar la seleccion de disponibilidad basada en `ion-datetime` por un calendario propio reutilizable con validacion visual de solapamientos
-- [ ] Validar flujos `SUPERADMIN` con `targetOwnerId` explicito cuando la operacion requiera crear recursos en nombre de un owner
+- [x] Validar flujos `SUPERADMIN` con `targetOwnerId` explicito cuando la operacion requiera crear recursos en nombre de un owner
 
 Done when:
 
@@ -108,7 +108,7 @@ Done when:
 
 ## Fase 3 - DX, testing, observabilidad y documentacion
 
-Estado: pending
+Estado: in progress
 Impact: small
 Repositorio: modo-playa-admin
 Dependencias: Fase 2
@@ -118,12 +118,12 @@ Dejar reglas y cobertura suficientes para mantener el admin sin depender de cono
 
 Tareas:
 
-- [~] Agregar cobertura puntual sobre forms complejos, modales de confirmacion y servicios de dialogo
+- [x] Agregar cobertura puntual sobre forms complejos, modales de confirmacion y servicios de dialogo
 - [x] Agregar una smoke suite owner sobre login, contactos, perfil y disponibilidad contra API local
 - [ ] Documentar convenciones de `core`, `shared` y features para nuevos modulos
 - [ ] Registrar decisiones de auth/session/storage y ownership con `modo-playa-api`
 - [ ] Documentar el patron canonico de media del admin y sus estados de UI esperados para `lodgings` y `profile`
-- [ ] Agregar cobertura sobre uploads pendientes, expiracion y reintento en `lodgings` y `profile`
+- [x] Agregar cobertura sobre uploads pendientes, expiracion y reintento en `lodgings` y `profile`
 
 Done when:
 
@@ -132,11 +132,25 @@ Done when:
 
 ## Decisiones abiertas
 
-- [ ] Definir cuando se ejecuta el renombre total de `contacs`
+- [x] Definir cuando se ejecuta el renombre total de `contacs`
+
+## Cierre operativo - Naming `contacts` 2026-03-16
+
+Estado: completed
+
+Resultado real:
+
+- la estructura versionada del repo ya opera sobre `src/app/contacts`
+- no quedan imports, alias ni rutas activas con `contacs`
+- la deuda de naming queda cerrada en este repo y deja de tratarse como decision abierta
+
+Condicion validada:
+
+- el renombre total queda absorbido por el estado actual del codigo y no requiere una migracion adicional separada
 
 ## Plan vigente - Renombre progresivo `contacs` -> `contacts` 2026-03-13
 
-Estado: accepted
+Estado: completed
 
 Objetivo:
 
@@ -279,7 +293,7 @@ Modificaciones concretas necesarias para seguir el roadmap del admin de forma in
 - [x] Mantener la edicion posterior de imagenes solo sobre el subrecurso admin vigente (`POST /images`, `default`, `delete`)
 - [x] Ajustar tests de `lodgings-form`, `dashboard` y `profile` para dejar de mockear contratos legacy
 - [x] Ocultar o deshabilitar controles de profile image cuando el usuario autenticado sea `SUPERADMIN`
-- [ ] Validar owner flow y support flow por separado para no mezclar reglas de ownership con soporte
+- [x] Validar owner flow y support flow por separado para no mezclar reglas de ownership con soporte
 - [x] Alinear manejo de errores de UI con `code` explicitos del backend en vez de depender solo de `message`
 
 Trabajo que debe continuar en este repo:
@@ -449,3 +463,20 @@ Validacion cerrada:
 - `npm run e2e:owner`
 - `npm run lint`
 - `npm run build`
+
+## Avance operativo - Uploads pendientes y reintentos 2026-03-16
+
+Estado: completed
+
+Trabajo cerrado:
+
+- `lodgings-form` expone estados inline para draft uploads confirmados, fallidos y expirados
+- el formulario permite reintentar o limpiar imagenes fallidas sin salir de pantalla
+- cuando una sesion pendiente queda invalida, la UI deja el lote listo para reintento en vez de mezclar estados ambiguos
+- `profile-view` conserva la ultima seleccion fallida para reintentarla o descartarla sin reabrir el selector
+- la cobertura unitaria agrega casos de reintento y limpieza en `lodgings-form` y `profile-view`
+
+Validacion cerrada:
+
+- `npx ng test --watch=false --browsers=ChromeHeadless --configuration=ci --include="src/app/lodgings/pages/lodgings-form/lodgings-form.page.spec.ts" --include="src/app/profile/pages/profile-view/profile-view.page.spec.ts"`
+- `npm run lint`

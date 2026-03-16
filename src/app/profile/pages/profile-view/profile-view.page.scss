@@ -163,6 +163,12 @@
   border-color: rgba(var(--ion-color-danger-rgb), 0.14);
 }
 
+.profile-btn--warning {
+  background: rgba(var(--ion-color-warning-rgb), 0.12);
+  color: rgb(var(--ion-color-warning-rgb));
+  border-color: rgba(var(--ion-color-warning-rgb), 0.2);
+}
+
 .panel-head {
   margin-bottom: 10px;
 }

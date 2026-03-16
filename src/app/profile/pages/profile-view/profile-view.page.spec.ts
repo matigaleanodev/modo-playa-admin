@@ -97,6 +97,66 @@ describe('ProfileViewPage', () => {
     expect(toastrMock.success).toHaveBeenCalled();
   });
 
+  it('debería conservar una imagen fallida para reintentarla sin reselección', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    imageMock.uploadOwnProfileImage.and.rejectWith(
+      new HttpErrorResponse({
+        status: 503,
+        error: { message: 'Fallo temporal.' },
+      }),
+    );
+
+    const file = new File(['img'], 'perfil.png', { type: 'image/png' });
+    const input = document.createElement('input');
+    Object.defineProperty(input, 'files', {
+      configurable: true,
+      value: [file],
+    });
+
+    await component.onProfileImageSelected({ target: input } as unknown as Event);
+
+    expect(component.hasPendingProfileRetry()).toBeTrue();
+    expect(component.pendingProfileImageFile()).toBe(file);
+    expect(component.error()).toBe('Fallo temporal.');
+  });
+
+  it('debería reintentar la última imagen fallida y limpiar el estado pendiente al completar', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const file = new File(['img'], 'perfil.png', { type: 'image/png' });
+    component.pendingProfileImageFile.set(file);
+    component.pendingProfileImagePreviewUrl.set('blob:perfil');
+    component.pendingProfileImageStatus.set('failed');
+    authMock.me.calls.reset();
+
+    await component.retryPendingProfileImage();
+
+    expect(imageMock.uploadOwnProfileImage).toHaveBeenCalledWith(file);
+    expect(component.hasPendingProfileRetry()).toBeFalse();
+    expect(component.pendingProfileImageFile()).toBeNull();
+    expect(authMock.me).toHaveBeenCalled();
+  });
+
+  it('debería permitir descartar una imagen pendiente fallida', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    component.pendingProfileImageFile.set(new File(['img'], 'perfil.png', { type: 'image/png' }));
+    component.pendingProfileImagePreviewUrl.set('blob:perfil');
+    component.pendingProfileImageStatus.set('failed');
+    spyOn(URL, 'revokeObjectURL');
+
+    component.discardPendingProfileImage();
+
+    expect(component.pendingProfileImageFile()).toBeNull();
+    expect(component.pendingProfileImagePreviewUrl()).toBeNull();
+    expect(component.hasPendingProfileRetry()).toBeFalse();
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:perfil');
+  });
+
   it('debería eliminar imagen de perfil y refrescar estado', async () => {
     fixture.detectChanges();
     await fixture.whenStable();

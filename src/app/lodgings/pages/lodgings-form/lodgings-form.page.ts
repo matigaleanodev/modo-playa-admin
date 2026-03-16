@@ -48,7 +48,7 @@ import { NavService } from '@shared/services/nav/nav.service';
 import { DraftLodgingImageUploadResult } from '@lodgings/services/lodging-images-admin.service';
 
 type FormImageSource = 'server' | 'draft' | 'legacy';
-type DraftImageStatus = 'uploading' | 'confirmed' | 'failed';
+type DraftImageStatus = 'uploading' | 'confirmed' | 'failed' | 'expired';
 
 interface FormLodgingImageItem {
   localId: string;
@@ -133,6 +133,20 @@ export class LodgingsFormPage
     this.imageItems().some((image) => !!image.uploading),
   );
   readonly isUploadingImages = computed(() => this.hasUploadingImages());
+  readonly failedDraftImagesCount = computed(
+    () =>
+      this.imageItems().filter(
+        (image) =>
+          image.source === 'draft' &&
+          (image.draftStatus === 'failed' || image.draftStatus === 'expired'),
+      ).length,
+  );
+  readonly expiredDraftImagesCount = computed(
+    () =>
+      this.imageItems().filter(
+        (image) => image.source === 'draft' && image.draftStatus === 'expired',
+      ).length,
+  );
   readonly currentLodgingId = computed(() => this.resource.current()?.id ?? null);
   readonly selectedDefaultImage = computed(
     () => this.imageItems().find((image) => image.isDefault) ?? null,
@@ -494,6 +508,98 @@ export class LodgingsFormPage
     }
   }
 
+  async onRetryImage(item: FormLodgingImageItem): Promise<void> {
+    this.imageError.set(null);
+
+    if (item.uploading || item.source !== 'draft' || !item.file) {
+      return;
+    }
+
+    if (this.resource.isEditMode()) {
+      await this.retryExistingImageUpload(item);
+      return;
+    }
+
+    await this.retryDraftImage(item);
+  }
+
+  clearFailedImages(): void {
+    const failedItems = this.imageItems().filter(
+      (image) =>
+        image.source === 'draft' &&
+        (image.draftStatus === 'failed' || image.draftStatus === 'expired'),
+    );
+
+    for (const image of failedItems) {
+      this.removeImageLocally(image.localId);
+    }
+
+    if (!this.imageItems().some((image) => image.source === 'draft')) {
+      this.draftUploadSessionId.set(null);
+    }
+
+    if (failedItems.length > 0 && this.imageItems().length > 0) {
+      this.imageError.set(null);
+    }
+  }
+
+  async retryFailedImages(): Promise<void> {
+    const failedItems = this.imageItems().filter(
+      (image) =>
+        image.source === 'draft' &&
+        (image.draftStatus === 'failed' || image.draftStatus === 'expired'),
+    );
+
+    for (const image of failedItems) {
+      await this.onRetryImage(image);
+    }
+  }
+
+  canRetryImage(item: FormLodgingImageItem): boolean {
+    return (
+      item.source === 'draft' &&
+      !!item.file &&
+      !item.uploading &&
+      (item.draftStatus === 'failed' || item.draftStatus === 'expired')
+    );
+  }
+
+  getImageStatusLabel(item: FormLodgingImageItem): string | null {
+    if (item.source !== 'draft') {
+      return null;
+    }
+
+    if (item.draftStatus === 'confirmed') {
+      return 'Lista para asociar';
+    }
+
+    if (item.draftStatus === 'expired') {
+      return 'Pendiente expirada';
+    }
+
+    if (item.draftStatus === 'failed') {
+      return 'Error de upload';
+    }
+
+    return 'Subiendo';
+  }
+
+  getImageStatusHint(item: FormLodgingImageItem): string | null {
+    if (item.source !== 'draft') {
+      return null;
+    }
+
+    if (item.draftStatus === 'expired') {
+      return 'La sesión pendiente venció o quedó inválida. Reintenta desde aquí.';
+    }
+
+    if (item.draftStatus === 'failed') {
+      return 'Puedes reintentar esta imagen o quitarla sin salir del formulario.';
+    }
+
+    return null;
+  }
+
   trackImage = (_index: number, item: FormLodgingImageItem) => item.localId;
 
   goToAvailability(): void {
@@ -831,12 +937,32 @@ export class LodgingsFormPage
           ? {
               ...image,
               uploading: false,
-              draftStatus: 'failed',
+              draftStatus: this.isDraftExpiredCode(errorCode) ? 'expired' : 'failed',
+              imageId: undefined,
+              uploadSessionId: undefined,
               errorCode,
             }
           : image,
       ),
     );
+  }
+
+  private markAllDraftImagesForRetry(errorCode?: string): void {
+    this.imageItems.update((items) =>
+      items.map((image) =>
+        image.source === 'draft'
+          ? {
+              ...image,
+              uploading: false,
+              draftStatus: 'expired',
+              imageId: undefined,
+              uploadSessionId: undefined,
+              errorCode,
+            }
+          : image,
+      ),
+    );
+    this.draftUploadSessionId.set(null);
   }
 
   private markDefaultLocally(localId: string): void {
@@ -892,7 +1018,8 @@ export class LodgingsFormPage
     const uploadSessionId = this.ensureDraftUploadSessionId();
 
     for (const item of items) {
-      if (!item.file) {
+      const currentItem = this.imageItems().find((image) => image.localId === item.localId);
+      if (!currentItem?.file) {
         this.markDraftImageFailed(item.localId);
         continue;
       }
@@ -902,11 +1029,16 @@ export class LodgingsFormPage
       try {
         const result = await this._lodgingImages.uploadDraftImage(
           uploadSessionId,
-          item.file,
+          currentItem.file,
         );
         this.markDraftImageUploaded(item.localId, result);
       } catch (error) {
-        this.markDraftImageFailed(item.localId, this.extractErrorCode(error));
+        const errorCode = this.extractErrorCode(error);
+        if (this.shouldResetDraftSession(errorCode)) {
+          this.markAllDraftImagesForRetry(errorCode);
+        } else {
+          this.markDraftImageFailed(item.localId, errorCode);
+        }
         this.imageError.set(this.extractDraftUploadError(error));
       }
     }
@@ -958,6 +1090,47 @@ export class LodgingsFormPage
     const next = this.createUploadSessionId();
     this.draftUploadSessionId.set(next);
     return next;
+  }
+
+  private async retryDraftImage(item: FormLodgingImageItem): Promise<void> {
+    if (!item.file) {
+      return;
+    }
+
+    const uploadSessionId = this.ensureDraftUploadSessionId();
+    this.setImageUploading(item.localId, true);
+
+    try {
+      const result = await this._lodgingImages.uploadDraftImage(uploadSessionId, item.file);
+      this.markDraftImageUploaded(item.localId, result);
+      this.imageError.set(null);
+    } catch (error) {
+      const errorCode = this.extractErrorCode(error);
+      if (this.shouldResetDraftSession(errorCode)) {
+        this.markAllDraftImagesForRetry(errorCode);
+      } else {
+        this.markDraftImageFailed(item.localId, errorCode);
+      }
+      this.imageError.set(this.extractDraftUploadError(error));
+    }
+  }
+
+  private async retryExistingImageUpload(item: FormLodgingImageItem): Promise<void> {
+    const lodgingId = this.resource.current()?.id;
+    if (!lodgingId || !item.file) {
+      return;
+    }
+
+    this.setImageUploading(item.localId, true);
+
+    try {
+      const uploaded = await this._lodgingImages.uploadImage(lodgingId, item.file);
+      this.replaceLocalWithServerImage(item.localId, uploaded);
+      this.imageError.set(null);
+    } catch (error) {
+      this.markDraftImageFailed(item.localId, this.extractErrorCode(error));
+      this.imageError.set(this.extractExistingImageError(error));
+    }
   }
 
   private createUploadSessionId(): string {
@@ -1025,6 +1198,19 @@ export class LodgingsFormPage
 
   private extractErrorCode(error: unknown) {
     return getHttpErrorCode(error);
+  }
+
+  private shouldResetDraftSession(errorCode?: string): boolean {
+    return (
+      errorCode === 'INVALID_UPLOAD_SESSION_ID' ||
+      errorCode === 'LODGING_IMAGE_PENDING_EXPIRED' ||
+      errorCode === 'LODGING_IMAGE_PENDING_NOT_FOUND' ||
+      errorCode === 'LODGING_IMAGE_INVALID_STATE'
+    );
+  }
+
+  private isDraftExpiredCode(errorCode?: string): boolean {
+    return this.shouldResetDraftSession(errorCode);
   }
 
   private syncTargetOwnerField(): void {
