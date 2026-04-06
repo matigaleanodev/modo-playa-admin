@@ -47,8 +47,8 @@
 
         <header class="lodging-card__header">
           <h3>{{ item.title }}</h3>
-          <span class="lodging-card__badge" [class.inactive]="item.active === false">
-            {{ item.active === false ? 'Inactivo' : 'Activo' }}
+          <span class="lodging-card__badge" [class.inactive]="item.isPubliclyVisible === false">
+            {{ item.isPubliclyVisible === false ? 'Oculto' : 'Visible' }}
           </span>
         </header>
 

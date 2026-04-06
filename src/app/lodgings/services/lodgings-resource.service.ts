@@ -125,7 +125,7 @@ export class LodgingsResourceService extends ResourceService<
       mainImage: data.mainImage.trim(),
       images,
       contactId: data.contactId ? data.contactId.trim() : null,
-      active: !!data.active,
+      isPubliclyVisible: !!data.isPubliclyVisible,
     };
   }
 

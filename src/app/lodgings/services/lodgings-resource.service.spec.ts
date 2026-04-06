@@ -60,7 +60,7 @@ describe('LodgingsResourceService', () => {
       bathrooms: 1,
       minNights: 2,
       amenities: ['wifi'],
-      active: true,
+      isPubliclyVisible: true,
     };
 
     crudMock.save.and.returnValue(of(created));
@@ -84,7 +84,7 @@ describe('LodgingsResourceService', () => {
       amenities: ['wifi', '' as unknown as any],
       images: ['  a.jpg ', '  '],
       contactId: '  cont_1 ',
-      active: 1 as unknown as boolean,
+      isPubliclyVisible: 1 as unknown as boolean,
     };
 
     delete (newPayload as Partial<Lodging>).id;
@@ -105,7 +105,7 @@ describe('LodgingsResourceService', () => {
     expect(payload.images).toEqual(['a.jpg']);
     expect(payload).not.toEqual(jasmine.objectContaining({ occupiedRanges: jasmine.anything() }));
     expect(payload.contactId).toBe('cont_1');
-    expect(payload.active).toBeTrue();
+    expect(payload.isPubliclyVisible).toBeTrue();
 
     expect(crudMock.find).toHaveBeenCalled();
     expect(navMock.root).toHaveBeenCalledWith('/app/lodgings');
@@ -131,7 +131,7 @@ describe('LodgingsResourceService', () => {
       bedrooms: 2,
       bathrooms: 1,
       minNights: 3,
-      active: true,
+      isPubliclyVisible: true,
     };
     const updated = { ...current, title: 'Nuevo título' };
 
@@ -166,7 +166,7 @@ describe('LodgingsResourceService', () => {
       bathrooms: '1,4' as unknown as number,
       minNights: '3,8' as unknown as number,
       distanceToBeach: '250,9' as unknown as number,
-      active: true,
+      isPubliclyVisible: true,
     });
 
     expect(normalized.price).toBe(100.5);
@@ -191,7 +191,7 @@ describe('LodgingsResourceService', () => {
       bathrooms: 'abc' as unknown as number,
       minNights: 'abc' as unknown as number,
       distanceToBeach: 'abc' as unknown as number,
-      active: true,
+      isPubliclyVisible: true,
     });
 
     expect(normalized.price).toBe(0);
