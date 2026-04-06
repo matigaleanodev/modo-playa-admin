@@ -184,7 +184,7 @@ describe('LodgingsFormPage', () => {
       contactId: 'c-default',
       distanceToBeach: null,
       amenities: [],
-      active: true,
+      isPubliclyVisible: true,
       targetOwnerId: null,
     });
     component.imageItems.set([
@@ -257,7 +257,7 @@ describe('LodgingsFormPage', () => {
       contactId: 'c-default',
       distanceToBeach: null,
       amenities: [],
-      active: true,
+      isPubliclyVisible: true,
       targetOwnerId: null,
     });
     component.imageItems.set([
@@ -333,7 +333,7 @@ describe('LodgingsFormPage', () => {
       contactId: 'c-default',
       distanceToBeach: null,
       amenities: [],
-      active: true,
+      isPubliclyVisible: true,
       targetOwnerId: '65d8d3b4a91f4c2e8b7a1f3c',
     });
     component.imageItems.set([

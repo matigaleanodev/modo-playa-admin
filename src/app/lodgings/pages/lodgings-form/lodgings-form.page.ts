@@ -324,9 +324,9 @@ export class LodgingsFormPage
     },
     {
       type: 'boolean',
-      key: 'active',
-      label: 'Estado',
-      helper: 'Visible en el sistema',
+      key: 'isPubliclyVisible',
+      label: 'Visibilidad pública',
+      helper: 'Determina si el alojamiento aparece en la app pública',
       columns: 4,
     },
     {

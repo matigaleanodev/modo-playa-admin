@@ -56,7 +56,7 @@ export interface Lodging extends BaseEntity {
   mediaImages?: LodgingMediaImage[];
   occupiedRanges?: AvailabilityRange[];
   contactId?: string | null;
-  active: boolean;
+  isPubliclyVisible: boolean;
 }
 
 export type LodgingSaveDto = Omit<Lodging, 'id'>;
@@ -81,6 +81,6 @@ export function createEmptyLodging(): Lodging {
     images: [],
     mediaImages: [],
     contactId: null,
-    active: true,
+    isPubliclyVisible: true,
   };
 }
